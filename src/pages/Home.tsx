@@ -111,32 +111,35 @@ export function Home() {
       {/* Map section */}
       <MapZones />
 
-      {/* Teachers section — split layout */}
-      <section className="bg-[#F4EFE4] py-24 overflow-hidden">
-        <div className="flex flex-col lg:flex-row gap-12 items-start">
+      {/* Teachers section */}
+      <section className="bg-[#F4EFE4] pt-24 pb-12 overflow-hidden">
 
-          {/* Título — izquierda con padding normal */}
-          <motion.div
-            className="px-6 lg:pl-[max(1.5rem,calc((100vw-80rem)/2+1.5rem))] lg:pr-0 lg:w-72 xl:w-80 shrink-0 pt-2"
-            variants={fadeUp}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-80px" }}
-          >
+        {/* Header arriba, centrado con max-width */}
+        <motion.div
+          className="max-w-7xl mx-auto px-6 mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6"
+          variants={fadeUp}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-80px" }}
+        >
+          <div>
             <p className="text-xs font-bold tracking-widest text-[#98A77C] uppercase mb-3">Directorio</p>
-            <h2 className="text-4xl md:text-5xl font-serif font-light text-[#1C3829] mb-4 leading-tight">
-              Profesionales<br /><span className="italic">destacados</span>
+            <h2 className="text-4xl md:text-5xl font-serif font-light text-[#1C3829] leading-tight">
+              Profesionales <span className="italic">destacados</span>
             </h2>
-            <p className="text-[#5D5D5D] text-sm leading-relaxed mb-6">
-              Descubrí profes verificados en tu zona. Leé reseñas y reservá.
+          </div>
+          <div className="flex items-center gap-6">
+            <p className="text-[#5D5D5D] text-sm max-w-xs leading-relaxed hidden md:block">
+              Descubrí profes verificados en tu zona. Leé reseñas y reservá tu próxima sesión.
             </p>
-            <a href="/directorio" className="inline-flex items-center gap-2 text-sm font-semibold text-[#1C3829] hover:text-[#98A77C] transition-colors">
+            <a href="/directorio" className="shrink-0 inline-flex items-center gap-2 text-sm font-semibold text-[#1C3829] hover:text-[#98A77C] transition-colors whitespace-nowrap">
               Ver todos <ArrowRight className="w-4 h-4" />
             </a>
-          </motion.div>
+          </div>
+        </motion.div>
 
-          {/* Slider — arranca del borde del título, desborda a la derecha */}
-          <div className="flex-1 overflow-x-auto pb-6" style={{ scrollbarWidth: "none" }}>
+        {/* Slider full width pegado al borde derecho */}
+        <div className="overflow-x-auto pl-6 md:pl-[max(1.5rem,calc((100vw-80rem)/2+1.5rem))]" style={{ scrollbarWidth: "none" }}>
             <motion.div
               className="flex gap-4 pr-6"
               style={{ width: "max-content" }}
@@ -210,7 +213,6 @@ export function Home() {
               ))}
             </motion.div>
           </div>
-        </div>
       </section>
 
       {/* Pricing section — dark */}

@@ -1,44 +1,23 @@
-import { useEffect, useRef, useState } from "react";
 import { Search, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "motion/react";
-
-const HERO_VIDEOS = ["/videos/hero_1.mp4", "/videos/hero_2.mp4", "/videos/hero_3.mp4"];
 
 const container = { hidden: {}, visible: { transition: { staggerChildren: 0.14, delayChildren: 0.3 } } };
 const item = { hidden: { opacity: 0, y: 32 }, visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } } };
 
 export function Hero() {
-  const [currentIdx, setCurrentIdx] = useState(0);
-  const videoRef = useRef<HTMLVideoElement>(null);
-
-  useEffect(() => {
-    const v = videoRef.current;
-    if (!v) return;
-    // Siempre intentar play apenas el componente monta
-    v.muted = true;
-    v.play().catch(() => {
-      const retry = () => { v.play().catch(() => {}); };
-      document.addEventListener("click", retry, { once: true });
-    });
-    const onEnded = () => setCurrentIdx(i => (i + 1) % HERO_VIDEOS.length);
-    v.addEventListener("ended", onEnded);
-    return () => v.removeEventListener("ended", onEnded);
-  }, [currentIdx]);
-
   return (
     <section className="relative w-full min-h-screen flex items-center justify-center bg-[#1C3829] overflow-hidden">
-      {/* Video — siempre visible, key fuerza remount al cambiar src */}
       <video
-        key={currentIdx}
-        ref={videoRef}
-        src={HERO_VIDEOS[currentIdx]}
-        muted
-        playsInline
         autoPlay
+        muted
+        loop
+        playsInline
         preload="auto"
         className="absolute inset-0 w-full h-full object-cover"
-      />
+      >
+        <source src="/videos/hero_1.mp4" type="video/mp4" />
+      </video>
 
       <div className="absolute inset-0 bg-gradient-to-b from-[#0d1f14]/75 via-[#1C3829]/50 to-[#0d1f14]/70 z-10" />
       <div className="absolute inset-0 bg-gradient-to-r from-[#0d1f14]/60 via-transparent to-transparent z-10" />
@@ -59,7 +38,8 @@ export function Hero() {
         </motion.h1>
 
         <motion.p variants={item} className="text-base md:text-lg text-white/70 max-w-xl font-light leading-relaxed mb-10">
-          Conectá con los mejores instructores e institutos de Yoga & Pilates en Argentina. Leé opiniones reales, reservá tu lugar y equipate.
+          Conectá con los mejores instructores e institutos de Yoga & Pilates en Argentina.
+          Leé opiniones reales, reservá tu lugar y equipate.
         </motion.p>
 
         <motion.div variants={item} className="flex flex-wrap items-center gap-3">

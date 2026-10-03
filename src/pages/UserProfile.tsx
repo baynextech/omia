@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { User, Heart, MessageSquare, Camera, Edit2, Star, Save, Calendar, ShieldCheck, Sparkles, AlertCircle, CheckCircle2, Eye, DollarSign, ArrowUpRight, Mail, Phone, Check, UploadCloud, X, Plus } from "lucide-react";
+import { apiFetch } from "../lib/api";
+import { User, Heart, MessageSquare, Camera, Edit2, Star, Save, Calendar, ShieldCheck, Sparkles, AlertCircle, CheckCircle2, Eye, DollarSign, ArrowUpRight, Mail, Phone, Check, UploadCloud, X, Plus, TrendingUp, LayoutDashboard } from "lucide-react";
 import { TeacherCard, Teacher } from "../components/TeacherCard";
 import { useFavorites } from "../hooks/useFavorites";
 import { Link, useSearchParams } from "react-router-dom";
@@ -114,7 +115,7 @@ export function UserProfile() {
   const [saveLandingSuccess, setSaveLandingSuccess] = useState(false);
   
   const { favorites } = useFavorites();
-  const { token, isAuthenticated, profile: authProfile } = useAuth();
+  const { token, isAuthenticated, profile: authProfile, logout } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -128,12 +129,12 @@ export function UserProfile() {
     try {
       const headers = { Authorization: `Bearer ${token}` };
       const [profileRes, teachersRes, reviewsRes, bookingsRes, visitedRes, statsRes] = await Promise.all([
-        fetch("/api/user/profile", { headers }),
-        fetch("/api/teachers?location=Todos"),
-        fetch("/api/user/reviews", { headers }),
-        fetch("/api/user/bookings", { headers }),
-        fetch("/api/user/visited", { headers }),
-        fetch("/api/user/teacher-stats", { headers })
+        apiFetch("/api/user/profile", { headers }),
+        apiFetch("/api/teachers?location=Todos"),
+        apiFetch("/api/user/reviews", { headers }),
+        apiFetch("/api/user/bookings", { headers }),
+        apiFetch("/api/user/visited", { headers }),
+        apiFetch("/api/user/teacher-stats", { headers })
       ]);
 
       const profileData = await profileRes.json();
@@ -193,7 +194,7 @@ export function UserProfile() {
       if (paymentStatus === "success" && type && itemId) {
         setIsLoading(true);
         try {
-          const confirmRes = await fetch("/api/payments/confirm", {
+          const confirmRes = await apiFetch("/api/payments/confirm", {
             method: "POST",
             headers: authHeaders(),
             body: JSON.stringify({ type, itemId })
@@ -277,7 +278,7 @@ export function UserProfile() {
 
   const handleSaveProfile = async () => {
     try {
-      const res = await fetch("/api/user/profile", {
+      const res = await apiFetch("/api/user/profile", {
         method: "POST",
         headers: authHeaders(),
         body: JSON.stringify(editForm)
@@ -305,7 +306,7 @@ export function UserProfile() {
   const handlePay = async (type: "booking" | "subscription", itemId: string, title: string, price: string) => {
     setIsPayingId(itemId);
     try {
-      const response = await fetch("/api/payments/mercadopago", {
+      const response = await apiFetch("/api/payments/mercadopago", {
         method: "POST",
         headers: authHeaders(),
         body: JSON.stringify({ type, itemId, title, price })
@@ -330,7 +331,7 @@ export function UserProfile() {
     setSaveLandingSuccess(false);
 
     try {
-      const res = await fetch("/api/teachers/create-or-update", {
+      const res = await apiFetch("/api/teachers/create-or-update", {
         method: "POST",
         headers: authHeaders(),
         body: JSON.stringify(landingForm)
@@ -369,7 +370,7 @@ export function UserProfile() {
         <User className="w-16 h-16 text-[#E5E5E5]" />
         <h2 className="text-2xl font-medium text-[#2C2C2C]">Iniciá sesión para ver tu perfil</h2>
         <p className="text-[#5D5D5D] max-w-sm">Creá una cuenta o ingresá para acceder a tus reservas, favoritos y configuración.</p>
-        <Link to="/" className="px-6 py-3 bg-[#8CAE99] hover:bg-[#7a9d88] text-white rounded-full font-medium transition-colors">
+        <Link to="/" className="px-6 py-3 bg-[#98A77C] hover:bg-[#88976C] text-white rounded-sm font-medium transition-colors">
           Volver al inicio
         </Link>
       </div>
@@ -379,132 +380,83 @@ export function UserProfile() {
   if (isLoading) {
     return (
       <div className="py-24 px-6 max-w-7xl mx-auto flex justify-center items-center h-[60vh]">
-        <div className="w-8 h-8 border-4 border-[#8CAE99]/30 border-t-[#8CAE99] rounded-full animate-spin" />
+        <div className="w-8 h-8 border-4 border-[#98A77C]/30 border-t-[#98A77C] rounded-sm animate-spin" />
       </div>
     );
   }
 
   const isTeacherOrInstitute = profile.role === "profesor" || profile.role === "instituto";
 
+  const TABS_FOR_ROLE = isTeacherOrInstitute ? [
+    { id: "perfil", label: "Mi Perfil", icon: User },
+    { id: "stats", label: "Estadísticas", icon: TrendingUp },
+    { id: "landing", label: "Mi Página", icon: LayoutDashboard },
+    { id: "bookings", label: "Reservas", icon: Calendar },
+    { id: "reseñas", label: "Reseñas", icon: Star },
+    { id: "premium", label: "Plan Premium", icon: Sparkles },
+  ] : [
+    { id: "perfil", label: "Mi Perfil", icon: User },
+    { id: "bookings", label: "Mis Reservas", icon: Calendar },
+    { id: "favoritos", label: "Favoritos", icon: Heart },
+    { id: "visited", label: "Visitados", icon: Eye },
+    { id: "reseñas", label: "Mis Reseñas", icon: Star },
+  ];
+
   return (
-    <div className="py-12 px-6 max-w-7xl mx-auto min-h-[80vh] flex flex-col md:flex-row gap-12">
-      {/* Sidebar Navigation */}
-      <div className="w-full md:w-64 shrink-0">
-        <div className="bg-[#FDFBF7] rounded-3xl border border-[#E5E5E5] p-6 sticky top-28 shadow-sm">
-          <div className="flex flex-col items-center text-center mb-8">
-            <div className="relative mb-4 group w-24 h-24">
-              <img 
-                src={profile.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.name)}&background=8CAE99&color=fff`} 
-                alt={profile.name} 
-                className="w-full h-full rounded-full object-cover border-4 border-white shadow-sm"
-              />
-              {profile.isPremium && (
-                <span className="absolute -bottom-1 right-1 bg-[#8CAE99] text-white p-1 rounded-full text-xs font-bold flex items-center justify-center border-2 border-white" title="Usuario Premium">
-                  <Sparkles className="w-3.5 h-3.5" />
-                </span>
-              )}
-            </div>
-            <div className="flex flex-col items-center gap-1 mb-1">
-              <h2 className="font-medium text-[#2C2C2C] text-lg leading-tight">{profile.name}</h2>
-              <div className="flex items-center gap-1.5 mt-1">
-                <span className="text-[11px] bg-black/5 text-[#5D5D5D] font-medium px-2.5 py-0.5 rounded-full capitalize">
-                  {profile.role === "alumno" ? "Alumno" : profile.role === "profesor" ? "Profesor" : "Instituto"}
-                </span>
-                {profile.isPremium && (
-                  <span className="text-[11px] bg-[#8CAE99]/15 text-[#8CAE99] font-semibold px-2.5 py-0.5 rounded-full capitalize">
-                    {profile.plan !== "ninguno" ? `${profile.plan}` : "Pro"}
-                  </span>
-                )}
-              </div>
-            </div>
-            <p className="text-[#5D5D5D] text-xs truncate w-full mt-2">{profile.email}</p>
-          </div>
-
-          <nav className="flex flex-col gap-2">
-            <button 
-              onClick={() => setActiveTab("perfil")}
-              className={`flex items-center gap-3 w-full p-3 rounded-2xl transition-colors font-medium text-sm ${
-                activeTab === "perfil" ? "bg-[#8CAE99] text-white" : "text-[#5D5D5D] hover:bg-black/5 hover:text-[#2C2C2C]"
-              }`}
-            >
-              <User className="w-4 h-4" /> Mis Datos
-            </button>
-
-            {/* Vistas específicas de Alumno */}
-            {!isTeacherOrInstitute ? (
-              <>
-                <button 
-                  onClick={() => setActiveTab("bookings")}
-                  className={`flex items-center gap-3 w-full p-3 rounded-2xl transition-colors font-medium text-sm ${
-                    activeTab === "bookings" ? "bg-[#8CAE99] text-white" : "text-[#5D5D5D] hover:bg-black/5 hover:text-[#2C2C2C]"
-                  }`}
-                >
-                  <Calendar className="w-4 h-4" /> Mis Reservas
-                </button>
-                <button 
-                  onClick={() => setActiveTab("favoritos")}
-                  className={`flex items-center gap-3 w-full p-3 rounded-2xl transition-colors font-medium text-sm ${
-                    activeTab === "favoritos" ? "bg-[#8CAE99] text-white" : "text-[#5D5D5D] hover:bg-black/5 hover:text-[#2C2C2C]"
-                  }`}
-                >
-                  <Heart className="w-4 h-4" /> Mis Favoritos
-                </button>
-                <button 
-                  onClick={() => setActiveTab("visited")}
-                  className={`flex items-center gap-3 w-full p-3 rounded-2xl transition-colors font-medium text-sm ${
-                    activeTab === "visited" ? "bg-[#8CAE99] text-white" : "text-[#5D5D5D] hover:bg-black/5 hover:text-[#2C2C2C]"
-                  }`}
-                >
-                  <Eye className="w-4 h-4" /> Profesores Vistos
-                </button>
-              </>
-            ) : (
-              /* Vistas específicas de Profesor o Instituto */
-              <>
-                <button 
-                  onClick={() => setActiveTab("stats")}
-                  className={`flex items-center gap-3 w-full p-3 rounded-2xl transition-colors font-medium text-sm ${
-                    activeTab === "stats" ? "bg-[#8CAE99] text-white" : "text-[#5D5D5D] hover:bg-black/5 hover:text-[#2C2C2C]"
-                  }`}
-                >
-                  <Sparkles className="w-4 h-4" /> Estadísticas (Dashboard)
-                </button>
-                <button 
-                  onClick={() => setActiveTab("landing")}
-                  className={`flex items-center gap-3 w-full p-3 rounded-2xl transition-colors font-medium text-sm ${
-                    activeTab === "landing" ? "bg-[#8CAE99] text-white" : "text-[#5D5D5D] hover:bg-black/5 hover:text-[#2C2C2C]"
-                  }`}
-                >
-                  <ArrowUpRight className="w-4 h-4" /> Mi Landing Page
-                </button>
-                <button 
-                  onClick={() => setActiveTab("premium")}
-                  className={`flex items-center gap-3 w-full p-3 rounded-2xl transition-colors font-medium text-sm ${
-                    activeTab === "premium" ? "bg-[#8CAE99] text-white" : "text-[#5D5D5D] hover:bg-black/5 hover:text-[#2C2C2C]"
-                  }`}
-                >
-                  <ShieldCheck className="w-4 h-4" /> Mi Plan de Pauta
-                </button>
-              </>
-            )}
-
-            <button 
-              onClick={() => setActiveTab("reseñas")}
-              className={`flex items-center gap-3 w-full p-3 rounded-2xl transition-colors font-medium text-sm ${
-                activeTab === "reseñas" ? "bg-[#8CAE99] text-white" : "text-[#5D5D5D] hover:bg-black/5 hover:text-[#2C2C2C]"
-              }`}
-            >
-              <MessageSquare className="w-4 h-4" /> {isTeacherOrInstitute ? "Reseñas Recibidas" : "Mis Reseñas"}
-            </button>
-          </nav>
+    <div className="min-h-screen bg-[#f4f7f1] flex">
+      {/* SIDEBAR */}
+      <aside className="fixed left-0 top-0 h-screen w-60 bg-white border-r border-[#E5E5E5] flex flex-col z-30">
+        {/* Logo */}
+        <div className="px-6 pt-8 pb-6 border-b border-[#E5E5E5]">
+          <Link to="/" className="text-xl font-serif italic text-[#2C2C2C]">Omia</Link>
+          <p className="text-xs text-[#98A77C]/70 mt-0.5">Panel de Usuario</p>
         </div>
-      </div>
+        {/* User info */}
+        <div className="px-6 py-5 border-b border-[#E5E5E5]">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-sm bg-[#1a2a1a] flex items-center justify-center text-sm font-semibold text-white overflow-hidden shrink-0">
+              {profile.avatar ? <img src={profile.avatar} className="w-full h-full object-cover" /> : (profile.name?.[0] || profile.email?.[0] || "U").toUpperCase()}
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-[#2C2C2C] truncate">{profile.name || "Usuario"}</p>
+              <p className="text-xs text-[#98A77C]/70 truncate">{authProfile?.role || "alumno"}</p>
+            </div>
+          </div>
+        </div>
+        {/* Nav */}
+        <nav className="flex-1 px-3 py-4 space-y-1">
+          {TABS_FOR_ROLE.map(t => (
+            <button key={t.id} onClick={() => setActiveTab(t.id as any)}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all text-left ${
+                activeTab === t.id
+                  ? "bg-[#1a2a1a] text-white rounded-lg border-none"
+                  : "text-[#5D5D5D] hover:bg-[#f4f7f1] hover:text-[#2C2C2C]"
+              }`}>
+              <t.icon size={16} className="shrink-0" />
+              {t.label}
+            </button>
+          ))}
+        </nav>
+        {/* Bottom */}
+        <div className="px-6 pb-6">
+          <Link to="/" className="text-xs text-[#5D5D5D] hover:text-[#98A77C] transition-colors flex items-center gap-1.5">
+            ← Ver sitio
+          </Link>
+        </div>
+      </aside>
 
-      {/* Main Content Area */}
-      <div className="flex-grow">
+      {/* MAIN */}
+      <div className="ml-60 flex-1 min-h-screen">
+        {/* Top bar */}
+        <header className="bg-white border-b border-[#E5E5E5] px-8 py-4 sticky top-0 z-20 flex items-center justify-between">
+          <h1 className="text-lg font-light text-[#2C2C2C]">{TABS_FOR_ROLE.find(t => t.id === activeTab)?.label || "Panel"}</h1>
+          <button onClick={logout} className="text-sm text-[#5D5D5D] hover:text-red-500 transition-colors">Cerrar sesión</button>
+        </header>
+        <div className="px-8 py-6">
+
         {paymentResult && (
-          <div className="mb-8 p-5 bg-[#8CAE99]/10 border-2 border-[#8CAE99] rounded-3xl flex items-start gap-4 animate-in slide-in-from-top-5 duration-300">
-            <CheckCircle2 className="w-6 h-6 text-[#8CAE99] shrink-0 mt-0.5" />
+          <div className="mb-8 p-5 bg-[#98A77C]/10 border-2 border-[#98A77C] rounded-3xl flex items-start gap-4 animate-in slide-in-from-top-5 duration-300">
+            <CheckCircle2 className="w-6 h-6 text-[#98A77C] shrink-0 mt-0.5" />
             <div>
               <h3 className="font-semibold text-[#2C2C2C] mb-1">¡Pago Aprobado con Mercado Pago!</h3>
               <p className="text-sm text-[#5D5D5D]">{paymentResult.message}</p>
@@ -515,13 +467,35 @@ export function UserProfile() {
 
         {/* TAB 1: PERFIL */}
         {activeTab === "perfil" && (
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
-            <div className="flex justify-between items-center mb-6">
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-300 space-y-6">
+            {/* Mini stat cards */}
+            <div className="grid grid-cols-3 gap-4">
+              {[
+                { label: "Reservas totales", value: bookings.length, icon: Calendar, bars: [30,50,40,70,55,80,65,90,75,85] },
+                { label: "Favoritos", value: favoriteTeachers.length, icon: Heart, bars: [60,40,70,50,80,45,75,55,85,70] },
+                { label: "Reseñas", value: reviews.length, icon: Star, bars: [20,40,30,60,45,70,55,80,65,75] },
+              ].map(stat => (
+                <div key={stat.label} className="bg-white rounded-2xl border border-[#E5E5E5] p-5 shadow-sm">
+                  <div className="flex items-start justify-between mb-2">
+                    <p className="text-xs text-[#5D5D5D] uppercase tracking-widest font-medium">{stat.label}</p>
+                    <stat.icon size={15} className="text-[#98A77C]" />
+                  </div>
+                  <p className="text-3xl font-light text-[#2C2C2C]">{stat.value}</p>
+                  <div className="flex items-end gap-0.5 mt-3 h-8">
+                    {stat.bars.map((h, i) => (
+                      <div key={i} className="flex-1 rounded-sm bg-[#98A77C]/30" style={{height:`${h}%`}} />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex justify-between items-center">
               <h1 className="text-3xl font-light tracking-tight text-[#2C2C2C]">Perfil y Configuración</h1>
               {!isEditing ? (
                 <button 
                   onClick={() => setIsEditing(true)}
-                  className="flex items-center gap-2 px-4 py-2 bg-[#FDFBF7] border border-[#E5E5E5] hover:border-[#2C2C2C] rounded-full text-sm font-medium transition-colors text-[#2C2C2C]"
+                  className="flex items-center gap-2 px-4 py-2 bg-[#F4EFE4] border border-[#E8E0D0] hover:border-[#2C2C2C] rounded-sm text-sm font-medium transition-colors text-[#2C2C2C]"
                 >
                   <Edit2 className="w-4 h-4" /> Editar Datos
                 </button>
@@ -532,13 +506,13 @@ export function UserProfile() {
                       setIsEditing(false);
                       setEditForm(profile);
                     }}
-                    className="px-4 py-2 bg-transparent text-[#5D5D5D] hover:text-[#2C2C2C] rounded-full text-sm font-medium transition-colors"
+                    className="px-4 py-2 bg-transparent text-[#5D5D5D] hover:text-[#2C2C2C] rounded-sm text-sm font-medium transition-colors"
                   >
                     Cancelar
                   </button>
                   <button 
                     onClick={handleSaveProfile}
-                    className="flex items-center gap-2 px-4 py-2 bg-[#8CAE99] hover:bg-[#7a9d88] text-white rounded-full text-sm font-medium transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 bg-[#98A77C] hover:bg-[#88976C] text-white rounded-sm text-sm font-medium transition-colors"
                   >
                     <Save className="w-4 h-4" /> Guardar
                   </button>
@@ -546,19 +520,19 @@ export function UserProfile() {
               )}
             </div>
 
-            <div className="bg-white border border-[#E5E5E5] rounded-3xl p-8 shadow-sm">
+            <div className="bg-white border border-[#E8E0D0] rounded-3xl p-8 shadow-sm">
               <div className="flex flex-col gap-6">
                 {isEditing && (
-                  <div className="flex items-center gap-6 pb-6 border-b border-[#E5E5E5]">
+                  <div className="flex items-center gap-6 pb-6 border-b border-[#E8E0D0]">
                     <div className="relative group w-20 h-20">
                       <img 
                         src={editForm.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(editForm.name)}&background=8CAE99&color=fff`} 
                         alt="Avatar preview" 
-                        className="w-full h-full rounded-full object-cover border border-[#E5E5E5]"
+                        className="w-full h-full rounded-sm object-cover border border-[#E8E0D0]"
                       />
                       <button 
                         onClick={() => fileInputRef.current?.click()}
-                        className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="absolute inset-0 bg-black/40 rounded-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                       >
                         <Camera className="w-6 h-6 text-white" />
                       </button>
@@ -585,10 +559,10 @@ export function UserProfile() {
                         type="text" 
                         value={editForm.name}
                         onChange={e => setEditForm({...editForm, name: e.target.value})}
-                        className="w-full bg-[#FDFBF7] border border-[#E5E5E5] focus:border-[#8CAE99] focus:ring-1 focus:ring-[#8CAE99] text-[#2C2C2C] rounded-xl px-4 py-3 outline-none transition-all"
+                        className="w-full bg-[#F4EFE4] border border-[#E8E0D0] focus:border-[#98A77C] focus:ring-1 focus:ring-[#98A77C] text-[#2C2C2C] rounded-xl px-4 py-3 outline-none transition-all"
                       />
                     ) : (
-                      <p className="text-[#2C2C2C] font-medium p-3 bg-[#FDFBF7] rounded-xl border border-transparent">{profile.name}</p>
+                      <p className="text-[#2C2C2C] font-medium p-3 bg-[#F4EFE4] rounded-xl border border-transparent">{profile.name}</p>
                     )}
                   </div>
                   <div>
@@ -598,10 +572,10 @@ export function UserProfile() {
                         type="email" 
                         value={editForm.email}
                         onChange={e => setEditForm({...editForm, email: e.target.value})}
-                        className="w-full bg-[#FDFBF7] border border-[#E5E5E5] focus:border-[#8CAE99] focus:ring-1 focus:ring-[#8CAE99] text-[#2C2C2C] rounded-xl px-4 py-3 outline-none transition-all"
+                        className="w-full bg-[#F4EFE4] border border-[#E8E0D0] focus:border-[#98A77C] focus:ring-1 focus:ring-[#98A77C] text-[#2C2C2C] rounded-xl px-4 py-3 outline-none transition-all"
                       />
                     ) : (
-                      <p className="text-[#2C2C2C] font-medium p-3 bg-[#FDFBF7] rounded-xl border border-transparent">{profile.email}</p>
+                      <p className="text-[#2C2C2C] font-medium p-3 bg-[#F4EFE4] rounded-xl border border-transparent">{profile.email}</p>
                     )}
                   </div>
                 </div>
@@ -613,21 +587,21 @@ export function UserProfile() {
                       <select 
                         value={editForm.role}
                         onChange={e => setEditForm({...editForm, role: e.target.value as any})}
-                        className="w-full bg-[#FDFBF7] border border-[#E5E5E5] focus:border-[#8CAE99] focus:ring-1 focus:ring-[#8CAE99] text-[#2C2C2C] rounded-xl px-4 py-3 outline-none transition-all cursor-pointer"
+                        className="w-full bg-[#F4EFE4] border border-[#E8E0D0] focus:border-[#98A77C] focus:ring-1 focus:ring-[#98A77C] text-[#2C2C2C] rounded-xl px-4 py-3 outline-none transition-all cursor-pointer"
                       >
                         <option value="alumno">Alumno / Alumna</option>
                         <option value="profesor">Profesor / Profesora</option>
                         <option value="instituto">Instituto o Estudio de Yoga</option>
                       </select>
                     ) : (
-                      <p className="text-[#2C2C2C] font-medium p-3 bg-[#FDFBF7] rounded-xl border border-transparent capitalize">
+                      <p className="text-[#2C2C2C] font-medium p-3 bg-[#F4EFE4] rounded-xl border border-transparent capitalize">
                         {profile.role === "alumno" ? "Alumno" : profile.role === "profesor" ? "Profesor" : "Instituto"}
                       </p>
                     )}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-[#5D5D5D] mb-2">ID de Profesor Vinculado</label>
-                    <p className="text-[#5D5D5D] text-sm p-3 bg-[#FDFBF7] rounded-xl border border-transparent font-mono">
+                    <p className="text-[#5D5D5D] text-sm p-3 bg-[#F4EFE4] rounded-xl border border-transparent font-mono">
                       {profile.teacherId ? profile.teacherId : "Ninguno (Suscripción inactiva)"}
                     </p>
                   </div>
@@ -640,10 +614,10 @@ export function UserProfile() {
                       value={editForm.bio}
                       onChange={e => setEditForm({...editForm, bio: e.target.value})}
                       rows={4}
-                      className="w-full bg-[#FDFBF7] border border-[#E5E5E5] focus:border-[#8CAE99] focus:ring-1 focus:ring-[#8CAE99] text-[#2C2C2C] rounded-xl px-4 py-3 outline-none transition-all resize-none"
+                      className="w-full bg-[#F4EFE4] border border-[#E8E0D0] focus:border-[#98A77C] focus:ring-1 focus:ring-[#98A77C] text-[#2C2C2C] rounded-xl px-4 py-3 outline-none transition-all resize-none"
                     />
                   ) : (
-                    <div className="p-4 bg-[#FDFBF7] rounded-xl border border-transparent min-h-[100px]">
+                    <div className="p-4 bg-[#F4EFE4] rounded-xl border border-transparent min-h-[100px]">
                       <p className="text-[#2C2C2C]">{profile.bio || <span className="text-[#5D5D5D] italic">No hay biografía. Hacé clic en editar para agregar algo sobre vos.</span>}</p>
                     </div>
                   )}
@@ -660,9 +634,9 @@ export function UserProfile() {
             {bookings.length > 0 ? (
               <div className="flex flex-col gap-6">
                 {bookings.map((booking) => (
-                  <div key={booking.id} className="bg-white border border-[#E5E5E5] rounded-3xl p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6 hover:shadow-md transition-shadow">
+                  <div key={booking.id} className="bg-white border border-[#E8E0D0] rounded-3xl p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6 hover:shadow-md transition-shadow">
                     <div className="flex items-start gap-4">
-                      <div className="p-3.5 bg-[#8CAE99]/10 text-[#8CAE99] rounded-2xl">
+                      <div className="p-3.5 bg-[#98A77C]/10 text-[#98A77C] rounded-2xl">
                         <Calendar className="w-6 h-6" />
                       </div>
                       <div>
@@ -676,10 +650,10 @@ export function UserProfile() {
                       </div>
                     </div>
                     
-                    <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center gap-3 pt-4 md:pt-0 border-t md:border-t-0 border-[#E5E5E5]">
+                    <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center gap-3 pt-4 md:pt-0 border-t md:border-t-0 border-[#E8E0D0]">
                       <div className="flex flex-col items-start md:items-end gap-1">
                         <span className="text-xs text-[#5D5D5D]">Estado del pago:</span>
-                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                        <span className={`px-3 py-1 rounded-sm text-xs font-semibold ${
                           booking.paymentStatus === "Pagado" 
                             ? "bg-green-100 text-green-700" 
                             : "bg-yellow-100 text-yellow-700"
@@ -692,10 +666,10 @@ export function UserProfile() {
                         <button
                           onClick={() => handlePay("booking", booking.id, `Sesión con ${booking.teacherName}`, booking.price)}
                           disabled={isPayingId === booking.id}
-                          className="px-5 py-2.5 bg-[#009EE3] hover:bg-[#008CD0] text-white rounded-full text-xs font-semibold transition-colors flex items-center gap-1.5 shadow-sm disabled:opacity-50 cursor-pointer"
+                          className="px-5 py-2.5 bg-[#009EE3] hover:bg-[#008CD0] text-white rounded-sm text-xs font-semibold transition-colors flex items-center gap-1.5 shadow-sm disabled:opacity-50 cursor-pointer"
                         >
                           {isPayingId === booking.id ? (
-                            <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                            <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-sm animate-spin" />
                           ) : (
                             <>
                               <span>Pagar clase</span>
@@ -709,11 +683,11 @@ export function UserProfile() {
                 ))}
               </div>
             ) : (
-              <div className="bg-[#FDFBF7] rounded-3xl border border-[#E5E5E5] py-20 px-6 text-center flex flex-col items-center">
+              <div className="bg-[#F4EFE4] rounded-3xl border border-[#E8E0D0] py-20 px-6 text-center flex flex-col items-center">
                 <Calendar className="w-12 h-12 text-[#E5E5E5] mb-4" />
                 <h2 className="text-xl font-medium text-[#2C2C2C] mb-2">No tenés reservas todavía</h2>
                 <p className="text-[#5D5D5D] mb-6 max-w-sm mx-auto">Encontrá el profesor que mejor se adapte a tu estilo y agendá una clase.</p>
-                <Link to="/directorio" className="px-6 py-3 bg-[#8CAE99] hover:bg-[#7a9d88] text-white rounded-full font-medium transition-colors">
+                <Link to="/directorio" className="px-6 py-3 bg-[#98A77C] hover:bg-[#88976C] text-white rounded-sm font-medium transition-colors">
                   Buscar Profesores
                 </Link>
               </div>
@@ -732,11 +706,11 @@ export function UserProfile() {
                 ))}
               </div>
             ) : (
-              <div className="bg-[#FDFBF7] rounded-3xl border border-[#E5E5E5] py-20 px-6 text-center flex flex-col items-center">
+              <div className="bg-[#F4EFE4] rounded-3xl border border-[#E8E0D0] py-20 px-6 text-center flex flex-col items-center">
                 <Heart className="w-12 h-12 text-[#E5E5E5] mb-4" />
                 <h2 className="text-xl font-medium text-[#2C2C2C] mb-2">No agregaste a nadie todavía</h2>
                 <p className="text-[#5D5D5D] mb-6 max-w-sm mx-auto">Cuando encuentres profes que te gusten en el directorio, tocales el corazón para guardarlos acá.</p>
-                <Link to="/directorio" className="px-6 py-3 bg-[#8CAE99] hover:bg-[#7a9d88] text-white rounded-full font-medium transition-colors">
+                <Link to="/directorio" className="px-6 py-3 bg-[#98A77C] hover:bg-[#88976C] text-white rounded-sm font-medium transition-colors">
                   Ir al Directorio
                 </Link>
               </div>
@@ -753,17 +727,17 @@ export function UserProfile() {
             {visitedTeachers.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {visitedTeachers.map((teacher) => (
-                  <div key={teacher.id} className="bg-white border border-[#E5E5E5] rounded-3xl p-6 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between">
+                  <div key={teacher.id} className="bg-white border border-[#E8E0D0] rounded-3xl p-6 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between">
                     <div>
                       <div className="flex gap-4 items-start mb-4">
                         <img 
                           src={teacher.image} 
                           alt={teacher.name} 
-                          className="w-16 h-16 rounded-2xl object-cover border border-[#E5E5E5]"
+                          className="w-16 h-16 rounded-2xl object-cover border border-[#E8E0D0]"
                         />
                         <div>
                           <h3 className="font-semibold text-[#2C2C2C] text-lg">{teacher.name}</h3>
-                          <p className="text-sm text-[#8CAE99] font-medium">{teacher.specialty}</p>
+                          <p className="text-sm text-[#98A77C] font-medium">{teacher.specialty}</p>
                           <p className="text-xs text-[#5D5D5D] mt-0.5">{teacher.location}</p>
                         </div>
                       </div>
@@ -772,11 +746,11 @@ export function UserProfile() {
                       </p>
                     </div>
 
-                    <div className="flex flex-col gap-2.5 pt-4 border-t border-[#E5E5E5]">
+                    <div className="flex flex-col gap-2.5 pt-4 border-t border-[#E8E0D0]">
                       <div className="grid grid-cols-2 gap-2">
                         <a 
                           href={`mailto:profe_${teacher.id}@omiayoga.com?subject=Consulta sobre clases de yoga - Omia&body=Hola ${teacher.name}, vi tu perfil en Omia y quería hacerte una consulta.`}
-                          className="flex items-center justify-center gap-1.5 py-2.5 bg-[#FDFBF7] hover:bg-black/5 text-[#2C2C2C] rounded-xl text-xs font-semibold border border-[#E5E5E5] transition-all"
+                          className="flex items-center justify-center gap-1.5 py-2.5 bg-[#F4EFE4] hover:bg-black/5 text-[#2C2C2C] rounded-xl text-xs font-semibold border border-[#E8E0D0] transition-all"
                         >
                           <Mail className="w-3.5 h-3.5 text-[#5D5D5D]" />
                           <span>Enviar Mail</span>
@@ -802,11 +776,11 @@ export function UserProfile() {
                 ))}
               </div>
             ) : (
-              <div className="bg-[#FDFBF7] rounded-3xl border border-[#E5E5E5] py-20 px-6 text-center flex flex-col items-center">
+              <div className="bg-[#F4EFE4] rounded-3xl border border-[#E8E0D0] py-20 px-6 text-center flex flex-col items-center">
                 <Eye className="w-12 h-12 text-[#E5E5E5] mb-4" />
                 <h2 className="text-xl font-medium text-[#2C2C2C] mb-2">No viste ningún perfil todavía</h2>
                 <p className="text-[#5D5D5D] mb-6 max-w-sm mx-auto">Explorá los perfiles del directorio. Los profes que visites se guardarán automáticamente acá para que no los pierdas.</p>
-                <Link to="/directorio" className="px-6 py-3 bg-[#8CAE99] hover:bg-[#7a9d88] text-white rounded-full font-medium transition-colors">
+                <Link to="/directorio" className="px-6 py-3 bg-[#98A77C] hover:bg-[#88976C] text-white rounded-sm font-medium transition-colors">
                   Ver Profesores
                 </Link>
               </div>
@@ -822,12 +796,12 @@ export function UserProfile() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
               {/* Card 1: Impresiones */}
-              <div className="bg-white border border-[#E5E5E5] rounded-3xl p-6 shadow-sm">
+              <div className="bg-white border border-[#E8E0D0] rounded-3xl p-6 shadow-sm">
                 <div className="flex justify-between items-start mb-4">
-                  <span className="p-3 bg-[#8CAE99]/10 text-[#8CAE99] rounded-2xl">
+                  <span className="p-3 bg-[#98A77C]/10 text-[#98A77C] rounded-2xl">
                     <Eye className="w-5 h-5" />
                   </span>
-                  <span className="text-xs text-green-700 bg-green-100 font-semibold px-2 py-0.5 rounded-full">+12%</span>
+                  <span className="text-xs text-green-700 bg-green-100 font-semibold px-2 py-0.5 rounded-sm">+12%</span>
                 </div>
                 <p className="text-sm text-[#5D5D5D] font-medium uppercase tracking-wider">Apariciones en Búsqueda</p>
                 <h3 className="text-3xl font-mono font-bold text-[#2C2C2C] mt-1">{teacherStats.impressions}</h3>
@@ -835,12 +809,12 @@ export function UserProfile() {
               </div>
 
               {/* Card 2: Visitas directas */}
-              <div className="bg-white border border-[#E5E5E5] rounded-3xl p-6 shadow-sm">
+              <div className="bg-white border border-[#E8E0D0] rounded-3xl p-6 shadow-sm">
                 <div className="flex justify-between items-start mb-4">
                   <span className="p-3 bg-blue-50 text-blue-500 rounded-2xl">
                     <User className="w-5 h-5" />
                   </span>
-                  <span className="text-xs text-green-700 bg-green-100 font-semibold px-2 py-0.5 rounded-full">+8%</span>
+                  <span className="text-xs text-green-700 bg-green-100 font-semibold px-2 py-0.5 rounded-sm">+8%</span>
                 </div>
                 <p className="text-sm text-[#5D5D5D] font-medium uppercase tracking-wider">Visitas al Perfil</p>
                 <h3 className="text-3xl font-mono font-bold text-[#2C2C2C] mt-1">{teacherStats.visitors.length}</h3>
@@ -848,12 +822,12 @@ export function UserProfile() {
               </div>
 
               {/* Card 3: Plata ganada */}
-              <div className="bg-white border border-[#E5E5E5] rounded-3xl p-6 shadow-sm">
+              <div className="bg-white border border-[#E8E0D0] rounded-3xl p-6 shadow-sm">
                 <div className="flex justify-between items-start mb-4">
                   <span className="p-3 bg-amber-50 text-amber-600 rounded-2xl">
                     <DollarSign className="w-5 h-5" />
                   </span>
-                  <span className="text-xs text-white bg-[#8CAE99] font-semibold px-2 py-0.5 rounded-full">100% Tuyo</span>
+                  <span className="text-xs text-white bg-[#98A77C] font-semibold px-2 py-0.5 rounded-sm">100% Tuyo</span>
                 </div>
                 <p className="text-sm text-[#5D5D5D] font-medium uppercase tracking-wider">Plata Ganada (Histórico)</p>
                 <h3 className="text-3xl font-mono font-bold text-[#2C2C2C] mt-1">${teacherStats.earned.toLocaleString("es-AR")}</h3>
@@ -861,24 +835,24 @@ export function UserProfile() {
               </div>
 
               {/* Card 4: Para cobrar */}
-              <div className="bg-white border border-[#E5E5E5] rounded-3xl p-6 shadow-sm">
+              <div className="bg-white border border-[#E8E0D0] rounded-3xl p-6 shadow-sm">
                 <div className="flex justify-between items-start mb-4">
                   <span className="p-3 bg-emerald-50 text-emerald-600 rounded-2xl">
                     <ShieldCheck className="w-5 h-5" />
                   </span>
-                  <span className="text-xs text-[#2C2C2C] bg-[#FDFBF7] border border-[#E5E5E5] font-semibold px-2 py-0.5 rounded-full">Disponible</span>
+                  <span className="text-xs text-[#2C2C2C] bg-[#F4EFE4] border border-[#E8E0D0] font-semibold px-2 py-0.5 rounded-sm">Disponible</span>
                 </div>
                 <p className="text-sm text-[#5D5D5D] font-medium uppercase tracking-wider">Para Cobrar</p>
-                <h3 className="text-3xl font-mono font-bold text-[#8CAE99] mt-1">${teacherStats.pendingPayout.toLocaleString("es-AR")}</h3>
+                <h3 className="text-3xl font-mono font-bold text-[#98A77C] mt-1">${teacherStats.pendingPayout.toLocaleString("es-AR")}</h3>
                 <p className="text-xs text-[#5D5D5D] mt-2">Dinero acumulado para retirar</p>
               </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {/* Gente que vio tu perfil */}
-              <div className="lg:col-span-2 bg-white border border-[#E5E5E5] rounded-3xl p-8 shadow-sm">
+              <div className="lg:col-span-2 bg-white border border-[#E8E0D0] rounded-3xl p-8 shadow-sm">
                 <h3 className="text-xl font-medium text-[#2C2C2C] mb-6 flex items-center gap-2">
-                  <User className="w-5 h-5 text-[#8CAE99]" />
+                  <User className="w-5 h-5 text-[#98A77C]" />
                   <span>Gente que vio tu perfil</span>
                 </h3>
 
@@ -887,12 +861,12 @@ export function UserProfile() {
                     {teacherStats.visitors.map((visitor, idx) => (
                       <div key={idx} className="py-4 flex items-center justify-between first:pt-0 last:pb-0">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-[#8CAE99]/15 text-[#8CAE99] flex items-center justify-center font-bold text-sm uppercase">
+                          <div className="w-10 h-10 rounded-sm bg-[#98A77C]/15 text-[#98A77C] flex items-center justify-center font-bold text-sm uppercase">
                             {visitor.name.slice(0, 2)}
                           </div>
                           <div>
                             <p className="font-semibold text-[#2C2C2C] text-sm">{visitor.name}</p>
-                            <p className="text-xs text-[#8CAE99]">Visita registrada en Omia</p>
+                            <p className="text-xs text-[#98A77C]">Visita registrada en Omia</p>
                           </div>
                         </div>
                         <span className="text-xs text-[#5D5D5D] font-mono">
@@ -909,10 +883,10 @@ export function UserProfile() {
               </div>
 
               {/* Explicación del modelo de cobro */}
-              <div className="bg-[#FDFBF7] border border-[#E5E5E5] rounded-3xl p-8 shadow-sm flex flex-col justify-between">
+              <div className="bg-[#F4EFE4] border border-[#E8E0D0] rounded-3xl p-8 shadow-sm flex flex-col justify-between">
                 <div>
                   <h3 className="text-lg font-semibold text-[#2C2C2C] mb-4 flex items-center gap-2">
-                    <AlertCircle className="w-5 h-5 text-[#8CAE99]" />
+                    <AlertCircle className="w-5 h-5 text-[#98A77C]" />
                     <span>Modelo de Pauta Transparente</span>
                   </h3>
                   <p className="text-sm text-[#5D5D5D] leading-relaxed mb-6">
@@ -923,10 +897,10 @@ export function UserProfile() {
                     Lo único que abonás para mantener tu landing page activa y recibir tráfico continuo es la <strong>membresía fija mensual</strong>.
                   </p>
                 </div>
-                <div className="mt-8 pt-6 border-t border-[#E5E5E5]">
+                <div className="mt-8 pt-6 border-t border-[#E8E0D0]">
                   <Link 
                     to="/" 
-                    className="text-xs text-[#8CAE99] hover:underline font-semibold flex items-center gap-1"
+                    className="text-xs text-[#98A77C] hover:underline font-semibold flex items-center gap-1"
                   >
                     <span>Ver tabla de precios en la Home</span>
                     <ArrowUpRight className="w-3.5 h-3.5" />
@@ -949,7 +923,7 @@ export function UserProfile() {
                 <Link 
                   to={`/profesor/${profile.teacherId}`}
                   target="_blank"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#2C2C2C] hover:bg-black text-white text-sm font-medium rounded-full transition-colors shrink-0"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#2C2C2C] hover:bg-black text-white text-sm font-medium rounded-sm transition-colors shrink-0"
                 >
                   <span>Ver mi Landing Page</span>
                   <ArrowUpRight className="w-4 h-4" />
@@ -958,8 +932,8 @@ export function UserProfile() {
             </div>
 
             {saveLandingSuccess && (
-              <div className="mb-8 p-5 bg-green-50 border-2 border-[#8CAE99] rounded-3xl flex items-start gap-4 animate-in slide-in-from-top-5 duration-300">
-                <CheckCircle2 className="w-6 h-6 text-[#8CAE99] shrink-0 mt-0.5" />
+              <div className="mb-8 p-5 bg-green-50 border-2 border-[#98A77C] rounded-3xl flex items-start gap-4 animate-in slide-in-from-top-5 duration-300">
+                <CheckCircle2 className="w-6 h-6 text-[#98A77C] shrink-0 mt-0.5" />
                 <div>
                   <h3 className="font-semibold text-green-900 mb-1">¡Landing Page Publicada con Éxito!</h3>
                   <p className="text-sm text-green-700">
@@ -972,7 +946,7 @@ export function UserProfile() {
               </div>
             )}
 
-            <form onSubmit={handleSaveLanding} className="bg-white border border-[#E5E5E5] rounded-3xl p-8 shadow-sm flex flex-col gap-6">
+            <form onSubmit={handleSaveLanding} className="bg-white border border-[#E8E0D0] rounded-3xl p-8 shadow-sm flex flex-col gap-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-semibold text-[#5D5D5D] mb-2">Nombre del Profesor o Instituto *</label>
@@ -981,7 +955,7 @@ export function UserProfile() {
                     value={landingForm.name}
                     onChange={e => setLandingForm({...landingForm, name: e.target.value})}
                     placeholder="Ej. Estudio de Yoga Serene, Profe Lena"
-                    className="w-full bg-[#FDFBF7] border border-[#E5E5E5] focus:border-[#8CAE99] focus:ring-1 focus:ring-[#8CAE99] text-[#2C2C2C] rounded-xl px-4 py-3 outline-none transition-all"
+                    className="w-full bg-[#F4EFE4] border border-[#E8E0D0] focus:border-[#98A77C] focus:ring-1 focus:ring-[#98A77C] text-[#2C2C2C] rounded-xl px-4 py-3 outline-none transition-all"
                     required
                   />
                 </div>
@@ -992,7 +966,7 @@ export function UserProfile() {
                     value={landingForm.specialty}
                     onChange={e => setLandingForm({...landingForm, specialty: e.target.value})}
                     placeholder="Ej. Vinyasa Flow, Ashtanga, Hatha, Yin Yoga"
-                    className="w-full bg-[#FDFBF7] border border-[#E5E5E5] focus:border-[#8CAE99] focus:ring-1 focus:ring-[#8CAE99] text-[#2C2C2C] rounded-xl px-4 py-3 outline-none transition-all"
+                    className="w-full bg-[#F4EFE4] border border-[#E8E0D0] focus:border-[#98A77C] focus:ring-1 focus:ring-[#98A77C] text-[#2C2C2C] rounded-xl px-4 py-3 outline-none transition-all"
                     required
                   />
                 </div>
@@ -1004,7 +978,7 @@ export function UserProfile() {
                   <select 
                     value={landingForm.location}
                     onChange={e => setLandingForm({...landingForm, location: e.target.value})}
-                    className="w-full bg-[#FDFBF7] border border-[#E5E5E5] focus:border-[#8CAE99] focus:ring-1 focus:ring-[#8CAE99] text-[#2C2C2C] rounded-xl px-4 py-3 outline-none transition-all cursor-pointer"
+                    className="w-full bg-[#F4EFE4] border border-[#E8E0D0] focus:border-[#98A77C] focus:ring-1 focus:ring-[#98A77C] text-[#2C2C2C] rounded-xl px-4 py-3 outline-none transition-all cursor-pointer"
                     required
                   >
                     <option value="Palermo">Palermo</option>
@@ -1020,7 +994,7 @@ export function UserProfile() {
                     value={landingForm.price}
                     onChange={e => setLandingForm({...landingForm, price: e.target.value})}
                     placeholder="Ej. $8.000/clase o Gratis"
-                    className="w-full bg-[#FDFBF7] border border-[#E5E5E5] focus:border-[#8CAE99] focus:ring-1 focus:ring-[#8CAE99] text-[#2C2C2C] rounded-xl px-4 py-3 outline-none transition-all"
+                    className="w-full bg-[#F4EFE4] border border-[#E8E0D0] focus:border-[#98A77C] focus:ring-1 focus:ring-[#98A77C] text-[#2C2C2C] rounded-xl px-4 py-3 outline-none transition-all"
                     required
                   />
                 </div>
@@ -1034,7 +1008,7 @@ export function UserProfile() {
                     value={landingForm.email || ""}
                     onChange={e => setLandingForm({...landingForm, email: e.target.value})}
                     placeholder="Ej. mi.contacto@yogaestudio.com"
-                    className="w-full bg-[#FDFBF7] border border-[#E5E5E5] focus:border-[#8CAE99] focus:ring-1 focus:ring-[#8CAE99] text-[#2C2C2C] rounded-xl px-4 py-3 outline-none transition-all"
+                    className="w-full bg-[#F4EFE4] border border-[#E8E0D0] focus:border-[#98A77C] focus:ring-1 focus:ring-[#98A77C] text-[#2C2C2C] rounded-xl px-4 py-3 outline-none transition-all"
                     required
                   />
                 </div>
@@ -1045,7 +1019,7 @@ export function UserProfile() {
                     value={landingForm.phone || ""}
                     onChange={e => setLandingForm({...landingForm, phone: e.target.value})}
                     placeholder="Ej. 5491133445566 (Sólo números: código país + área + número)"
-                    className="w-full bg-[#FDFBF7] border border-[#E5E5E5] focus:border-[#8CAE99] focus:ring-1 focus:ring-[#8CAE99] text-[#2C2C2C] rounded-xl px-4 py-3 outline-none transition-all"
+                    className="w-full bg-[#F4EFE4] border border-[#E8E0D0] focus:border-[#98A77C] focus:ring-1 focus:ring-[#98A77C] text-[#2C2C2C] rounded-xl px-4 py-3 outline-none transition-all"
                     required
                   />
                 </div>
@@ -1063,8 +1037,8 @@ export function UserProfile() {
                         onClick={() => toggleAvailableDay(day)}
                         className={`px-4 py-2 rounded-xl text-xs font-semibold border transition-all ${
                           isSelected
-                            ? "bg-[#8CAE99] text-white border-[#8CAE99]"
-                            : "bg-[#FDFBF7] text-[#5D5D5D] border-[#E5E5E5] hover:border-[#8CAE99]/40"
+                            ? "bg-[#98A77C] text-white border-[#98A77C]"
+                            : "bg-[#F4EFE4] text-[#5D5D5D] border-[#E8E0D0] hover:border-[#98A77C]/40"
                         }`}
                       >
                         {day}
@@ -1081,7 +1055,7 @@ export function UserProfile() {
                   value={landingForm.image}
                   onChange={e => setLandingForm({...landingForm, image: e.target.value})}
                   placeholder="Ej. https://images.unsplash.com/..."
-                  className="w-full bg-[#FDFBF7] border border-[#E5E5E5] focus:border-[#8CAE99] focus:ring-1 focus:ring-[#8CAE99] text-[#2C2C2C] rounded-xl px-4 py-3 outline-none transition-all font-mono text-xs"
+                  className="w-full bg-[#F4EFE4] border border-[#E8E0D0] focus:border-[#98A77C] focus:ring-1 focus:ring-[#98A77C] text-[#2C2C2C] rounded-xl px-4 py-3 outline-none transition-all font-mono text-xs"
                   required
                 />
                 
@@ -1099,8 +1073,8 @@ export function UserProfile() {
                         type="button"
                         key={idx}
                         onClick={() => setLandingForm({ ...landingForm, image: preset.url })}
-                        className={`p-2 bg-[#FDFBF7] border rounded-lg text-[10px] font-medium text-left truncate transition-all ${
-                          landingForm.image === preset.url ? "border-[#8CAE99] bg-[#8CAE99]/5 font-bold" : "border-[#E5E5E5] hover:border-[#8CAE99]/30"
+                        className={`p-2 bg-[#F4EFE4] border rounded-lg text-[10px] font-medium text-left truncate transition-all ${
+                          landingForm.image === preset.url ? "border-[#98A77C] bg-[#98A77C]/5 font-bold" : "border-[#E8E0D0] hover:border-[#98A77C]/30"
                         }`}
                       >
                         {preset.label}
@@ -1111,24 +1085,24 @@ export function UserProfile() {
               </div>
 
               {/* SECCIÓN DE SUBIDA MULTI-IMAGEN CON CONVERSIÓN WEBP AUTOMÁTICA */}
-              <div className="border-t border-[#E5E5E5] pt-6">
+              <div className="border-t border-[#E8E0D0] pt-6">
                 <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 mb-4">
                   <div>
                     <label className="block text-sm font-semibold text-[#5D5D5D]">Galería de Fotos de tu Estudio o Clases (Tipo Airbnb)</label>
                     <p className="text-xs text-[#5D5D5D] mt-0.5">Sube varias fotos de alta calidad. Se optimizarán automáticamente a formato WebP.</p>
                   </div>
-                  <span className="self-start sm:self-center text-[11px] bg-[#8CAE99]/15 text-[#8CAE99] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                  <span className="self-start sm:self-center text-[11px] bg-[#98A77C]/15 text-[#98A77C] font-bold px-3 py-1 rounded-sm uppercase tracking-wider">
                     Auto-WebP Activo
                   </span>
                 </div>
 
                 {/* Grid de fotos subidadas */}
                 {(landingForm.images || []).length > 0 && (
-                  <div className="mb-6 bg-neutral-50 p-4 rounded-2xl border border-[#E5E5E5]">
+                  <div className="mb-6 bg-[#F4EFE4]/50 p-4 rounded-2xl border border-[#E8E0D0]">
                     <p className="text-xs text-[#5D5D5D] font-semibold mb-3">Tus imágenes en la Galería ({landingForm.images.length} fotos):</p>
                     <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
                       {(landingForm.images || []).map((img, idx) => (
-                        <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border border-[#E5E5E5] group/thumb bg-white">
+                        <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border border-[#E8E0D0] group/thumb bg-white">
                           <img 
                             src={img} 
                             alt={`Preview ${idx}`} 
@@ -1139,14 +1113,14 @@ export function UserProfile() {
                             <button
                               type="button"
                               onClick={() => handleRemoveGalleryImage(idx)}
-                              className="bg-red-500 hover:bg-red-600 text-white p-1.5 rounded-full shadow-md transition-transform hover:scale-110 cursor-pointer"
+                              className="bg-red-500 hover:bg-red-600 text-white p-1.5 rounded-sm shadow-md transition-transform hover:scale-110 cursor-pointer"
                               title="Eliminar foto"
                             >
                               <X className="w-4 h-4" />
                             </button>
                           </div>
                           {idx === 0 && (
-                            <span className="absolute bottom-1.5 left-1.5 bg-[#8CAE99] text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow-sm">
+                            <span className="absolute bottom-1.5 left-1.5 bg-[#98A77C] text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow-sm">
                               Portada
                             </span>
                           )}
@@ -1169,15 +1143,15 @@ export function UserProfile() {
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                     disabled={isUploadingGallery}
                   />
-                  <div className="border-2 border-dashed border-[#E5E5E5] hover:border-[#8CAE99] rounded-2xl p-8 text-center transition-all bg-[#FDFBF7] flex flex-col items-center justify-center gap-3">
+                  <div className="border-2 border-dashed border-[#E8E0D0] hover:border-[#98A77C] rounded-2xl p-8 text-center transition-all bg-[#F4EFE4] flex flex-col items-center justify-center gap-3">
                     {isUploadingGallery ? (
                       <div className="flex flex-col items-center gap-2">
-                        <div className="w-8 h-8 border-4 border-[#8CAE99]/30 border-t-[#8CAE99] rounded-full animate-spin" />
+                        <div className="w-8 h-8 border-4 border-[#98A77C]/30 border-t-[#98A77C] rounded-sm animate-spin" />
                         <p className="text-sm font-medium text-[#5D5D5D]">Optimizando y convirtiendo imágenes a WebP...</p>
                       </div>
                     ) : (
                       <>
-                        <div className="p-3 bg-white border border-[#E5E5E5] rounded-full text-[#8CAE99] shadow-sm">
+                        <div className="p-3 bg-white border border-[#E8E0D0] rounded-sm text-[#98A77C] shadow-sm">
                           <UploadCloud className="w-6 h-6" />
                         </div>
                         <div>
@@ -1197,7 +1171,7 @@ export function UserProfile() {
                   onChange={e => setLandingForm({...landingForm, bio: e.target.value})}
                   placeholder="Contanos sobre tu trayectoria, el estilo de tus clases, la dirección de tu estudio, qué tipo de alumnos recibís, etc."
                   rows={6}
-                  className="w-full bg-[#FDFBF7] border border-[#E5E5E5] focus:border-[#8CAE99] focus:ring-1 focus:ring-[#8CAE99] text-[#2C2C2C] rounded-xl px-4 py-3 outline-none transition-all resize-none text-sm"
+                  className="w-full bg-[#F4EFE4] border border-[#E8E0D0] focus:border-[#98A77C] focus:ring-1 focus:ring-[#98A77C] text-[#2C2C2C] rounded-xl px-4 py-3 outline-none transition-all resize-none text-sm"
                   required
                 />
               </div>
@@ -1205,10 +1179,10 @@ export function UserProfile() {
               <button 
                 type="submit"
                 disabled={saveLandingLoading}
-                className="w-full bg-[#2C2C2C] hover:bg-black text-white py-4 rounded-full font-semibold transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                className="w-full bg-[#2C2C2C] hover:bg-black text-white py-4 rounded-sm font-semibold transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
               >
                 {saveLandingLoading ? (
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-sm animate-spin" />
                 ) : (
                   <>
                     <Check className="w-5 h-5" />
@@ -1226,9 +1200,9 @@ export function UserProfile() {
             <h1 className="text-3xl font-light tracking-tight text-[#2C2C2C] mb-6">Mi Membresía de Pauta</h1>
             
             {profile.isPremium ? (
-              <div className="bg-[#8CAE99]/10 border-2 border-[#8CAE99] rounded-3xl p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+              <div className="bg-[#98A77C]/10 border-2 border-[#98A77C] rounded-3xl p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                 <div>
-                  <div className="flex items-center gap-2 mb-3 text-[#8CAE99]">
+                  <div className="flex items-center gap-2 mb-3 text-[#98A77C]">
                     <Sparkles className="w-6 h-6" />
                     <span className="font-semibold uppercase tracking-wider text-sm">Tu membresía fija está activa</span>
                   </div>
@@ -1239,22 +1213,22 @@ export function UserProfile() {
                     Tu suscripción se encuentra vinculada a tu cuenta. Disfrutás de visibilidad completa en el mapa de búsquedas de zona, acceso para editar tu landing page en tiempo real, recolección de estadísticas detalladas de visitas y total prioridad de recomendación en nuestro guía inteligente por IA.
                   </p>
                 </div>
-                <div className="bg-white/80 backdrop-blur border border-[#8CAE99] rounded-2xl p-4 text-center shrink-0 w-full md:w-auto">
+                <div className="bg-white/80 backdrop-blur border border-[#98A77C] rounded-2xl p-4 text-center shrink-0 w-full md:w-auto">
                   <p className="text-xs text-[#5D5D5D] font-medium uppercase tracking-wider mb-1">Estado de Facturación</p>
                   <p className="text-lg font-bold text-green-700">Abonado vía Mercado Pago</p>
                   <p className="text-xs text-[#5D5D5D] mt-1">Suscripción Mensual Activa</p>
                 </div>
               </div>
             ) : (
-              <div className="bg-white border border-[#E5E5E5] rounded-3xl p-8 shadow-sm">
+              <div className="bg-white border border-[#E8E0D0] rounded-3xl p-8 shadow-sm">
                 <div className="text-center max-w-2xl mx-auto py-8">
-                  <AlertCircle className="w-12 h-12 text-[#8CAE99] mx-auto mb-4" />
+                  <AlertCircle className="w-12 h-12 text-[#98A77C] mx-auto mb-4" />
                   <h2 className="text-2xl font-medium text-[#2C2C2C] mb-3">Pauta no activa</h2>
                   <p className="text-[#5D5D5D] mb-8 leading-relaxed">
                     Para poder publicar tu landing page, subir tus datos, imágenes y figurar en las búsquedas inteligentes del directorio de Omia, debés contar con un plan de pauta mensual activo. El cobro se realiza de forma fija sin comisiones sobre tus ventas.
                   </p>
                   
-                  <div className="p-6 bg-[#FDFBF7] rounded-3xl border border-[#E5E5E5] flex flex-col sm:flex-row justify-between items-center gap-4 text-left">
+                  <div className="p-6 bg-[#F4EFE4] rounded-3xl border border-[#E8E0D0] flex flex-col sm:flex-row justify-between items-center gap-4 text-left">
                     <div>
                       <h4 className="font-semibold text-[#2C2C2C]">Plan Destacado Pro (Más Recomendado)</h4>
                       <p className="text-xs text-[#5D5D5D] mt-0.5">Prioridad, insignia premium y estadísticas completas.</p>
@@ -1264,7 +1238,7 @@ export function UserProfile() {
                       <button
                         onClick={() => handlePay("subscription", "destacado", "Membresía Omia - Plan Destacado", "43900")}
                         disabled={isPayingId === "destacado"}
-                        className="px-5 py-3 bg-[#009EE3] hover:bg-[#008CD0] text-white rounded-full text-xs font-bold transition-all shadow-sm"
+                        className="px-5 py-3 bg-[#009EE3] hover:bg-[#008CD0] text-white rounded-sm text-xs font-bold transition-all shadow-sm"
                       >
                         Abonar Plan
                       </button>
@@ -1272,7 +1246,7 @@ export function UserProfile() {
                   </div>
 
                   <div className="mt-8 text-xs text-[#5D5D5D]">
-                    ¿Querés ver otros planes de precios? <Link to="/" className="text-[#8CAE99] font-medium hover:underline">Ir a la tabla comparativa de 3 planes en la Home.</Link>
+                    ¿Querés ver otros planes de precios? <Link to="/" className="text-[#98A77C] font-medium hover:underline">Ir a la tabla comparativa de 3 planes en la Home.</Link>
                   </div>
                 </div>
               </div>
@@ -1289,7 +1263,7 @@ export function UserProfile() {
             {reviews.length > 0 ? (
               <div className="flex flex-col gap-6">
                 {reviews.map(review => (
-                  <div key={review.id} className="bg-white border border-[#E5E5E5] rounded-3xl p-6 shadow-sm hover:shadow-md transition-shadow">
+                  <div key={review.id} className="bg-white border border-[#E8E0D0] rounded-3xl p-6 shadow-sm hover:shadow-md transition-shadow">
                     <div className="flex justify-between items-start mb-4">
                       <div>
                         <p className="text-sm text-[#5D5D5D] font-medium mb-1">
@@ -1299,23 +1273,23 @@ export function UserProfile() {
                           {[...Array(5)].map((_, i) => (
                             <Star 
                               key={i} 
-                              className={`w-4 h-4 ${i < review.rating ? "fill-[#8CAE99] text-[#8CAE99]" : "text-[#E5E5E5] fill-[#FDFBF7]"}`} 
+                              className={`w-4 h-4 ${i < review.rating ? "fill-[#98A77C] text-[#98A77C]" : "text-[#E5E5E5] fill-[#F4EFE4]"}`} 
                             />
                           ))}
                         </div>
                       </div>
-                      <span className="text-sm text-[#5D5D5D] bg-[#FDFBF7] px-3 py-1 rounded-full border border-[#E5E5E5]">
+                      <span className="text-sm text-[#5D5D5D] bg-[#F4EFE4] px-3 py-1 rounded-sm border border-[#E8E0D0]">
                         {new Date(review.date).toLocaleDateString()}
                       </span>
                     </div>
-                    <p className="text-[#2C2C2C] bg-[#FDFBF7] p-4 rounded-2xl italic">
+                    <p className="text-[#2C2C2C] bg-[#F4EFE4] p-4 rounded-2xl italic">
                       "{review.comment}"
                     </p>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="bg-[#FDFBF7] rounded-3xl border border-[#E5E5E5] py-20 px-6 text-center flex flex-col items-center">
+              <div className="bg-[#F4EFE4] rounded-3xl border border-[#E8E0D0] py-20 px-6 text-center flex flex-col items-center">
                 <MessageSquare className="w-12 h-12 text-[#E5E5E5] mb-4" />
                 <h2 className="text-xl font-medium text-[#2C2C2C] mb-2">Aún no hay reseñas registradas</h2>
                 <p className="text-[#5D5D5D] max-w-sm mx-auto">
@@ -1327,6 +1301,7 @@ export function UserProfile() {
             )}
           </div>
         )}
+        </div>
       </div>
     </div>
   );

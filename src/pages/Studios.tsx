@@ -116,7 +116,7 @@ export function Studios() {
       />
       {/* Title block */}
       <div className="mb-12">
-        <span className="text-xs font-bold tracking-widest text-[#8CAE99] uppercase mb-3 block">Estudios e Institutos Afiliados</span>
+        <span className="text-xs font-bold tracking-widest text-[#98A77C] uppercase mb-3 block">Estudios e Institutos Afiliados</span>
         <h1 className="text-4xl font-light tracking-tight text-[#2C2C2C] mb-4">
           Estudios e Institutos de Yoga & Pilates
         </h1>
@@ -134,7 +134,7 @@ export function Studios() {
             placeholder="Buscar estudio por nombre o disciplina (ej. Reformer, Hot Yoga)..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-[#FDFBF7] border border-[#E5E5E5] rounded-full pl-12 pr-6 py-4 outline-none focus:border-[#8CAE99] focus:ring-1 focus:ring-[#8CAE99] transition-all text-[#2C2C2C] shadow-sm"
+            className="w-full bg-[#F4EFE4] border border-[#E8E0D0] rounded-sm pl-12 pr-6 py-4 outline-none focus:border-[#98A77C] focus:ring-1 focus:ring-[#98A77C] transition-all text-[#2C2C2C] shadow-sm"
           />
         </div>
 
@@ -143,7 +143,7 @@ export function Studios() {
           <select 
             value={disciplineFilter}
             onChange={(e) => setDisciplineFilter(e.target.value)}
-            className="w-full appearance-none bg-[#2C2C2C] text-white border border-[#2C2C2C] rounded-full px-6 py-4 font-semibold focus:outline-none cursor-pointer shadow-sm"
+            className="w-full appearance-none bg-[#2C2C2C] text-white border border-[#2C2C2C] rounded-sm px-6 py-4 font-semibold focus:outline-none cursor-pointer shadow-sm"
           >
             {disciplines.map(disc => (
               <option key={disc} value={disc} className="bg-white text-[#2C2C2C]">
@@ -163,7 +163,7 @@ export function Studios() {
           <select 
             value={locationFilter}
             onChange={(e) => setLocationFilter(e.target.value)}
-            className="w-full appearance-none bg-[#FDFBF7] border border-[#E5E5E5] rounded-full pl-12 pr-10 py-4 font-medium focus:outline-none focus:border-[#8CAE99] focus:ring-1 focus:ring-[#8CAE99] cursor-pointer text-[#2C2C2C] shadow-sm"
+            className="w-full appearance-none bg-[#F4EFE4] border border-[#E8E0D0] rounded-sm pl-12 pr-10 py-4 font-medium focus:outline-none focus:border-[#98A77C] focus:ring-1 focus:ring-[#98A77C] cursor-pointer text-[#2C2C2C] shadow-sm"
           >
             {locations.map(loc => (
               <option key={loc} value={loc}>{loc}</option>
@@ -192,7 +192,7 @@ export function Studios() {
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.3 }}
                 key={studio.id}
-                className="bg-white border border-[#E5E5E5] rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col h-full"
+                className="bg-white border border-[#E8E0D0] rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col h-full"
               >
                 {/* Image & location tag */}
                 <div className="relative h-60 w-full overflow-hidden shrink-0">
@@ -202,8 +202,8 @@ export function Studios() {
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
                     referrerPolicy="no-referrer"
                   />
-                  <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-md text-[#2C2C2C] px-3.5 py-1 rounded-full text-xs font-semibold shadow-sm flex items-center gap-1">
-                    <MapPin className="w-3.5 h-3.5 text-[#8CAE99]" />
+                  <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-md text-[#2C2C2C] px-3.5 py-1 rounded-sm text-xs font-semibold shadow-sm flex items-center gap-1">
+                    <MapPin className="w-3.5 h-3.5 text-[#98A77C]" />
                     <span>{studio.location}</span>
                   </div>
                 </div>
@@ -213,7 +213,7 @@ export function Studios() {
                   <div>
                     <div className="flex justify-between items-start gap-4 mb-2">
                       <h3 className="text-2xl font-semibold text-[#2C2C2C] tracking-tight">{studio.name}</h3>
-                      <span className="text-xs bg-[#8CAE99]/10 text-[#8CAE99] font-bold px-3 py-1 rounded-full tracking-wider uppercase whitespace-nowrap">Verificado</span>
+                      <span className="text-xs bg-[#98A77C]/10 text-[#98A77C] font-bold px-3 py-1 rounded-sm tracking-wider uppercase whitespace-nowrap">Verificado</span>
                     </div>
 
                     <p className="text-xs text-[#5D5D5D] font-mono mb-4 flex items-center gap-1.5">
@@ -228,13 +228,13 @@ export function Studios() {
                     {/* Amenities list */}
                     <div className="mb-6">
                       <p className="text-xs font-bold text-[#2C2C2C] uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                        <Layers className="w-3.5 h-3.5 text-[#8CAE99]" />
+                        <Layers className="w-3.5 h-3.5 text-[#98A77C]" />
                         Comodidades del espacio:
                       </p>
                       <div className="flex flex-wrap gap-2">
                         {studio.amenities.map((amenity, idx) => (
-                          <span key={idx} className="bg-[#FDFBF7] border border-[#E5E5E5] text-[#5D5D5D] text-xs px-3 py-1 rounded-full flex items-center gap-1">
-                            <Sparkles className="w-3 h-3 text-[#8CAE99]" />
+                          <span key={idx} className="bg-[#F4EFE4] border border-[#E8E0D0] text-[#5D5D5D] text-xs px-3 py-1 rounded-sm flex items-center gap-1">
+                            <Sparkles className="w-3 h-3 text-[#98A77C]" />
                             {amenity}
                           </span>
                         ))}
@@ -243,7 +243,7 @@ export function Studios() {
                   </div>
 
                   {/* Footer details */}
-                  <div className="pt-6 border-t border-[#E5E5E5] flex flex-col gap-3">
+                  <div className="pt-6 border-t border-[#E8E0D0] flex flex-col gap-3">
                     <div className="flex justify-between items-center text-sm">
                       <span className="text-[#5D5D5D] flex items-center gap-1.5">
                         <Clock className="w-4 h-4 text-gray-400" />
@@ -255,13 +255,13 @@ export function Studios() {
                     <div className="flex gap-4 mt-2">
                       <a 
                         href={`tel:${studio.phone}`}
-                        className="flex-1 text-center bg-[#FDFBF7] border border-[#E5E5E5] hover:border-[#2C2C2C] text-[#2C2C2C] py-3 rounded-full text-sm font-medium transition-colors"
+                        className="flex-1 text-center bg-[#F4EFE4] border border-[#E8E0D0] hover:border-[#2C2C2C] text-[#2C2C2C] py-3 rounded-sm text-sm font-medium transition-colors"
                       >
                         Llamar
                       </a>
                       <button 
                         onClick={() => alert(`¡Gracias por tu interés en ${studio.name}! El mapa y reserva directa de pases estará habilitado pronto.`)}
-                        className="flex-1 bg-[#2C2C2C] hover:bg-black text-white py-3 rounded-full text-sm font-medium transition-colors"
+                        className="flex-1 bg-[#2C2C2C] hover:bg-black text-white py-3 rounded-sm text-sm font-medium transition-colors"
                       >
                         Ver Clases
                       </button>
@@ -272,7 +272,7 @@ export function Studios() {
             ))}
           </motion.div>
         ) : (
-          <div className="bg-[#FDFBF7] rounded-3xl border border-[#E5E5E5] py-20 px-6 text-center max-w-2xl mx-auto flex flex-col items-center">
+          <div className="bg-[#F4EFE4] rounded-3xl border border-[#E8E0D0] py-20 px-6 text-center max-w-2xl mx-auto flex flex-col items-center">
             <Compass className="w-12 h-12 text-[#E5E5E5] mb-4" />
             <h2 className="text-xl font-medium text-[#2C2C2C] mb-2">No se encontraron centros</h2>
             <p className="text-[#5D5D5D] max-w-md mx-auto">Probá cambiando la zona o escribiendo otro término de búsqueda.</p>

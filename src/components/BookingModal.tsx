@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { X, ChevronLeft, ChevronRight, Calendar as CalendarIcon } from "lucide-react";
 import { Teacher } from "./TeacherCard";
+import { apiFetch } from "../lib/api";
 
 interface BookingModalProps {
   teacher: Teacher;
@@ -55,7 +56,7 @@ export function BookingModal({ teacher, onClose, onSuccess }: BookingModalProps)
     setIsSubmitting(true);
     
     try {
-      const response = await fetch("/api/bookings", {
+      const response = await apiFetch("/api/bookings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -80,7 +81,7 @@ export function BookingModal({ teacher, onClose, onSuccess }: BookingModalProps)
       <div className="relative w-full max-w-md bg-white rounded-3xl p-8 shadow-2xl animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
         <button 
           onClick={onClose}
-          className="absolute top-6 right-6 text-[#5D5D5D] hover:text-[#2C2C2C] transition-colors p-2 rounded-full hover:bg-black/5"
+          className="absolute top-6 right-6 text-[#5D5D5D] hover:text-[#2C2C2C] transition-colors p-2 rounded-sm hover:bg-black/5"
         >
           <X className="w-5 h-5" />
         </button>
@@ -91,18 +92,18 @@ export function BookingModal({ teacher, onClose, onSuccess }: BookingModalProps)
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           <div className="flex flex-col gap-3">
             <label className="text-sm font-medium text-[#2C2C2C] flex items-center gap-2">
-              <CalendarIcon className="w-4 h-4 text-[#8CAE99]" />
+              <CalendarIcon className="w-4 h-4 text-[#98A77C]" />
               Fecha
             </label>
-            <div className="bg-[#FDFBF7] border border-[#E5E5E5] rounded-2xl p-4">
+            <div className="bg-[#F4EFE4] border border-[#E8E0D0] rounded-2xl p-4">
               <div className="flex justify-between items-center mb-4">
-                <button type="button" onClick={handlePrevMonth} className="p-1 hover:bg-[#E5E5E5] rounded-full transition-colors text-[#5D5D5D]">
+                <button type="button" onClick={handlePrevMonth} className="p-1 hover:bg-[#E5E5E5] rounded-sm transition-colors text-[#5D5D5D]">
                   <ChevronLeft className="w-5 h-5" />
                 </button>
                 <div className="font-medium text-[#2C2C2C]">
                   {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
                 </div>
-                <button type="button" onClick={handleNextMonth} className="p-1 hover:bg-[#E5E5E5] rounded-full transition-colors text-[#5D5D5D]">
+                <button type="button" onClick={handleNextMonth} className="p-1 hover:bg-[#E5E5E5] rounded-sm transition-colors text-[#5D5D5D]">
                   <ChevronRight className="w-5 h-5" />
                 </button>
               </div>
@@ -131,9 +132,9 @@ export function BookingModal({ teacher, onClose, onSuccess }: BookingModalProps)
                       type="button"
                       disabled={isPast}
                       onClick={() => handleDateSelect(day)}
-                      className={`h-8 w-full flex items-center justify-center rounded-full text-sm transition-all
+                      className={`h-8 w-full flex items-center justify-center rounded-sm text-sm transition-all
                         ${isPast ? "text-[#E5E5E5] cursor-not-allowed" : "hover:bg-[#E5E5E5]"}
-                        ${isSelected ? "bg-[#8CAE99] text-white hover:bg-[#7a9d88]" : "text-[#2C2C2C]"}
+                        ${isSelected ? "bg-[#98A77C] text-white hover:bg-[#88976C]" : "text-[#2C2C2C]"}
                       `}
                     >
                       {day}
@@ -154,8 +155,8 @@ export function BookingModal({ teacher, onClose, onSuccess }: BookingModalProps)
                   onClick={() => setTime(t)}
                   className={`py-2 px-3 rounded-xl border text-sm font-medium transition-all ${
                     time === t 
-                      ? "bg-[#8CAE99] border-[#8CAE99] text-white shadow-sm" 
-                      : "bg-[#FDFBF7] border-[#E5E5E5] text-[#5D5D5D] hover:border-[#8CAE99]"
+                      ? "bg-[#98A77C] border-[#98A77C] text-white shadow-sm" 
+                      : "bg-[#F4EFE4] border-[#E8E0D0] text-[#5D5D5D] hover:border-[#98A77C]"
                   }`}
                 >
                   {t}
@@ -167,7 +168,7 @@ export function BookingModal({ teacher, onClose, onSuccess }: BookingModalProps)
           <button 
             type="submit"
             disabled={isSubmitting || !date || !time}
-            className="w-full bg-[#2C2C2C] hover:bg-black disabled:bg-[#E5E5E5] disabled:text-[#5D5D5D] disabled:cursor-not-allowed text-white py-4 rounded-full font-medium transition-colors mt-2"
+            className="w-full bg-[#2C2C2C] hover:bg-black disabled:bg-[#E5E5E5] disabled:text-[#5D5D5D] disabled:cursor-not-allowed text-white py-4 rounded-sm font-medium transition-colors mt-2"
           >
             {isSubmitting ? "Confirmando..." : "Confirmar Reserva"}
           </button>

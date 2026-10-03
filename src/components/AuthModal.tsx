@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X, Mail, Lock, User, AlertCircle } from "lucide-react";
+import { X, Mail, Lock, User, AlertCircle, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 
 interface AuthModalProps {
@@ -16,6 +16,7 @@ export function AuthModal({ isOpen, onClose, initialMode = "login" }: AuthModalP
   const [role, setRole] = useState<"alumno" | "profesor" | "instituto">("alumno");
   const [isResetSent, setIsResetSent] = useState(false);
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const { login, register, loginWithGithub } = useAuth();
 
@@ -65,7 +66,7 @@ export function AuthModal({ isOpen, onClose, initialMode = "login" }: AuthModalP
       <div className="relative w-full max-w-md bg-white rounded-3xl p-8 shadow-2xl animate-in zoom-in-95 duration-200">
         <button
           onClick={onClose}
-          className="absolute top-6 right-6 text-[#5D5D5D] hover:text-[#2C2C2C] transition-colors p-2 rounded-full hover:bg-black/5"
+          className="absolute top-6 right-6 text-[#5D5D5D] hover:text-[#2C2C2C] transition-colors p-2 rounded-sm hover:bg-black/5"
         >
           <X className="w-5 h-5" />
         </button>
@@ -112,7 +113,7 @@ export function AuthModal({ isOpen, onClose, initialMode = "login" }: AuthModalP
           <div className="flex flex-col gap-4">
             <button
               onClick={() => handleModeChange("login")}
-              className="w-full bg-[#8CAE99] hover:bg-[#7a9d88] text-white py-3 rounded-full font-medium transition-colors"
+              className="w-full bg-[#98A77C] hover:bg-[#88976C] text-white py-3 rounded-sm font-medium transition-colors"
             >
               Volver a ingresar
             </button>
@@ -128,7 +129,7 @@ export function AuthModal({ isOpen, onClose, initialMode = "login" }: AuthModalP
                     placeholder="Nombre completo"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full bg-[#FDFBF7] border border-[#E5E5E5] focus:border-[#8CAE99] focus:ring-1 focus:ring-[#8CAE99] text-[#2C2C2C] rounded-2xl pl-12 pr-4 py-3 outline-none transition-all placeholder:text-[#5D5D5D]/50"
+                    className="w-full bg-[#F4EFE4] border border-[#E8E0D0] focus:border-[#98A77C] focus:ring-1 focus:ring-[#98A77C] text-[#2C2C2C] rounded-2xl pl-12 pr-4 py-3 outline-none transition-all placeholder:text-[#5D5D5D]/50"
                     required
                   />
                 </div>
@@ -145,8 +146,8 @@ export function AuthModal({ isOpen, onClose, initialMode = "login" }: AuthModalP
                         onClick={() => setRole(r)}
                         className={`py-2.5 px-2 rounded-xl border text-xs font-medium transition-all ${
                           role === r
-                            ? "bg-[#8CAE99] text-white border-[#8CAE99] shadow-sm"
-                            : "bg-white text-[#5D5D5D] border-[#E5E5E5] hover:border-[#8CAE99]/50"
+                            ? "bg-[#98A77C] text-white border-[#98A77C] shadow-sm"
+                            : "bg-white text-[#5D5D5D] border-[#E8E0D0] hover:border-[#98A77C]/50"
                         }`}
                       >
                         {r === "alumno" ? "Alumno/a" : r === "profesor" ? "Profesor/a" : "Instituto"}
@@ -164,7 +165,7 @@ export function AuthModal({ isOpen, onClose, initialMode = "login" }: AuthModalP
                 placeholder="Correo electrónico"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-[#FDFBF7] border border-[#E5E5E5] focus:border-[#8CAE99] focus:ring-1 focus:ring-[#8CAE99] text-[#2C2C2C] rounded-2xl pl-12 pr-4 py-3 outline-none transition-all placeholder:text-[#5D5D5D]/50"
+                className="w-full bg-[#F4EFE4] border border-[#E8E0D0] focus:border-[#98A77C] focus:ring-1 focus:ring-[#98A77C] text-[#2C2C2C] rounded-2xl pl-12 pr-4 py-3 outline-none transition-all placeholder:text-[#5D5D5D]/50"
                 required
               />
             </div>
@@ -173,13 +174,20 @@ export function AuthModal({ isOpen, onClose, initialMode = "login" }: AuthModalP
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#5D5D5D]" />
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   placeholder="Contraseña"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-[#FDFBF7] border border-[#E5E5E5] focus:border-[#8CAE99] focus:ring-1 focus:ring-[#8CAE99] text-[#2C2C2C] rounded-2xl pl-12 pr-4 py-3 outline-none transition-all placeholder:text-[#5D5D5D]/50"
+                  className="w-full bg-[#F4EFE4] border border-[#E8E0D0] focus:border-[#98A77C] focus:ring-1 focus:ring-[#98A77C] text-[#2C2C2C] rounded-2xl pl-12 pr-12 py-3 outline-none transition-all placeholder:text-[#5D5D5D]/50"
                   required
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(v => !v)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[#5D5D5D] hover:text-[#98A77C] transition-colors"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
             )}
 
@@ -188,7 +196,7 @@ export function AuthModal({ isOpen, onClose, initialMode = "login" }: AuthModalP
                 <button
                   type="button"
                   onClick={() => handleModeChange("forgot")}
-                  className="text-sm text-[#5D5D5D] hover:text-[#8CAE99] font-medium transition-colors"
+                  className="text-sm text-[#5D5D5D] hover:text-[#98A77C] font-medium transition-colors"
                 >
                   ¿Olvidaste tu contraseña?
                 </button>
@@ -198,10 +206,10 @@ export function AuthModal({ isOpen, onClose, initialMode = "login" }: AuthModalP
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#8CAE99] hover:bg-[#7a9d88] text-white py-3 rounded-full font-medium transition-colors mt-2 disabled:opacity-60 flex items-center justify-center gap-2"
+              className="w-full bg-[#98A77C] hover:bg-[#88976C] text-white py-3 rounded-sm font-medium transition-colors mt-2 disabled:opacity-60 flex items-center justify-center gap-2"
             >
               {loading && (
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-sm animate-spin" />
               )}
               {mode === "login" && "Ingresar"}
               {mode === "register" && "Registrarse"}
@@ -214,20 +222,20 @@ export function AuthModal({ isOpen, onClose, initialMode = "login" }: AuthModalP
           {mode === "login" ? (
             <p>
               ¿No tenés una cuenta?{" "}
-              <button type="button" onClick={() => handleModeChange("register")} className="text-[#8CAE99] font-medium hover:underline">
+              <button type="button" onClick={() => handleModeChange("register")} className="text-[#98A77C] font-medium hover:underline">
                 Registrate ahora
               </button>
             </p>
           ) : mode === "register" ? (
             <p>
               ¿Ya tenés una cuenta?{" "}
-              <button type="button" onClick={() => handleModeChange("login")} className="text-[#8CAE99] font-medium hover:underline">
+              <button type="button" onClick={() => handleModeChange("login")} className="text-[#98A77C] font-medium hover:underline">
                 Ingresá
               </button>
             </p>
           ) : (
             <p>
-              <button type="button" onClick={() => handleModeChange("login")} className="text-[#8CAE99] font-medium hover:underline">
+              <button type="button" onClick={() => handleModeChange("login")} className="text-[#98A77C] font-medium hover:underline">
                 Volver a ingresar
               </button>
             </p>

@@ -1,100 +1,129 @@
-import { useState, useEffect } from "react";
-import { Search } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Search, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
-import { motion, AnimatePresence } from "motion/react";
-
-const HERO_IMAGES = [
-  "/images/yoga_hero_1779994397642.png",
-  "/images/yoga_man_1779999909154.png",
-  "/images/yoga_woman_1779999926237.png",
-  "/images/yoga_group_1779999945784.png"
-];
+import { motion } from "motion/react";
 
 const container = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.12, delayChildren: 0.2 } }
+  visible: { transition: { staggerChildren: 0.14, delayChildren: 0.1 } }
 };
 
 const item = {
-  hidden: { opacity: 0, y: 24 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] } }
+  hidden: { opacity: 0, y: 32 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } }
 };
 
 export function Hero() {
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentImageIndex((prev) => (prev + 1) % HERO_IMAGES.length);
-    }, 5000);
-    return () => clearInterval(interval);
+    const v = videoRef.current;
+    if (!v) return;
+    v.muted = true;
+    const tryPlay = () => {
+      v.play().catch(() => {
+        const retry = () => { v.play().catch(() => {}); document.removeEventListener("click", retry); };
+        document.addEventListener("click", retry, { once: true });
+      });
+    };
+    if (v.readyState >= 3) { setReady(true); tryPlay(); }
+    else { v.addEventListener("canplay", () => { setReady(true); tryPlay(); }, { once: true }); }
   }, []);
 
   return (
-    <section className="relative w-full h-[600px] flex items-center justify-center bg-[#FDFBF7] overflow-hidden z-0">
-      <div className="absolute inset-0 w-full h-full object-cover -z-10">
-        <AnimatePresence mode="popLayout">
-          <motion.img
-            key={currentImageIndex}
-            src={HERO_IMAGES[currentImageIndex]}
-            alt="Yoga practice"
-            className="absolute inset-0 w-full h-full object-cover opacity-80"
-            referrerPolicy="no-referrer"
-            initial={{ opacity: 0, scale: 1.04 }}
-            animate={{ opacity: 0.8, scale: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 1.5, ease: "easeInOut" }}
-          />
-        </AnimatePresence>
-        <div className="absolute inset-0 bg-gradient-to-r from-[#FDFBF7] via-[#FDFBF7]/90 to-transparent/30 z-10" />
-      </div>
+    <section className="relative w-full min-h-screen flex items-center justify-center bg-[#1C3829] overflow-hidden">
+      {/* Video */}
+      <video
+        ref={videoRef}
+        src="/videos/hero_1.mp4"
+        muted
+        playsInline
+        loop
+        preload="auto"
+        className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000"
+        style={{ opacity: ready ? 1 : 0 }}
+      />
 
+      {/* Overlay gradient — dark green to transparent */}
+      <div className="absolute inset-0 bg-gradient-to-b from-[#0d1f14]/80 via-[#1C3829]/55 to-[#0d1f14]/70 z-10" />
+      <div className="absolute inset-0 bg-gradient-to-r from-[#0d1f14]/60 via-transparent to-transparent z-10" />
+
+      {/* Content */}
       <motion.div
-        className="relative z-20 w-full max-w-7xl mx-auto px-6 lg:px-8 flex flex-col items-start gap-6"
+        className="relative z-20 w-full max-w-7xl mx-auto px-6 lg:px-12 flex flex-col items-start justify-center py-32"
         variants={container}
         initial="hidden"
         animate="visible"
       >
-        <motion.span variants={item} className="text-sm font-semibold tracking-widest text-[#8CAE99] uppercase flex items-center gap-2">
-          <span>Omia</span>
-          <span className="opacity-40">•</span>
-          <span>Yoga, Pilates & Bienestar</span>
+        <motion.span variants={item} className="inline-flex items-center gap-2 text-xs font-bold tracking-widest text-[#98A77C] uppercase mb-8 border border-[#98A77C]/40 px-4 py-2 rounded-sm bg-[#98A77C]/10 backdrop-blur-sm">
+          <span className="w-1.5 h-1.5 rounded-sm bg-[#98A77C]" />
+          Yoga · Pilates · Bienestar · Buenos Aires
         </motion.span>
 
-        <motion.h1 variants={item} className="text-5xl md:text-7xl font-sans font-light tracking-tight text-[#2C2C2C] max-w-2xl leading-tight">
-          Encontrá tu centro, <br />
-          <span className="italic font-serif">tu profe o instituto.</span>
+        <motion.h1
+          variants={item}
+          className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-serif font-light tracking-tight text-white max-w-4xl leading-[1.05] mb-6"
+        >
+          Encontrá tu profe,<br />
+          <span className="italic text-[#C8D8B0]">tu centro,</span><br />
+          tu práctica.
         </motion.h1>
 
-        <motion.p variants={item} className="text-lg text-[#5D5D5D] max-w-lg font-sans leading-relaxed">
-          Conectá con los mejores instructores e institutos de <strong className="text-[#2C2C2C] font-semibold">Yoga & Pilates</strong> (Reformer, Mat, Barre). Leé opiniones reales, reservá tu lugar y equipate en nuestra tienda oficial.
+        <motion.p
+          variants={item}
+          className="text-base md:text-lg text-white/70 max-w-xl font-light leading-relaxed mb-10"
+        >
+          Conectá con los mejores instructores e institutos de Yoga & Pilates en Argentina.
+          Leé opiniones reales, reservá tu lugar y equipate.
         </motion.p>
 
-        <motion.div variants={item} className="flex flex-wrap items-center gap-3 mt-2">
+        <motion.div variants={item} className="flex flex-wrap items-center gap-3">
           <Link
             to="/directorio"
-            className="bg-[#8CAE99] hover:bg-[#7a9d88] active:scale-[0.97] text-white px-7 py-3.5 rounded-full font-semibold transition-all shadow-md hover:shadow-lg flex items-center gap-2"
+            className="group flex items-center gap-3 bg-[#98A77C] hover:bg-[#88976C] active:scale-[0.97] text-white px-7 py-4 rounded-sm font-semibold transition-all shadow-lg"
           >
             <Search className="w-4 h-4" />
-            <span>Buscá un Profe o Instituto</span>
+            <span>Buscá un Profe</span>
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Link>
-
           <Link
             to="/estudios"
-            className="bg-white border border-[#2C2C2C]/20 hover:border-[#2C2C2C] active:scale-[0.97] text-[#2C2C2C] px-6 py-3.5 rounded-full font-medium transition-all shadow-xs"
+            className="flex items-center gap-2 bg-white/10 border border-white/25 hover:bg-white/20 active:scale-[0.97] text-white px-6 py-4 rounded-sm font-medium transition-all backdrop-blur-sm"
           >
             Estudios e Institutos
           </Link>
+        </motion.div>
 
-          <Link
-            to="/tienda"
-            className="bg-[#2C2C2C] hover:bg-black active:scale-[0.97] text-white px-6 py-3.5 rounded-full font-medium transition-all shadow-xs flex items-center gap-2"
-          >
-            <span>Tienda Omia</span>
-            <span className="text-[10px] bg-[#8CAE99] text-white font-bold px-2 py-0.5 rounded-full">Shop</span>
-          </Link>
+        {/* Stats strip */}
+        <motion.div
+          variants={item}
+          className="mt-16 flex flex-wrap items-center gap-8"
+        >
+          {[
+            { n: "+200", label: "Profesores" },
+            { n: "+50", label: "Institutos" },
+            { n: "14", label: "Barrios" },
+          ].map(({ n, label }) => (
+            <div key={label} className="flex flex-col">
+              <span className="text-2xl font-serif italic text-[#C8D8B0] leading-none">{n}</span>
+              <span className="text-xs text-white/50 font-medium mt-1 uppercase tracking-wider">{label}</span>
+            </div>
+          ))}
         </motion.div>
       </motion.div>
+
+      {/* Scroll indicator */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2 opacity-50">
+        <span className="text-white text-[10px] uppercase tracking-widest font-medium">Scroll</span>
+        <div className="w-px h-12 bg-white/40 relative overflow-hidden">
+          <motion.div
+            className="absolute top-0 left-0 right-0 bg-white h-4"
+            animate={{ y: ["-100%", "300%"] }}
+            transition={{ duration: 1.4, repeat: Infinity, ease: "linear" }}
+          />
+        </div>
+      </div>
     </section>
   );
 }

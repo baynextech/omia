@@ -47,7 +47,7 @@ export function CheckoutSimulator() {
         <div className="max-w-4xl mx-auto flex justify-between items-center">
           <div className="flex items-center gap-2">
             <span className="font-extrabold text-2xl tracking-tight italic">mercado pago</span>
-            <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full font-medium">Sandbox</span>
+            <span className="text-xs bg-white/20 px-2 py-0.5 rounded-sm font-medium">Sandbox</span>
           </div>
           <div className="flex items-center gap-1.5 text-xs opacity-90">
             <ShieldCheck className="w-4 h-4 text-[#00E676]" />
@@ -74,7 +74,7 @@ export function CheckoutSimulator() {
                       : "border-[#E5E5E5] hover:border-gray-300"
                   }`}
                 >
-                  <div className={`p-3 rounded-full ${paymentMethod === "card" ? "bg-[#009EE3] text-white" : "bg-gray-100 text-[#5D5D5D]"}`}>
+                  <div className={`p-3 rounded-sm ${paymentMethod === "card" ? "bg-[#009EE3] text-white" : "bg-gray-100 text-[#5D5D5D]"}`}>
                     <CreditCard className="w-5 h-5" />
                   </div>
                   <div className="flex-grow">
@@ -92,7 +92,7 @@ export function CheckoutSimulator() {
                       : "border-[#E5E5E5] hover:border-gray-300"
                   }`}
                 >
-                  <div className={`p-3 rounded-full ${paymentMethod === "wallet" ? "bg-[#009EE3] text-white" : "bg-gray-100 text-[#5D5D5D]"}`}>
+                  <div className={`p-3 rounded-sm ${paymentMethod === "wallet" ? "bg-[#009EE3] text-white" : "bg-gray-100 text-[#5D5D5D]"}`}>
                     <CheckCircle2 className="w-5 h-5" />
                   </div>
                   <div className="flex-grow">
@@ -110,7 +110,7 @@ export function CheckoutSimulator() {
                       : "border-[#E5E5E5] hover:border-gray-300"
                   }`}
                 >
-                  <div className={`p-3 rounded-full ${paymentMethod === "transfer" ? "bg-[#009EE3] text-white" : "bg-gray-100 text-[#5D5D5D]"}`}>
+                  <div className={`p-3 rounded-sm ${paymentMethod === "transfer" ? "bg-[#009EE3] text-white" : "bg-gray-100 text-[#5D5D5D]"}`}>
                     <Landmark className="w-5 h-5" />
                   </div>
                   <div className="flex-grow">
@@ -143,7 +143,7 @@ export function CheckoutSimulator() {
                 className="w-full bg-[#009EE3] hover:bg-[#008CD0] text-white py-4 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2 shadow-sm disabled:opacity-50"
               >
                 {isProcessing ? (
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-sm animate-spin" />
                 ) : (
                   <>
                     <span>Pagar {formattedPrice}</span>
@@ -154,15 +154,15 @@ export function CheckoutSimulator() {
             </div>
           ) : (
             <div className="bg-white rounded-2xl p-8 shadow-sm border border-[#E5E5E5] flex-grow flex flex-col items-center justify-center text-center animate-in zoom-in-95 duration-300 min-h-[400px]">
-              <div className="w-20 h-20 bg-[#00E676]/10 rounded-full flex items-center justify-center mb-6">
+              <div className="w-20 h-20 bg-[#00E676]/10 rounded-sm flex items-center justify-center mb-6">
                 <CheckCircle2 className="w-12 h-12 text-[#00E676]" />
               </div>
               <h2 className="text-2xl font-bold text-[#1A1A1A] mb-2">¡Pago acreditado!</h2>
               <p className="text-[#5D5D5D] mb-6 max-w-sm">
                 Procesamos tu pago de <strong className="text-[#1A1A1A]">{formattedPrice}</strong> con éxito. Te estamos redirigiendo de vuelta a Omia.
               </p>
-              <div className="w-24 h-1 bg-gray-100 rounded-full overflow-hidden">
-                <div className="h-full bg-[#009EE3] animate-pulse w-full rounded-full" />
+              <div className="w-24 h-1 bg-gray-100 rounded-sm overflow-hidden">
+                <div className="h-full bg-[#009EE3] animate-pulse w-full rounded-sm" />
               </div>
             </div>
           )}

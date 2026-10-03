@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { apiFetch } from "../lib/api";
 
 interface Profile {
   id: string;
@@ -42,7 +43,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         localStorage.setItem("omia_token", accessToken);
         setToken(accessToken);
         window.history.replaceState({}, document.title, window.location.pathname);
-        fetch("/api/auth/me", { headers: { Authorization: `Bearer ${accessToken}` } })
+        apiFetch("/api/auth/me", { headers: { Authorization: `Bearer ${accessToken}` } })
           .then(r => r.ok ? r.json() : null)
           .then(data => { if (data) { setUser(data.user); setProfile(data.profile); } })
           .catch(() => {});
@@ -56,7 +57,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const t = localStorage.getItem("omia_token");
     if (!t) return;
     try {
-      const res = await fetch("/api/auth/me", { headers: { Authorization: `Bearer ${t}` } });
+      const res = await apiFetch("/api/auth/me", { headers: { Authorization: `Bearer ${t}` } });
       if (res.ok) {
         const data = await res.json();
         setUser(data.user);
@@ -69,7 +70,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string) => {
     try {
-      const res = await fetch("/api/auth/login", {
+      const res = await apiFetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password })
@@ -91,7 +92,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const register = async (email: string, password: string, name: string, role = "alumno") => {
     try {
-      const res = await fetch("/api/auth/register", {
+      const res = await apiFetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password, name, role })

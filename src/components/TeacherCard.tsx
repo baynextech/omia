@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Star, MapPin, Heart, Share2 } from "lucide-react";
+import { Star, MapPin, Heart } from "lucide-react";
 import { useFavorites } from "../hooks/useFavorites";
 import { ReviewModal } from "./ReviewModal";
 import { Link } from "react-router-dom";
@@ -33,13 +33,6 @@ export function TeacherCard({ teacher, onToggleFavoriteOverride }: { teacher: Te
     setLocalTeacher(teacher);
   }, [teacher]);
 
-  const handleShare = () => {
-    const url = `${window.location.origin}/profesor/${localTeacher.id}`;
-    navigator.clipboard.writeText(url).then(() => {
-      alert("¡Enlace copiado al portapapeles!");
-    });
-  };
-
   const handleFavorite = (e: React.MouseEvent) => {
     e.preventDefault();
     setHeartPop(true);
@@ -54,95 +47,93 @@ export function TeacherCard({ teacher, onToggleFavoriteOverride }: { teacher: Te
   return (
     <>
       <motion.div
-        className="group bg-white border border-[#E5E5E5] rounded-[24px] overflow-hidden flex flex-col relative"
-        initial={{ opacity: 0, y: 20 }}
+        className="group relative overflow-hidden rounded-sm bg-[#1C3829] cursor-pointer"
+        initial={{ opacity: 0, y: 24 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-60px" }}
-        transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-        whileHover={{ y: -4, boxShadow: "0 20px 40px rgba(0,0,0,0.10)" }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
       >
-        <div className="relative h-64 overflow-hidden bg-[#F4F4F4]">
+        {/* Image */}
+        <div className="relative h-80 overflow-hidden">
           <img
             src={localTeacher.image}
             alt={localTeacher.name}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
             referrerPolicy="no-referrer"
           />
-          <div className="absolute top-4 left-4 flex gap-2">
-            <motion.div
-              className="bg-white/90 backdrop-blur-sm p-2 rounded-full cursor-pointer hover:bg-white transition-colors z-10"
-              onClick={handleFavorite}
-              animate={heartPop ? { scale: [1, 1.35, 1] } : {}}
-              transition={{ duration: 0.3, ease: "easeInOut" }}
-            >
-              <Heart className={`w-5 h-5 transition-colors ${favorited ? "fill-red-400 text-red-400" : "text-[#5D5D5D]"}`} />
-            </motion.div>
-            <div
-              className="bg-white/90 backdrop-blur-sm p-2 rounded-full cursor-pointer hover:bg-white transition-colors z-10"
-              onClick={(e) => { e.preventDefault(); handleShare(); }}
-            >
-              <Share2 className="w-5 h-5 text-[#5D5D5D]" />
+          {/* Dark gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#1C3829] via-[#1C3829]/20 to-transparent" />
+
+          {/* Top badges */}
+          <div className="absolute top-4 left-4 right-4 flex items-start justify-between z-10">
+            {localTeacher.discipline && (
+              <span className="text-[10px] font-bold px-2.5 py-1 rounded-sm uppercase tracking-wider bg-[#1C3829]/80 backdrop-blur-sm text-[#C8D8B0] border border-[#98A77C]/30">
+                {localTeacher.discipline}
+              </span>
+            )}
+            <div className="flex items-center gap-1.5 ml-auto">
+              <motion.button
+                className="bg-[#1C3829]/70 backdrop-blur-sm p-2 rounded-sm cursor-pointer hover:bg-[#1C3829] transition-colors"
+                onClick={handleFavorite}
+                animate={heartPop ? { scale: [1, 1.35, 1] } : {}}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+              >
+                <Heart className={`w-4 h-4 transition-colors ${favorited ? "fill-red-400 text-red-400" : "text-white/80"}`} />
+              </motion.button>
             </div>
           </div>
 
-          <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full flex items-center gap-1 z-10">
-            <Star className="w-4 h-4 fill-[#8CAE99] text-[#8CAE99]" />
-            <span className="text-sm font-medium text-[#2C2C2C]">{localTeacher.rating}</span>
+          {/* Bottom info overlay */}
+          <div className="absolute bottom-0 left-0 right-0 p-5 z-10">
+            <div className="flex items-start justify-between gap-2 mb-1">
+              <h3 className="text-xl font-serif font-medium text-white leading-tight">{localTeacher.name}</h3>
+              <div className="flex items-center gap-1 shrink-0 mt-0.5">
+                <Star className="w-3.5 h-3.5 fill-[#98A77C] text-[#98A77C]" />
+                <span className="text-sm font-medium text-white">{localTeacher.rating}</span>
+              </div>
+            </div>
+            <p className="text-[#9DB085] text-sm font-medium">{localTeacher.specialty}</p>
           </div>
         </div>
-        <div className="p-6 flex flex-col flex-grow">
-          <div className="flex justify-between items-start mb-2">
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <h3 className="text-xl font-medium text-[#2C2C2C]">{localTeacher.name}</h3>
-                {localTeacher.discipline && (
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
-                    localTeacher.discipline === "Pilates"
-                      ? "bg-[#2C2C2C] text-white"
-                      : localTeacher.discipline === "Yoga & Pilates"
-                      ? "bg-[#8CAE99] text-white"
-                      : "bg-[#8CAE99]/15 text-[#8CAE99]"
-                  }`}>
-                    {localTeacher.discipline}
-                  </span>
-                )}
-              </div>
-              <p className="text-[#8CAE99] text-sm font-medium">{localTeacher.specialty}</p>
+
+        {/* Card body */}
+        <div className="p-5">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-1.5 text-[#9DB085] text-xs">
+              <MapPin className="w-3.5 h-3.5" />
+              <span>{localTeacher.location}</span>
+              <span className="opacity-40">·</span>
+              <span>{localTeacher.reviews} reseñas</span>
             </div>
-            <span className="text-[#5D5D5D] text-sm font-semibold">{localTeacher.price}</span>
+            <span className="text-[#C8D8B0] text-sm font-semibold">{localTeacher.price}</span>
           </div>
-          <div className="flex items-center gap-2 text-[#5D5D5D] text-sm mb-2">
-            <MapPin className="w-4 h-4" />
-            <span>{localTeacher.location}</span>
-            <span className="opacity-40">•</span>
-            <span>{localTeacher.reviews} reseñas</span>
-          </div>
+
           {localTeacher.availableDays && localTeacher.availableDays.length > 0 && (
             <div className="flex flex-wrap gap-1.5 mb-4">
               {localTeacher.availableDays.map(day => (
-                <span key={day} className="px-2 py-0.5 bg-[#FDFBF7] text-[#8CAE99] border border-[#E5E5E5] text-xs font-medium rounded-md">
+                <span key={day} className="px-2 py-0.5 bg-[#2a4d38] text-[#9DB085] text-xs font-medium rounded-sm border border-[#3a6048]/40">
                   {day}
                 </span>
               ))}
             </div>
           )}
-          <p className="text-[#5D5D5D] text-sm leading-relaxed flex-grow">
-            {localTeacher.bio}
-          </p>
-          <div className="flex gap-2 mt-6">
+
+          <p className="text-[#7a9d85] text-sm leading-relaxed line-clamp-2 mb-5">{localTeacher.bio}</p>
+
+          <div className="flex gap-2">
             <Link
               to={`/profesor/${localTeacher.id}`}
-              className="flex-1 bg-[#FDFBF7] hover:bg-[#8CAE99] active:scale-[0.97] text-[#2C2C2C] hover:text-white border border-[#E5E5E5] hover:border-transparent py-3 rounded-full font-medium transition-all text-center"
+              className="flex-1 bg-[#98A77C] hover:bg-[#88976C] active:scale-[0.97] text-white py-3 rounded-sm font-medium transition-all text-center text-sm"
             >
               Ver Perfil
             </Link>
             <motion.button
-              onClick={() => setIsReviewOpen(true)}
+              onClick={(e) => { e.preventDefault(); setIsReviewOpen(true); }}
               title="Dejar Reseña"
-              className="px-4 bg-transparent border border-[#E5E5E5] hover:border-[#8CAE99] text-[#5D5D5D] hover:text-[#8CAE99] rounded-full transition-colors flex items-center justify-center"
+              className="px-4 bg-[#2a4d38] border border-[#3a6048]/50 hover:border-[#98A77C] text-[#9DB085] hover:text-[#98A77C] rounded-sm transition-colors flex items-center justify-center"
               whileTap={{ scale: 0.92 }}
             >
-              <Star className="w-5 h-5" />
+              <Star className="w-4 h-4" />
             </motion.button>
           </div>
         </div>

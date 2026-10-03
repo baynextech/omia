@@ -3,6 +3,8 @@ import { Search, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "motion/react";
 
+const HERO_VIDEOS = ["/videos/hero_1.mp4", "/videos/hero_2.mp4", "/videos/hero_3.mp4"];
+
 const container = {
   hidden: {},
   visible: { transition: { staggerChildren: 0.14, delayChildren: 0.1 } }
@@ -16,27 +18,33 @@ const item = {
 export function Hero() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [ready, setReady] = useState(false);
+  const [currentIdx, setCurrentIdx] = useState(0);
 
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
     v.muted = true;
+    setReady(false);
     const tryPlay = () => {
       v.play().catch(() => {
         const retry = () => { v.play().catch(() => {}); document.removeEventListener("click", retry); };
         document.addEventListener("click", retry, { once: true });
       });
     };
+    const onCanPlay = () => { setReady(true); tryPlay(); };
+    const onEnded = () => setCurrentIdx(i => (i + 1) % HERO_VIDEOS.length);
     if (v.readyState >= 3) { setReady(true); tryPlay(); }
-    else { v.addEventListener("canplay", () => { setReady(true); tryPlay(); }, { once: true }); }
-  }, []);
+    else { v.addEventListener("canplay", onCanPlay, { once: true }); }
+    v.addEventListener("ended", onEnded);
+    return () => { v.removeEventListener("ended", onEnded); };
+  }, [currentIdx]);
 
   return (
     <section className="relative w-full min-h-screen flex items-center justify-center bg-[#1C3829] overflow-hidden">
       {/* Video */}
       <video
         ref={videoRef}
-        src="/videos/hero_1.mp4"
+        src={HERO_VIDEOS[currentIdx]}
         muted
         playsInline
         loop

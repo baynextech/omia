@@ -63,11 +63,10 @@ export function Hero() {
 
         <motion.h1
           variants={item}
-          className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-serif font-light tracking-tight text-white max-w-4xl leading-[1.05] mb-6"
+          className="text-5xl sm:text-6xl md:text-7xl font-serif font-light tracking-tight text-white max-w-3xl leading-[1.08] mb-6"
         >
-          Encontrá tu profe,<br />
-          <span className="italic text-[#C8D8B0]">tu centro,</span><br />
-          tu práctica.
+          Encontrá tu profe, <span className="italic text-[#C8D8B0]">tu centro</span><br />
+          y tu práctica.
         </motion.h1>
 
         <motion.p

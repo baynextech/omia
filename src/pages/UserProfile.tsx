@@ -1260,9 +1260,9 @@ export function UserProfile() {
                       <p className="text-xs text-[#5D5D5D] mt-0.5">Prioridad, insignia premium y estadísticas completas.</p>
                     </div>
                     <div className="flex items-center gap-4 shrink-0 w-full sm:w-auto justify-between sm:justify-start">
-                      <span className="text-2xl font-mono font-bold text-[#2C2C2C]">$12.000<span className="text-xs text-[#5D5D5D] font-sans">/mes</span></span>
+                      <span className="text-2xl font-mono font-bold text-[#2C2C2C]">$43.900<span className="text-xs text-[#5D5D5D] font-sans">/mes</span></span>
                       <button
-                        onClick={() => handlePay("subscription", "destacado", "Membresía Omia - Plan Destacado", "12000")}
+                        onClick={() => handlePay("subscription", "destacado", "Membresía Omia - Plan Destacado", "43900")}
                         disabled={isPayingId === "destacado"}
                         className="px-5 py-3 bg-[#009EE3] hover:bg-[#008CD0] text-white rounded-full text-xs font-bold transition-all shadow-sm"
                       >

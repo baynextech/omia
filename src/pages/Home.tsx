@@ -146,7 +146,7 @@ export function Home() {
                 <h3 className="text-xl font-medium text-[#2C2C2C] mb-2">Plan Inicial</h3>
                 <p className="text-[#5D5D5D] text-sm mb-6">Para profesores independientes que recién comienzan.</p>
                 <div className="flex items-baseline mb-6">
-                  <span className="text-4xl font-medium text-[#2C2C2C] font-mono">$6.000</span>
+                  <span className="text-4xl font-medium text-[#2C2C2C] font-mono">$39.900</span>
                   <span className="text-[#5D5D5D] ml-2 text-sm">/ mes</span>
                 </div>
                 <ul className="space-y-4 mb-8">
@@ -169,7 +169,7 @@ export function Home() {
                 </ul>
               </div>
               <button 
-                onClick={() => handleSubscribe("inicial", "Plan Inicial", 6000)}
+                onClick={() => handleSubscribe("inicial", "Plan Inicial", 39900)}
                 className="w-full bg-[#FDFBF7] hover:bg-[#8CAE99] hover:text-white text-[#2C2C2C] border border-[#E5E5E5] py-3.5 rounded-full font-medium transition-all text-sm"
               >
                 Elegir Inicial
@@ -185,7 +185,7 @@ export function Home() {
                 <h3 className="text-xl font-medium text-[#2C2C2C] mb-2">Plan Destacado</h3>
                 <p className="text-[#5D5D5D] text-sm mb-6">Para instructores que buscan prioridad y estadísticas.</p>
                 <div className="flex items-baseline mb-6">
-                  <span className="text-4xl font-medium text-[#2C2C2C] font-mono">$12.000</span>
+                  <span className="text-4xl font-medium text-[#2C2C2C] font-mono">$43.900</span>
                   <span className="text-[#5D5D5D] ml-2 text-sm">/ mes</span>
                 </div>
                 <ul className="space-y-4 mb-8">
@@ -212,7 +212,7 @@ export function Home() {
                 </ul>
               </div>
               <button 
-                onClick={() => handleSubscribe("destacado", "Plan Destacado Pro", 12000)}
+                onClick={() => handleSubscribe("destacado", "Plan Destacado Pro", 43900)}
                 className="w-full bg-[#8CAE99] hover:bg-[#7a9d88] text-white py-3.5 rounded-full font-medium transition-colors text-sm"
               >
                 Suscribirme Pro
@@ -225,7 +225,7 @@ export function Home() {
                 <h3 className="text-xl font-medium text-[#2C2C2C] mb-2">Plan Institutos</h3>
                 <p className="text-[#5D5D5D] text-sm mb-6">Para centros, estudios de yoga y escuelas.</p>
                 <div className="flex items-baseline mb-6">
-                  <span className="text-4xl font-medium text-[#2C2C2C] font-mono">$24.000</span>
+                  <span className="text-4xl font-medium text-[#2C2C2C] font-mono">$49.900</span>
                   <span className="text-[#5D5D5D] ml-2 text-sm">/ mes</span>
                 </div>
                 <ul className="space-y-4 mb-8">
@@ -252,7 +252,7 @@ export function Home() {
                 </ul>
               </div>
               <button 
-                onClick={() => handleSubscribe("institucional", "Plan Institutos", 24000)}
+                onClick={() => handleSubscribe("institucional", "Plan Institutos", 49900)}
                 className="w-full bg-[#FDFBF7] hover:bg-[#2C2C2C] hover:text-white text-[#2C2C2C] border border-[#E5E5E5] py-3.5 rounded-full font-medium transition-all text-sm"
               >
                 Elegir Institutos

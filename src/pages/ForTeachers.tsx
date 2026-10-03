@@ -16,7 +16,7 @@ export function ForTeachers() {
           type: "subscription",
           itemId: "premium-sub",
           title: "Membresía Omia Pro",
-          price: "12000"
+          price: "43900"
         })
       });
       const data = await response.json();
@@ -134,7 +134,7 @@ export function ForTeachers() {
           <h3 className="text-xl font-medium text-[#2C2C2C] mb-4">Membresía Mensual</h3>
           
           <div className="flex items-baseline gap-1 mb-2">
-            <span className="text-5xl font-bold text-[#2C2C2C]">$12.000</span>
+            <span className="text-5xl font-bold text-[#2C2C2C]">$43.900</span>
             <span className="text-sm text-[#5D5D5D] font-medium">/ mes</span>
           </div>
           <span className="text-xs text-[#8CAE99] font-medium mb-8">Precio final en ARS</span>

@@ -25,7 +25,7 @@ export function MapZones() {
   return (
     <section className="relative overflow-hidden" style={{ height: 600 }}>
       <img
-        src="https://images.unsplash.com/photo-1518611012118-696072aa579a?w=1800&q=85&auto=format&fit=crop"
+        src="https://images.unsplash.com/photo-1588286840104-8957b019727f?w=1800&q=90&auto=format&fit=crop&crop=center"
         alt="Pilates class"
         className="absolute inset-0 w-full h-full object-cover object-center"
       />

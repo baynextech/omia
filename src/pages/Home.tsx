@@ -19,7 +19,7 @@ const DEMO_TEACHERS = [
     location: "Palermo",
     rating: 4.9,
     reviews: 48,
-    image: "https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=600&q=80&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=600&q=85&auto=format&fit=crop&crop=face",
     bio: "8 años de experiencia. Especializada en flow dinámico y técnicas de respiración consciente.",
     price: "$8.500/clase",
     availableDays: ["Lun", "Mié", "Vie"],
@@ -32,7 +32,7 @@ const DEMO_TEACHERS = [
     location: "Recoleta",
     rating: 5.0,
     reviews: 62,
-    image: "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=600&q=80&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=600&q=85&auto=format&fit=crop&crop=face",
     bio: "Certificada en STOTT Pilates. Clases personalizadas con máquina Reformer.",
     price: "$12.000/clase",
     availableDays: ["Mar", "Jue", "Sáb"],
@@ -45,7 +45,7 @@ const DEMO_TEACHERS = [
     location: "Belgrano",
     rating: 4.8,
     reviews: 34,
-    image: "https://images.unsplash.com/photo-1549576490-b0b4831ef60a?w=600&q=80&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=600&q=85&auto=format&fit=crop&crop=face",
     bio: "Fusión de yoga y pilates mat para mejorar postura, flexibilidad y fuerza core.",
     price: "$7.000/clase",
     availableDays: ["Lun", "Mar", "Jue"],
@@ -58,10 +58,36 @@ const DEMO_TEACHERS = [
     location: "San Telmo",
     rating: 4.9,
     reviews: 27,
-    image: "https://images.unsplash.com/photo-1518310383802-640c2de311b2?w=600&q=80&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1499952127939-9bbf5af6c51c?w=600&q=85&auto=format&fit=crop&crop=face",
     bio: "Ballet fitness y pilates. Clases de barre para tonificar y estirar.",
     price: "$9.000/clase",
     availableDays: ["Mié", "Vie", "Sáb"],
+  },
+  {
+    id: "demo-5",
+    name: "Sofía Acosta",
+    specialty: "Hatha Yoga",
+    discipline: "Yoga",
+    location: "Colegiales",
+    rating: 4.7,
+    reviews: 41,
+    image: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=600&q=85&auto=format&fit=crop&crop=face",
+    bio: "Hatha clásico y yoga restaurativo. Ideal para principiantes y personas con estrés.",
+    price: "$6.500/clase",
+    availableDays: ["Lun", "Jue", "Sáb"],
+  },
+  {
+    id: "demo-6",
+    name: "Diego Herrera",
+    specialty: "Ashtanga & Power Yoga",
+    discipline: "Yoga",
+    location: "Núñez",
+    rating: 4.9,
+    reviews: 55,
+    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&q=85&auto=format&fit=crop&crop=face",
+    bio: "Practicante de Ashtanga hace 12 años. Clases intensas para nivel intermedio y avanzado.",
+    price: "$9.500/clase",
+    availableDays: ["Mar", "Vie", "Sáb"],
   },
 ];
 
@@ -195,88 +221,90 @@ export function Home() {
             </div>
           </motion.div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {(teachers.length > 0 ? teachers.slice(0, 4) : DEMO_TEACHERS).map((t, i) => (
-              <motion.div
-                key={t.id}
-                className="group relative overflow-hidden rounded-sm bg-[#1C3829] cursor-pointer"
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-60px" }}
-                transition={{ duration: 0.5, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] }}
-                whileHover={{ y: -6 }}
-              >
-                {/* Imagen */}
-                <div className="relative h-72 overflow-hidden">
-                  <img
-                    src={t.image}
-                    alt={t.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                    referrerPolicy="no-referrer"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#1C3829] via-[#1C3829]/10 to-transparent" />
+          {/* Slider horizontal — se desliza desde la derecha */}
+          <div className="overflow-x-auto -mx-6 px-6 pb-4" style={{ scrollbarWidth: "none" }}>
+            <motion.div
+              className="flex gap-5"
+              style={{ width: "max-content" }}
+              initial={{ x: 120, opacity: 0 }}
+              whileInView={{ x: 0, opacity: 1 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            >
+              {(teachers.length > 0 ? teachers : DEMO_TEACHERS).map((t, i) => (
+                <motion.div
+                  key={t.id}
+                  className="group relative overflow-hidden bg-[#1C3829] cursor-pointer shrink-0 flex flex-col"
+                  style={{ width: 280, borderRadius: 5 }}
+                  whileHover={{ y: -8, boxShadow: "0 24px 48px rgba(0,0,0,0.35)" }}
+                  transition={{ duration: 0.25, ease: "easeOut" }}
+                >
+                  {/* Imagen de cara */}
+                  <div className="relative overflow-hidden" style={{ height: 340 }}>
+                    <img
+                      src={t.image}
+                      alt={t.name}
+                      className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700"
+                      referrerPolicy="no-referrer"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#1C3829] via-transparent to-transparent" />
 
-                  {/* Badge disciplina */}
-                  <div className="absolute top-3 left-3">
-                    <span className="text-[10px] font-bold px-2.5 py-1 rounded-sm uppercase tracking-wider bg-[#1C3829]/80 backdrop-blur-sm text-[#C8D8B0] border border-[#98A77C]/30">
+                    <span className="absolute top-3 left-3 text-[10px] font-bold px-2.5 py-1 uppercase tracking-wider bg-[#1C3829]/80 backdrop-blur-sm text-[#C8D8B0] border border-[#98A77C]/30" style={{ borderRadius: 3 }}>
                       {t.discipline}
                     </span>
-                  </div>
 
-                  {/* Corazón */}
-                  <button className="absolute top-3 right-3 bg-[#1C3829]/70 backdrop-blur-sm p-2 rounded-sm opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Heart className="w-3.5 h-3.5 text-white/80" />
-                  </button>
+                    <button className="absolute top-3 right-3 bg-[#1C3829]/70 backdrop-blur-sm p-2 opacity-0 group-hover:opacity-100 transition-all duration-200" style={{ borderRadius: 3 }}>
+                      <Heart className="w-3.5 h-3.5 text-white/80" />
+                    </button>
 
-                  {/* Nombre sobre imagen */}
-                  <div className="absolute bottom-0 left-0 right-0 p-4">
-                    <div className="flex items-start justify-between gap-2">
-                      <h3 className="text-lg font-serif font-medium text-white leading-tight">{t.name}</h3>
-                      <div className="flex items-center gap-1 shrink-0">
-                        <Star className="w-3 h-3 fill-[#98A77C] text-[#98A77C]" />
-                        <span className="text-xs font-semibold text-white">{t.rating}</span>
+                    <div className="absolute bottom-0 left-0 right-0 p-4">
+                      <div className="flex items-end justify-between gap-2">
+                        <div>
+                          <h3 className="text-lg font-serif font-semibold text-white leading-tight">{t.name}</h3>
+                          <p className="text-[#9DB085] text-xs mt-0.5">{t.specialty}</p>
+                        </div>
+                        <div className="flex items-center gap-1 shrink-0 mb-0.5">
+                          <Star className="w-3 h-3 fill-[#98A77C] text-[#98A77C]" />
+                          <span className="text-xs font-bold text-white">{t.rating}</span>
+                        </div>
                       </div>
                     </div>
-                    <p className="text-[#9DB085] text-xs mt-0.5">{t.specialty}</p>
                   </div>
-                </div>
 
-                {/* Cuerpo */}
-                <div className="p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-1 text-[#9DB085] text-xs">
-                      <MapPin className="w-3 h-3" />
-                      <span>{t.location}</span>
-                      <span className="opacity-40">·</span>
-                      <span>{t.reviews} reseñas</span>
+                  {/* Info */}
+                  <div className="p-4 flex flex-col gap-3 flex-1">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1 text-[#9DB085] text-xs">
+                        <MapPin className="w-3 h-3" />
+                        <span>{t.location}</span>
+                        <span className="opacity-40">·</span>
+                        <span>{t.reviews} reseñas</span>
+                      </div>
+                      <span className="text-[#C8D8B0] text-xs font-bold">{t.price}</span>
                     </div>
-                    <span className="text-[#C8D8B0] text-xs font-semibold">{t.price}</span>
+                    <p className="text-[#7a9d85] text-xs leading-relaxed line-clamp-2">{t.bio}</p>
+                    <div className="flex gap-1.5 flex-wrap">
+                      {(t.availableDays || []).map(d => (
+                        <span key={d} className="px-2 py-0.5 bg-[#2a4d38] text-[#9DB085] text-[10px] font-medium" style={{ borderRadius: 3 }}>
+                          {d}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                  <p className="text-[#7a9d85] text-xs leading-relaxed line-clamp-2 mb-4">{t.bio}</p>
-                  <div className="flex gap-1.5">
-                    {(t.availableDays || []).map(d => (
-                      <span key={d} className="px-2 py-0.5 bg-[#2a4d38] text-[#9DB085] text-[10px] font-medium rounded-sm">
-                        {d}
-                      </span>
-                    ))}
-                  </div>
-                </div>
 
-                {/* Hover overlay CTA */}
-                <div className="absolute inset-0 bg-[#1C3829]/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
-                  <div className="text-center px-6">
-                    <p className="text-white font-serif text-lg mb-1">{t.name}</p>
-                    <p className="text-[#9DB085] text-xs mb-5">{t.specialty}</p>
-                    <a
-                      href={`/profesor/${t.id}`}
-                      className="inline-block bg-[#98A77C] hover:bg-[#88976C] text-white px-6 py-2.5 rounded-sm text-sm font-semibold transition-colors"
-                    >
-                      Ver Perfil
-                    </a>
+                  {/* Hover CTA overlay */}
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 bg-[#1C3829]/85 backdrop-blur-sm" style={{ borderRadius: 5 }}>
+                    <div className="text-center px-6">
+                      <p className="text-white font-serif text-xl mb-1">{t.name}</p>
+                      <p className="text-[#9DB085] text-xs mb-6">{t.specialty}</p>
+                      <a href={`/profesor/${t.id}`} className="inline-block bg-[#98A77C] hover:bg-[#88976C] text-white px-7 py-3 text-sm font-semibold transition-colors" style={{ borderRadius: 5 }}>
+                        Ver Perfil
+                      </a>
+                    </div>
                   </div>
-                </div>
-              </motion.div>
-            ))}
+                </motion.div>
+              ))}
+            </motion.div>
           </div>
         </div>
       </section>

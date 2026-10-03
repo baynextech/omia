@@ -5,6 +5,17 @@ import { SEOMeta } from "../components/SEOMeta";
 import { TeacherCard, Teacher } from "../components/TeacherCard";
 import { useAuth } from "../contexts/AuthContext";
 import { AuthModal } from "../components/AuthModal";
+import { motion } from "motion/react";
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 28 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] } }
+};
+
+const stagger = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.1 } }
+};
 
 export function Home() {
   const [teachers, setTeachers] = useState<Teacher[]>([]);
@@ -83,7 +94,13 @@ export function Home() {
       <Hero />
 
       <section className="py-24 px-6 max-w-7xl mx-auto">
-        <div className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-8">
+        <motion.div
+          className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-8"
+          variants={fadeUp}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-80px" }}
+        >
           <div>
             <h2 className="text-3xl md:text-4xl font-light tracking-tight mb-4 text-[#2C2C2C]">
               Explorá Profesionales
@@ -92,7 +109,7 @@ export function Home() {
               Descubrí profes de yoga verificados en tu zona. Leé reseñas, compará estilos y reservá tu próxima sesión.
             </p>
           </div>
-          
+
           <div className="flex items-center gap-3 w-full md:w-auto">
             <div className="relative flex-grow md:flex-grow-0">
               <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#5D5D5D]" />
@@ -112,14 +129,20 @@ export function Home() {
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {teachers.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <motion.div
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+            variants={stagger}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-60px" }}
+          >
             {teachers.map(teacher => (
               <TeacherCard key={teacher.id} teacher={teacher} />
             ))}
-          </div>
+          </motion.div>
         ) : (
           <div className="py-20 text-center">
             <p className="text-[#5D5D5D]">Todavía no hay profes en esta zona.</p>
@@ -130,18 +153,30 @@ export function Home() {
       {/* Planes de Precios para Profesionales e Institutos */}
       <section className="bg-[#FDFBF7] py-24 px-6 border-t border-b border-[#E5E5E5]" id="planes-section">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
+          <motion.div
+            className="text-center mb-16"
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-80px" }}
+          >
             <h2 className="text-4xl font-serif italic text-[#2C2C2C] mb-4">
               Membresías para Profesores e Institutos
             </h2>
             <p className="text-[#5D5D5D] max-w-2xl mx-auto text-lg">
               Cobrá el 100% del valor de tus clases directamente a tus alumnos sin comisiones. Solamente pagás la pauta mensual para figurar en la plataforma y tener tu propia landing page personalizable.
             </p>
-          </div>
+          </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          <motion.div
+            className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto"
+            variants={stagger}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-60px" }}
+          >
             {/* Plan Inicial */}
-            <div className="bg-white border border-[#E5E5E5] rounded-3xl p-8 flex flex-col justify-between hover:shadow-md transition-shadow relative">
+            <motion.div variants={fadeUp} className="bg-white border border-[#E5E5E5] rounded-3xl p-8 flex flex-col justify-between hover:shadow-md hover:-translate-y-1 transition-all duration-200 relative">
               <div>
                 <h3 className="text-xl font-medium text-[#2C2C2C] mb-2">Plan Inicial</h3>
                 <p className="text-[#5D5D5D] text-sm mb-6">Para profesores independientes que recién comienzan.</p>
@@ -170,14 +205,14 @@ export function Home() {
               </div>
               <button 
                 onClick={() => handleSubscribe("inicial", "Plan Inicial", 39900)}
-                className="w-full bg-[#FDFBF7] hover:bg-[#8CAE99] hover:text-white text-[#2C2C2C] border border-[#E5E5E5] py-3.5 rounded-full font-medium transition-all text-sm"
+                className="w-full bg-[#FDFBF7] hover:bg-[#8CAE99] hover:text-white active:scale-[0.97] text-[#2C2C2C] border border-[#E5E5E5] py-3.5 rounded-full font-medium transition-all text-sm"
               >
                 Elegir Inicial
               </button>
-            </div>
+            </motion.div>
 
             {/* Plan Destacado / Pro */}
-            <div className="bg-white border-2 border-[#8CAE99] rounded-3xl p-8 flex flex-col justify-between hover:shadow-md transition-shadow relative shadow-sm ring-4 ring-[#8CAE99]/5">
+            <motion.div variants={fadeUp} className="bg-white border-2 border-[#8CAE99] rounded-3xl p-8 flex flex-col justify-between hover:shadow-md hover:-translate-y-1 transition-all duration-200 relative shadow-sm ring-4 ring-[#8CAE99]/5">
               <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#8CAE99] text-white px-4 py-1 rounded-full text-xs font-semibold tracking-wider uppercase">
                 Más Recomendado
               </span>
@@ -213,14 +248,14 @@ export function Home() {
               </div>
               <button 
                 onClick={() => handleSubscribe("destacado", "Plan Destacado Pro", 43900)}
-                className="w-full bg-[#8CAE99] hover:bg-[#7a9d88] text-white py-3.5 rounded-full font-medium transition-colors text-sm"
+                className="w-full bg-[#8CAE99] hover:bg-[#7a9d88] active:scale-[0.97] text-white py-3.5 rounded-full font-medium transition-all text-sm"
               >
                 Suscribirme Pro
               </button>
-            </div>
+            </motion.div>
 
             {/* Plan Institucional / Estudios */}
-            <div className="bg-white border border-[#E5E5E5] rounded-3xl p-8 flex flex-col justify-between hover:shadow-md transition-shadow relative">
+            <motion.div variants={fadeUp} className="bg-white border border-[#E5E5E5] rounded-3xl p-8 flex flex-col justify-between hover:shadow-md hover:-translate-y-1 transition-all duration-200 relative">
               <div>
                 <h3 className="text-xl font-medium text-[#2C2C2C] mb-2">Plan Institutos</h3>
                 <p className="text-[#5D5D5D] text-sm mb-6">Para centros, estudios de yoga y escuelas.</p>
@@ -253,33 +288,39 @@ export function Home() {
               </div>
               <button 
                 onClick={() => handleSubscribe("institucional", "Plan Institutos", 49900)}
-                className="w-full bg-[#FDFBF7] hover:bg-[#2C2C2C] hover:text-white text-[#2C2C2C] border border-[#E5E5E5] py-3.5 rounded-full font-medium transition-all text-sm"
+                className="w-full bg-[#FDFBF7] hover:bg-[#2C2C2C] hover:text-white active:scale-[0.97] text-[#2C2C2C] border border-[#E5E5E5] py-3.5 rounded-full font-medium transition-all text-sm"
               >
                 Elegir Institutos
               </button>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </div>
       </section>
 
       {/* Call to action for teachers */}
-      <section className="bg-[#8CAE99] py-20 px-6 text-center text-white">
+      <motion.section
+        className="bg-[#8CAE99] py-20 px-6 text-center text-white"
+        variants={fadeUp}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-80px" }}
+      >
         <h2 className="text-4xl md:text-5xl font-light tracking-tight mb-6">
           ¿Sos profe de yoga o tenés un estudio?
         </h2>
         <p className="text-[#FDFBF7] max-w-2xl mx-auto mb-10 text-lg opacity-90">
           Sumate a Omia y creá tu landing page profesional hoy mismo. Conectá directamente con alumnos sin intermediarios.
         </p>
-        <button 
+        <button
           onClick={() => {
             setAuthMode("register");
             setIsAuthOpen(true);
           }}
-          className="bg-white text-[#8CAE99] hover:bg-[#FDFBF7] px-8 py-4 rounded-full font-medium transition-colors shadow-sm"
+          className="bg-white text-[#8CAE99] hover:bg-[#FDFBF7] active:scale-[0.97] px-8 py-4 rounded-full font-medium transition-all shadow-sm"
         >
           Crear mi Perfil
         </button>
-      </section>
+      </motion.section>
 
       <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} initialMode={authMode} />
     </>

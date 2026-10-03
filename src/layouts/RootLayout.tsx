@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Outlet, Link } from "react-router-dom";
 import { AIChat } from "../components/AIChat";
 import { useAuth } from "../contexts/AuthContext";
@@ -11,6 +11,13 @@ export function RootLayout() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState<"login" | "register">("login");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 12);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const openAuth = (mode: "login" | "register") => {
     setAuthMode(mode);
@@ -20,7 +27,7 @@ export function RootLayout() {
   return (
     <div className="min-h-screen bg-white font-sans text-[#2C2C2C]">
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md z-40 border-b border-[#E5E5E5]">
+      <nav className={`fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md z-40 border-b border-[#E5E5E5] transition-shadow duration-300 ${scrolled ? "shadow-md" : "shadow-none"}`}>
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Link to="/" className="text-2xl font-serif italic font-medium tracking-tight">Omia</Link>

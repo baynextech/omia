@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { apiFetch } from "../lib/api";
-import { MapPin, Check, ArrowRight } from "lucide-react";
+import { MapPin, Check, ArrowRight, Star, Heart } from "lucide-react";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Hero } from "../components/Hero";
 import { MapZones } from "../components/MapZones";
 import { SEOMeta } from "../components/SEOMeta";
@@ -8,6 +9,61 @@ import { TeacherCard, Teacher } from "../components/TeacherCard";
 import { useAuth } from "../contexts/AuthContext";
 import { AuthModal } from "../components/AuthModal";
 import { motion } from "motion/react";
+
+const DEMO_TEACHERS = [
+  {
+    id: "demo-1",
+    name: "Valentina Ruiz",
+    specialty: "Yoga Vinyasa & Meditación",
+    discipline: "Yoga",
+    location: "Palermo",
+    rating: 4.9,
+    reviews: 48,
+    image: "https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=600&q=80&auto=format&fit=crop",
+    bio: "8 años de experiencia. Especializada en flow dinámico y técnicas de respiración consciente.",
+    price: "$8.500/clase",
+    availableDays: ["Lun", "Mié", "Vie"],
+  },
+  {
+    id: "demo-2",
+    name: "Lucía Méndez",
+    specialty: "Pilates Reformer",
+    discipline: "Pilates",
+    location: "Recoleta",
+    rating: 5.0,
+    reviews: 62,
+    image: "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=600&q=80&auto=format&fit=crop",
+    bio: "Certificada en STOTT Pilates. Clases personalizadas con máquina Reformer.",
+    price: "$12.000/clase",
+    availableDays: ["Mar", "Jue", "Sáb"],
+  },
+  {
+    id: "demo-3",
+    name: "Camila Torres",
+    specialty: "Yoga & Pilates Mat",
+    discipline: "Yoga & Pilates",
+    location: "Belgrano",
+    rating: 4.8,
+    reviews: 34,
+    image: "https://images.unsplash.com/photo-1549576490-b0b4831ef60a?w=600&q=80&auto=format&fit=crop",
+    bio: "Fusión de yoga y pilates mat para mejorar postura, flexibilidad y fuerza core.",
+    price: "$7.000/clase",
+    availableDays: ["Lun", "Mar", "Jue"],
+  },
+  {
+    id: "demo-4",
+    name: "Martina Sosa",
+    specialty: "Barre & Pilates",
+    discipline: "Pilates",
+    location: "San Telmo",
+    rating: 4.9,
+    reviews: 27,
+    image: "https://images.unsplash.com/photo-1518310383802-640c2de311b2?w=600&q=80&auto=format&fit=crop",
+    bio: "Ballet fitness y pilates. Clases de barre para tonificar y estirar.",
+    price: "$9.000/clase",
+    availableDays: ["Mié", "Vie", "Sáb"],
+  },
+];
 
 const fadeUp = {
   hidden: { opacity: 0, y: 32 },
@@ -139,23 +195,89 @@ export function Home() {
             </div>
           </motion.div>
 
-          {teachers.length > 0 ? (
-            <motion.div
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-              variants={stagger}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-60px" }}
-            >
-              {teachers.map(teacher => (
-                <TeacherCard key={teacher.id} teacher={teacher} />
-              ))}
-            </motion.div>
-          ) : (
-            <div className="py-20 text-center">
-              <p className="text-[#9DB085] text-sm">Todavía no hay profes en esta zona.</p>
-            </div>
-          )}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {(teachers.length > 0 ? teachers.slice(0, 4) : DEMO_TEACHERS).map((t, i) => (
+              <motion.div
+                key={t.id}
+                className="group relative overflow-hidden rounded-sm bg-[#1C3829] cursor-pointer"
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-60px" }}
+                transition={{ duration: 0.5, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] }}
+                whileHover={{ y: -6 }}
+              >
+                {/* Imagen */}
+                <div className="relative h-72 overflow-hidden">
+                  <img
+                    src={t.image}
+                    alt={t.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    referrerPolicy="no-referrer"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#1C3829] via-[#1C3829]/10 to-transparent" />
+
+                  {/* Badge disciplina */}
+                  <div className="absolute top-3 left-3">
+                    <span className="text-[10px] font-bold px-2.5 py-1 rounded-sm uppercase tracking-wider bg-[#1C3829]/80 backdrop-blur-sm text-[#C8D8B0] border border-[#98A77C]/30">
+                      {t.discipline}
+                    </span>
+                  </div>
+
+                  {/* Corazón */}
+                  <button className="absolute top-3 right-3 bg-[#1C3829]/70 backdrop-blur-sm p-2 rounded-sm opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Heart className="w-3.5 h-3.5 text-white/80" />
+                  </button>
+
+                  {/* Nombre sobre imagen */}
+                  <div className="absolute bottom-0 left-0 right-0 p-4">
+                    <div className="flex items-start justify-between gap-2">
+                      <h3 className="text-lg font-serif font-medium text-white leading-tight">{t.name}</h3>
+                      <div className="flex items-center gap-1 shrink-0">
+                        <Star className="w-3 h-3 fill-[#98A77C] text-[#98A77C]" />
+                        <span className="text-xs font-semibold text-white">{t.rating}</span>
+                      </div>
+                    </div>
+                    <p className="text-[#9DB085] text-xs mt-0.5">{t.specialty}</p>
+                  </div>
+                </div>
+
+                {/* Cuerpo */}
+                <div className="p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-1 text-[#9DB085] text-xs">
+                      <MapPin className="w-3 h-3" />
+                      <span>{t.location}</span>
+                      <span className="opacity-40">·</span>
+                      <span>{t.reviews} reseñas</span>
+                    </div>
+                    <span className="text-[#C8D8B0] text-xs font-semibold">{t.price}</span>
+                  </div>
+                  <p className="text-[#7a9d85] text-xs leading-relaxed line-clamp-2 mb-4">{t.bio}</p>
+                  <div className="flex gap-1.5">
+                    {(t.availableDays || []).map(d => (
+                      <span key={d} className="px-2 py-0.5 bg-[#2a4d38] text-[#9DB085] text-[10px] font-medium rounded-sm">
+                        {d}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Hover overlay CTA */}
+                <div className="absolute inset-0 bg-[#1C3829]/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
+                  <div className="text-center px-6">
+                    <p className="text-white font-serif text-lg mb-1">{t.name}</p>
+                    <p className="text-[#9DB085] text-xs mb-5">{t.specialty}</p>
+                    <a
+                      href={`/profesor/${t.id}`}
+                      className="inline-block bg-[#98A77C] hover:bg-[#88976C] text-white px-6 py-2.5 rounded-sm text-sm font-semibold transition-colors"
+                    >
+                      Ver Perfil
+                    </a>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 

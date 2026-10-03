@@ -5,60 +5,42 @@ import { motion } from "motion/react";
 
 const HERO_VIDEOS = ["/videos/hero_1.mp4", "/videos/hero_2.mp4", "/videos/hero_3.mp4"];
 
-const container = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.14, delayChildren: 0.1 } }
-};
-const item = {
-  hidden: { opacity: 0, y: 32 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } }
-};
+const container = { hidden: {}, visible: { transition: { staggerChildren: 0.14, delayChildren: 0.3 } } };
+const item = { hidden: { opacity: 0, y: 32 }, visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } } };
 
 export function Hero() {
   const [currentIdx, setCurrentIdx] = useState(0);
-  const [ready, setReady] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
-
-    setReady(false);
-
-    const onCanPlay = () => {
-      setReady(true);
-      v.play().catch(() => {
-        const retry = () => { v.play().catch(() => {}); };
-        document.addEventListener("click", retry, { once: true });
-      });
-    };
-
+    // Siempre intentar play apenas el componente monta
+    v.muted = true;
+    v.play().catch(() => {
+      const retry = () => { v.play().catch(() => {}); };
+      document.addEventListener("click", retry, { once: true });
+    });
     const onEnded = () => setCurrentIdx(i => (i + 1) % HERO_VIDEOS.length);
-
-    v.addEventListener("canplaythrough", onCanPlay, { once: true });
     v.addEventListener("ended", onEnded);
-
-    return () => {
-      v.removeEventListener("canplaythrough", onCanPlay);
-      v.removeEventListener("ended", onEnded);
-    };
+    return () => v.removeEventListener("ended", onEnded);
   }, [currentIdx]);
 
   return (
     <section className="relative w-full min-h-screen flex items-center justify-center bg-[#1C3829] overflow-hidden">
-      {/* key fuerza remount limpio al cambiar video */}
+      {/* Video — siempre visible, key fuerza remount al cambiar src */}
       <video
         key={currentIdx}
         ref={videoRef}
         src={HERO_VIDEOS[currentIdx]}
         muted
         playsInline
+        autoPlay
         preload="auto"
-        className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000"
-        style={{ opacity: ready ? 1 : 0 }}
+        className="absolute inset-0 w-full h-full object-cover"
       />
 
-      <div className="absolute inset-0 bg-gradient-to-b from-[#0d1f14]/80 via-[#1C3829]/55 to-[#0d1f14]/70 z-10" />
+      <div className="absolute inset-0 bg-gradient-to-b from-[#0d1f14]/75 via-[#1C3829]/50 to-[#0d1f14]/70 z-10" />
       <div className="absolute inset-0 bg-gradient-to-r from-[#0d1f14]/60 via-transparent to-transparent z-10" />
 
       <motion.div
@@ -72,16 +54,12 @@ export function Hero() {
           Yoga · Pilates · Bienestar · Buenos Aires
         </motion.span>
 
-        <motion.h1
-          variants={item}
-          className="text-4xl sm:text-5xl md:text-6xl font-serif font-light tracking-tight text-white max-w-2xl leading-[1.1] mb-6"
-        >
+        <motion.h1 variants={item} className="text-4xl sm:text-5xl md:text-6xl font-serif font-light tracking-tight text-white max-w-2xl leading-[1.1] mb-6">
           Encontrá tu profe, <span className="italic text-[#C8D8B0]">tu centro</span> y tu práctica.
         </motion.h1>
 
         <motion.p variants={item} className="text-base md:text-lg text-white/70 max-w-xl font-light leading-relaxed mb-10">
-          Conectá con los mejores instructores e institutos de Yoga & Pilates en Argentina.
-          Leé opiniones reales, reservá tu lugar y equipate.
+          Conectá con los mejores instructores e institutos de Yoga & Pilates en Argentina. Leé opiniones reales, reservá tu lugar y equipate.
         </motion.p>
 
         <motion.div variants={item} className="flex flex-wrap items-center gap-3">
@@ -108,11 +86,7 @@ export function Hero() {
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2 opacity-50">
         <span className="text-white text-[10px] uppercase tracking-widest font-medium">Scroll</span>
         <div className="w-px h-12 bg-white/40 relative overflow-hidden">
-          <motion.div
-            className="absolute top-0 left-0 right-0 bg-white h-4"
-            animate={{ y: ["-100%", "300%"] }}
-            transition={{ duration: 1.4, repeat: Infinity, ease: "linear" }}
-          />
+          <motion.div className="absolute top-0 left-0 right-0 bg-white h-4" animate={{ y: ["-100%", "300%"] }} transition={{ duration: 1.4, repeat: Infinity, ease: "linear" }} />
         </div>
       </div>
     </section>

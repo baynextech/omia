@@ -67,7 +67,7 @@ export function AIChat() {
         )}
         <button
           onClick={() => setIsOpen(true)}
-          className={`bg-[#98A77C] hover:bg-[#88976C] text-white p-4.5 rounded-sm shadow-2xl transition-all duration-300 pointer-events-auto ${isOpen ? 'scale-0' : 'scale-100 hover:scale-110'}`}
+          className={`bg-[#98A77C] hover:bg-[#88976C] text-white p-4 rounded-full shadow-2xl transition-all duration-300 pointer-events-auto ${isOpen ? 'scale-0' : 'scale-100 hover:scale-110'}`}
           title="Omia AI Guide"
         >
           <MessageSquare className="w-6 h-6" />

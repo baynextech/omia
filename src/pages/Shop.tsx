@@ -219,7 +219,7 @@ export function Shop() {
     if (cart.length === 0) return;
     setIsProcessingPayment(true);
     try {
-      const summaryTitle = `Compra Prana Shop (${cart.length} productos)`;
+      const summaryTitle = `Compra Omia Shop (${cart.length} productos)`;
       const res = await fetch("/api/payments/mercadopago", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -249,7 +249,7 @@ export function Shop() {
   const handleWhatsAppCheckout = () => {
     if (cart.length === 0) return;
     const itemsText = cart.map(i => `• ${i.quantity}x ${i.product.name} ($${(i.product.price * i.quantity).toLocaleString("es-AR")})`).join("\n");
-    const fullMessage = `¡Hola Prana Shop! Quisiera encargar el siguiente pedido:\n\n${itemsText}\n\n*Total:* $${cartTotal.toLocaleString("es-AR")}\n\n¿Tienen disponibilidad y envíos? Gracias!`;
+    const fullMessage = `¡Hola Omia Shop! Quisiera encargar el siguiente pedido:\n\n${itemsText}\n\n*Total:* $${cartTotal.toLocaleString("es-AR")}\n\n¿Tienen disponibilidad y envíos? Gracias!`;
     const encoded = encodeURIComponent(fullMessage);
     window.open(`https://wa.me/5491133445566?text=${encoded}`, "_blank");
   };
@@ -257,9 +257,9 @@ export function Shop() {
   return (
     <div className="py-12 px-6 max-w-7xl mx-auto min-h-screen">
       <SEOMeta 
-        title="Tienda de Yoga & Pilates | Equipamiento, Mats y Accesorios - Prana"
+        title="Tienda de Yoga & Pilates | Equipamiento, Mats y Accesorios - Omia"
         description="Comprá el mejor equipamiento para tu práctica de Yoga y Pilates: Mats ecológicos, colchonetas para Reformer, aros Magic Circle, bloques de corcho, indumentaria y aromaterapia."
-        keywords="tienda de yoga, productos pilates, mats de yoga, reformer mats, aro de pilates, bloques de corcho, tienda prana"
+        keywords="tienda de yoga, productos pilates, mats de yoga, reformer mats, aro de pilates, bloques de corcho, tienda omia"
         jsonLd={{
           "@context": "https://schema.org",
           "@type": "ItemList",
@@ -304,7 +304,7 @@ export function Shop() {
         <div className="max-w-2xl relative z-10">
           <span className="text-xs font-bold tracking-widest text-[#8CAE99] uppercase mb-3 block flex items-center gap-1.5">
             <Sparkles className="w-4 h-4" />
-            Tienda Oficial Prana
+            Tienda Oficial Omia
           </span>
           <h1 className="text-4xl md:text-5xl font-light tracking-tight text-[#2C2C2C] mb-4">
             Equipamiento para <span className="italic font-serif">Yoga & Pilates</span>
@@ -343,7 +343,7 @@ export function Shop() {
         <div className="bg-[#FDFBF7] border border-[#E5E5E5] p-4 rounded-2xl flex items-center gap-3">
           <ShieldCheck className="w-6 h-6 text-[#8CAE99] shrink-0" />
           <div>
-            <h4 className="text-sm font-semibold text-[#2C2C2C]">Garantía Prana 30 Días</h4>
+            <h4 className="text-sm font-semibold text-[#2C2C2C]">Garantía Omia 30 Días</h4>
             <p className="text-xs text-[#5D5D5D]">Calidad asegurada y cambios sin complicaciones.</p>
           </div>
         </div>

@@ -12,7 +12,7 @@ interface SEOMetaProps {
 export function SEOMeta({ title, description, keywords, canonicalUrl, ogImage, jsonLd }: SEOMetaProps) {
   useEffect(() => {
     // 1. Title
-    const fullTitle = title ? `${title} | Prana Yoga & Pilates` : "Prana - Profesores, Institutos y Tienda de Yoga & Pilates";
+    const fullTitle = title ? `${title} | Omia Yoga & Pilates` : "Omia - Profesores, Institutos y Tienda de Yoga & Pilates";
     document.title = fullTitle;
 
     // Helper to set or update meta tag

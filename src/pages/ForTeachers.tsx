@@ -15,7 +15,7 @@ export function ForTeachers() {
         body: JSON.stringify({
           type: "subscription",
           itemId: "premium-sub",
-          title: "Membresía Prana Pro",
+          title: "Membresía Omia Pro",
           price: "12000"
         })
       });
@@ -36,14 +36,14 @@ export function ForTeachers() {
   return (
     <div className="py-12 px-6 max-w-7xl mx-auto min-h-screen">
       <SEOMeta 
-        title="Unite como Profesor de Yoga | Prana"
-        description="Publicá tus clases de yoga, creá tu landing page personalizable y captá alumnos en tu zona sin pagar comisiones por clase. Prana es la red de yoga líder."
+        title="Unite como Profesor de Yoga | Omia"
+        description="Publicá tus clases de yoga, creá tu landing page personalizable y captá alumnos en tu zona sin pagar comisiones por clase. Omia es la red de yoga líder."
         keywords="publicar clases de yoga, marketing para profesores de yoga, membresias para instructores, landing page para profesores de yoga"
       />
       {/* Hero section */}
       <div className="text-center mb-16 max-w-3xl mx-auto">
         <span className="text-xs bg-[#8CAE99]/15 text-[#8CAE99] px-3.5 py-1.5 rounded-full font-bold tracking-widest uppercase mb-4 inline-block">
-          Unite a la red de Prana
+          Unite a la red de Omia
         </span>
         <h1 className="text-4xl md:text-6xl font-light tracking-tight mb-6 text-[#2C2C2C] leading-tight">
           Conectá con más alumnos y multiplicá tu práctica.
@@ -97,7 +97,7 @@ export function ForTeachers() {
         <div className="md:col-span-7 p-8 md:p-12 flex flex-col justify-between">
           <div>
             <span className="text-xs text-[#8CAE99] font-bold uppercase tracking-wider">Plan para Instructores</span>
-            <h2 className="text-3xl font-semibold text-[#2C2C2C] mt-2 mb-6">Prana Pro Membership</h2>
+            <h2 className="text-3xl font-semibold text-[#2C2C2C] mt-2 mb-6">Omia Pro Membership</h2>
             
             <p className="text-[#5D5D5D] text-sm mb-8 leading-relaxed">
               Súmate al único plan diseñado para dar visibilidad total a tu agenda. Sin contratos forzosos. Cancelás en cualquier momento con un clic en tu panel.
@@ -148,7 +148,7 @@ export function ForTeachers() {
               <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
             ) : (
               <>
-                <span>Unirme a Prana Pro</span>
+                <span>Unirme a Omia Pro</span>
                 <Sparkles className="w-4 h-4" />
               </>
             )}
@@ -179,7 +179,7 @@ export function ForTeachers() {
               ¿Hay costos extras o comisiones por clases vendidas?
             </h4>
             <p className="text-sm text-[#5D5D5D] leading-relaxed">
-              Prana no cobra ninguna comisión extra sobre el valor de tu clase. El 100% de lo abonado por tus alumnos se acredita directamente a tu cuenta de Mercado Pago asociada.
+              Omia no cobra ninguna comisión extra sobre el valor de tu clase. El 100% de lo abonado por tus alumnos se acredita directamente a tu cuenta de Mercado Pago asociada.
             </p>
           </div>
         </div>

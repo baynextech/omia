@@ -358,14 +358,14 @@ export function TeacherProfile() {
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-5">
               <a 
-                href={`mailto:${teacher.email || `profe_${teacher.id}@pranayoga.com`}?subject=Consulta sobre clases de yoga - Prana&body=Hola ${teacher.name}, vi tu perfil en Prana y quería hacerte una consulta.`}
+                href={`mailto:${teacher.email || `profe_${teacher.id}@omiayoga.com`}?subject=Consulta sobre clases de yoga - Omia&body=Hola ${teacher.name}, vi tu perfil en Omia y quería hacerte una consulta.`}
                 className="flex items-center justify-center gap-2.5 py-3.5 px-4 bg-white hover:bg-neutral-50 text-[#2C2C2C] rounded-full font-semibold border border-[#E5E5E5] transition-all text-sm shadow-sm active:scale-98"
               >
                 <Mail className="w-4 h-4 text-[#8CAE99]" />
-                <span className="truncate">Enviar E-mail ({teacher.email || `profe_${teacher.id}@pranayoga.com`})</span>
+                <span className="truncate">Enviar E-mail ({teacher.email || `profe_${teacher.id}@omiayoga.com`})</span>
               </a>
               <a 
-                href={`https://wa.me/${teacher.phone ? teacher.phone.replace(/\D/g, '') : '5491133445566'}?text=Hola%20${encodeURIComponent(teacher.name)}!%20Vi%20tu%20perfil%20en%20Prana%20y%20me%20gustaría%20hacerte%20una%20consulta%20por%20tus%20clases.%20Gracias!`}
+                href={`https://wa.me/${teacher.phone ? teacher.phone.replace(/\D/g, '') : '5491133445566'}?text=Hola%20${encodeURIComponent(teacher.name)}!%20Vi%20tu%20perfil%20en%20Omia%20y%20me%20gustaría%20hacerte%20una%20consulta%20por%20tus%20clases.%20Gracias!`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center gap-2.5 py-3.5 px-4 bg-[#25D366] hover:bg-[#20ba5a] text-white rounded-full font-semibold transition-all text-sm shadow-sm active:scale-98 cursor-pointer"

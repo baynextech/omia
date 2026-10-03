@@ -68,7 +68,7 @@ export function Directory() {
   return (
     <div className="py-12 px-6 max-w-7xl mx-auto">
       <SEOMeta 
-        title="Directorio de Profesores de Yoga y Pilates | Prana"
+        title="Directorio de Profesores de Yoga y Pilates | Omia"
         description="Buscá y filtrá entre los mejores instructores de Yoga y Pilates (Reformer, Mat, Barre) en Buenos Aires. Filtrá por barrio, disciplina, precios y horarios."
         keywords="directorio profesores yoga, instructores de pilates, pilates reformer, pilates mat, yoga buenos aires, profesores ashtanga, pilates postural"
       />

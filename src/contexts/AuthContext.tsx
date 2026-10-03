@@ -30,7 +30,7 @@ const SUPABASE_URL = "https://wuiyvwzcxusqgazozqbz.supabase.co";
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<any | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [token, setToken] = useState<string | null>(() => localStorage.getItem("prana_token"));
+  const [token, setToken] = useState<string | null>(() => localStorage.getItem("omia_token"));
 
   useEffect(() => {
     // Detectar callback OAuth (token en hash de URL)
@@ -39,7 +39,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const params = new URLSearchParams(hash.substring(1));
       const accessToken = params.get("access_token");
       if (accessToken) {
-        localStorage.setItem("prana_token", accessToken);
+        localStorage.setItem("omia_token", accessToken);
         setToken(accessToken);
         window.history.replaceState({}, document.title, window.location.pathname);
         fetch("/api/auth/me", { headers: { Authorization: `Bearer ${accessToken}` } })
@@ -53,7 +53,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const refreshProfile = async () => {
-    const t = localStorage.getItem("prana_token");
+    const t = localStorage.getItem("omia_token");
     if (!t) return;
     try {
       const res = await fetch("/api/auth/me", { headers: { Authorization: `Bearer ${t}` } });
@@ -78,7 +78,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!res.ok) return { error: data.error || "Error al iniciar sesión" };
       const t = data.session?.access_token;
       if (t) {
-        localStorage.setItem("prana_token", t);
+        localStorage.setItem("omia_token", t);
         setToken(t);
         setUser(data.user);
         setProfile(data.profile);
@@ -100,7 +100,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!res.ok) return { error: data.error || "Error al registrarse" };
       if (data.session?.access_token) {
         const t = data.session.access_token;
-        localStorage.setItem("prana_token", t);
+        localStorage.setItem("omia_token", t);
         setToken(t);
         setUser(data.user);
         await refreshProfile();
@@ -117,7 +117,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = () => {
-    localStorage.removeItem("prana_token");
+    localStorage.removeItem("omia_token");
     setToken(null);
     setUser(null);
     setProfile(null);

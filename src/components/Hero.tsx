@@ -41,7 +41,7 @@ export function Hero() {
 
       <div className="relative z-20 w-full max-w-7xl mx-auto px-6 lg:px-8 flex flex-col items-start gap-6">
         <span className="text-sm font-semibold tracking-widest text-[#8CAE99] uppercase flex items-center gap-2">
-          <span>Prana</span>
+          <span>Omia</span>
           <span className="opacity-40">•</span>
           <span>Yoga, Pilates & Bienestar</span>
         </span>
@@ -65,7 +65,7 @@ export function Hero() {
           </Link>
 
           <Link to="/tienda" className="bg-[#2C2C2C] hover:bg-black text-white px-6 py-3.5 rounded-full font-medium transition-colors shadow-xs flex items-center gap-2">
-            <span>Tienda Prana</span>
+            <span>Tienda Omia</span>
             <span className="text-[10px] bg-[#8CAE99] text-white font-bold px-2 py-0.5 rounded-full">Shop</span>
           </Link>
         </div>

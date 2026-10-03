@@ -5,7 +5,7 @@ import Markdown from "react-markdown";
 export function AIChat() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<{ role: "user" | "ai"; text: string }[]>([
-    { role: "ai", text: "Namaste 🙏. Soy tu guía inteligente de Prana Yoga. ¿Cómo te puedo ayudar hoy? Podés buscar estilos, consultarme sobre posturas, o pedirme recomendaciones de profes en Buenos Aires." }
+    { role: "ai", text: "Namaste 🙏. Soy tu guía inteligente de Omia Yoga. ¿Cómo te puedo ayudar hoy? Podés buscar estilos, consultarme sobre posturas, o pedirme recomendaciones de profes en Buenos Aires." }
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -67,7 +67,7 @@ export function AIChat() {
         <button
           onClick={() => setIsOpen(true)}
           className={`bg-[#8CAE99] hover:bg-[#7a9d88] text-white p-4.5 rounded-full shadow-2xl transition-all duration-300 pointer-events-auto ${isOpen ? 'scale-0' : 'scale-100 hover:scale-110'}`}
-          title="Prana AI Guide"
+          title="Omia AI Guide"
         >
           <MessageSquare className="w-6 h-6" />
         </button>
@@ -83,7 +83,7 @@ export function AIChat() {
               </div>
               <div>
                 <h3 className="font-medium text-[#2C2C2C] flex items-center gap-1.5">
-                  <span>Prana Guide</span>
+                  <span>Omia Guide</span>
                   <span className="text-[10px] bg-[#8CAE99]/15 text-[#8CAE99] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider">IA</span>
                 </h3>
                 <p className="text-xs text-[#8CAE99]">Asistente de Bienestar</p>

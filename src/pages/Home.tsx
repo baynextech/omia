@@ -36,7 +36,7 @@ export function Home() {
         body: JSON.stringify({
           type: "subscription",
           itemId: planId,
-          title: `Suscripción Prana - ${planName}`,
+          title: `Suscripción Omia - ${planName}`,
           price: planPrice
         })
       });
@@ -52,7 +52,7 @@ export function Home() {
   return (
     <>
       <SEOMeta 
-        title="Prana - Profesores, Institutos y Tienda de Yoga & Pilates"
+        title="Omia - Profesores, Institutos y Tienda de Yoga & Pilates"
         description="Encontrá los mejores profesores, instructores e institutos de Yoga y Pilates (Reformer, Mat, Barre) en Buenos Aires. Leé opiniones reales, reservá clases y equipate en nuestra tienda oficial."
         keywords="clases de yoga, profesores de yoga, instructores de pilates, pilates reformer, institutos de pilates, yoga buenos aires, yoga palermo, recoleta, belgrano, san telmo, tienda de yoga, mats de yoga"
         ogImage="/images/yoga_hero_1779994397642.png"
@@ -61,20 +61,20 @@ export function Home() {
           "@graph": [
             {
               "@type": "WebSite",
-              "@id": "https://prana.com/#website",
-              "url": "https://prana.com/",
-              "name": "Prana Yoga & Pilates",
+              "@id": "https://omia.com/#website",
+              "url": "https://omia.com/",
+              "name": "Omia Yoga & Pilates",
               "description": "La plataforma líder para conectar con profesores e institutos de Yoga & Pilates en Argentina.",
               "inLanguage": "es-AR"
             },
             {
               "@type": "Organization",
-              "@id": "https://prana.com/#organization",
-              "name": "Prana Bienestar",
-              "url": "https://prana.com/",
-              "logo": "https://prana.com/images/yoga_hero_1779994397642.png",
+              "@id": "https://omia.com/#organization",
+              "name": "Omia Bienestar",
+              "url": "https://omia.com/",
+              "logo": "https://omia.com/images/yoga_hero_1779994397642.png",
               "sameAs": [
-                "https://instagram.com/pranayoga.ar"
+                "https://instagram.com/omiayoga.ar"
               ]
             }
           ]
@@ -152,7 +152,7 @@ export function Home() {
                 <ul className="space-y-4 mb-8">
                   <li className="flex items-start gap-2.5 text-sm text-[#5D5D5D]">
                     <Check className="w-4 h-4 text-[#8CAE99] shrink-0 mt-0.5" />
-                    <span>Landing page con URL propia (e.g. prana.com/profesor/tu-id)</span>
+                    <span>Landing page con URL propia (e.g. omia.com/profesor/tu-id)</span>
                   </li>
                   <li className="flex items-start gap-2.5 text-sm text-[#5D5D5D]">
                     <Check className="w-4 h-4 text-[#8CAE99] shrink-0 mt-0.5" />
@@ -268,7 +268,7 @@ export function Home() {
           ¿Sos profe de yoga o tenés un estudio?
         </h2>
         <p className="text-[#FDFBF7] max-w-2xl mx-auto mb-10 text-lg opacity-90">
-          Sumate a Prana y creá tu landing page profesional hoy mismo. Conectá directamente con alumnos sin intermediarios.
+          Sumate a Omia y creá tu landing page profesional hoy mismo. Conectá directamente con alumnos sin intermediarios.
         </p>
         <button 
           onClick={() => {

@@ -170,7 +170,7 @@ export function UserProfile() {
         setLandingForm(prev => ({
           ...prev,
           name: profileData.name,
-          bio: profileData.bio || "Instructor apasionado en Prana Yoga.",
+          bio: profileData.bio || "Instructor apasionado en Omia Yoga.",
           email: profileData.email || "",
           phone: "",
           images: []
@@ -202,7 +202,7 @@ export function UserProfile() {
             setPaymentResult({
               success: true,
               message: type === "subscription" 
-                ? `¡Felicidades! Tu plan de pauta "${itemId.toUpperCase()}" ahora está activo en Prana.`
+                ? `¡Felicidades! Tu plan de pauta "${itemId.toUpperCase()}" ahora está activo en Omia.`
                 : "¡Reserva de clase abonada con éxito! Tu instructor ya recibió la confirmación."
             });
             setSearchParams({});
@@ -775,14 +775,14 @@ export function UserProfile() {
                     <div className="flex flex-col gap-2.5 pt-4 border-t border-[#E5E5E5]">
                       <div className="grid grid-cols-2 gap-2">
                         <a 
-                          href={`mailto:profe_${teacher.id}@pranayoga.com?subject=Consulta sobre clases de yoga - Prana&body=Hola ${teacher.name}, vi tu perfil en Prana y quería hacerte una consulta.`}
+                          href={`mailto:profe_${teacher.id}@omiayoga.com?subject=Consulta sobre clases de yoga - Omia&body=Hola ${teacher.name}, vi tu perfil en Omia y quería hacerte una consulta.`}
                           className="flex items-center justify-center gap-1.5 py-2.5 bg-[#FDFBF7] hover:bg-black/5 text-[#2C2C2C] rounded-xl text-xs font-semibold border border-[#E5E5E5] transition-all"
                         >
                           <Mail className="w-3.5 h-3.5 text-[#5D5D5D]" />
                           <span>Enviar Mail</span>
                         </a>
                         <a 
-                          href={`https://wa.me/5491133445566?text=Hola%20${encodeURIComponent(teacher.name)}!%20Vi%20tu%20perfil%20en%20Prana%20y%20me%20gustaría%20hacerte%20una%20consulta%20por%20tus%20clases.%20Gracias!`}
+                          href={`https://wa.me/5491133445566?text=Hola%20${encodeURIComponent(teacher.name)}!%20Vi%20tu%20perfil%20en%20Omia%20y%20me%20gustaría%20hacerte%20una%20consulta%20por%20tus%20clases.%20Gracias!`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="flex items-center justify-center gap-1.5 py-2.5 bg-[#25D366] hover:bg-[#20ba5a] text-white rounded-xl text-xs font-semibold transition-all"
@@ -892,7 +892,7 @@ export function UserProfile() {
                           </div>
                           <div>
                             <p className="font-semibold text-[#2C2C2C] text-sm">{visitor.name}</p>
-                            <p className="text-xs text-[#8CAE99]">Visita registrada en Prana</p>
+                            <p className="text-xs text-[#8CAE99]">Visita registrada en Omia</p>
                           </div>
                         </div>
                         <span className="text-xs text-[#5D5D5D] font-mono">
@@ -916,7 +916,7 @@ export function UserProfile() {
                     <span>Modelo de Pauta Transparente</span>
                   </h3>
                   <p className="text-sm text-[#5D5D5D] leading-relaxed mb-6">
-                    Prana opera bajo un esquema de <strong>comisión cero</strong> para los profesionales de yoga. 
+                    Omia opera bajo un esquema de <strong>comisión cero</strong> para los profesionales de yoga. 
                     Cobrás el total del dinero que se genera de tus reservas de clases de forma directa, sin retenciones del sitio.
                   </p>
                   <p className="text-sm text-[#5D5D5D] leading-relaxed">
@@ -1251,7 +1251,7 @@ export function UserProfile() {
                   <AlertCircle className="w-12 h-12 text-[#8CAE99] mx-auto mb-4" />
                   <h2 className="text-2xl font-medium text-[#2C2C2C] mb-3">Pauta no activa</h2>
                   <p className="text-[#5D5D5D] mb-8 leading-relaxed">
-                    Para poder publicar tu landing page, subir tus datos, imágenes y figurar en las búsquedas inteligentes del directorio de Prana, debés contar con un plan de pauta mensual activo. El cobro se realiza de forma fija sin comisiones sobre tus ventas.
+                    Para poder publicar tu landing page, subir tus datos, imágenes y figurar en las búsquedas inteligentes del directorio de Omia, debés contar con un plan de pauta mensual activo. El cobro se realiza de forma fija sin comisiones sobre tus ventas.
                   </p>
                   
                   <div className="p-6 bg-[#FDFBF7] rounded-3xl border border-[#E5E5E5] flex flex-col sm:flex-row justify-between items-center gap-4 text-left">
@@ -1262,7 +1262,7 @@ export function UserProfile() {
                     <div className="flex items-center gap-4 shrink-0 w-full sm:w-auto justify-between sm:justify-start">
                       <span className="text-2xl font-mono font-bold text-[#2C2C2C]">$12.000<span className="text-xs text-[#5D5D5D] font-sans">/mes</span></span>
                       <button
-                        onClick={() => handlePay("subscription", "destacado", "Membresía Prana - Plan Destacado", "12000")}
+                        onClick={() => handlePay("subscription", "destacado", "Membresía Omia - Plan Destacado", "12000")}
                         disabled={isPayingId === "destacado"}
                         className="px-5 py-3 bg-[#009EE3] hover:bg-[#008CD0] text-white rounded-full text-xs font-bold transition-all shadow-sm"
                       >
@@ -1293,7 +1293,7 @@ export function UserProfile() {
                     <div className="flex justify-between items-start mb-4">
                       <div>
                         <p className="text-sm text-[#5D5D5D] font-medium mb-1">
-                          {isTeacherOrInstitute ? `Dejado por: ${review.userName || 'Alumno/a de Prana'}` : `Reseña para ${review.teacherName}`}
+                          {isTeacherOrInstitute ? `Dejado por: ${review.userName || 'Alumno/a de Omia'}` : `Reseña para ${review.teacherName}`}
                         </p>
                         <div className="flex gap-1">
                           {[...Array(5)].map((_, i) => (

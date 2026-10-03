@@ -24,7 +24,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 function getAI() {
   return new GoogleGenAI({
     apiKey: GEMINI_KEY,
-    httpOptions: { headers: { "User-Agent": "prana-app" } },
+    httpOptions: { headers: { "User-Agent": "omia-app" } },
   });
 }
 
@@ -270,7 +270,7 @@ async function startServer() {
         method: "POST",
         headers: { "Authorization": `Bearer ${MP_TOKEN}`, "Content-Type": "application/json" },
         body: JSON.stringify({
-          items: [{ id: itemId, title: title || "Servicio Prana", quantity: 1, unit_price: parsedPrice, currency_id: "ARS" }],
+          items: [{ id: itemId, title: title || "Servicio Omia", quantity: 1, unit_price: parsedPrice, currency_id: "ARS" }],
           back_urls: {
             success: `${APP_URL}/perfil?payment=success&type=${type}&itemId=${itemId}`,
             pending: `${APP_URL}/perfil?payment=pending&type=${type}&itemId=${itemId}`,
@@ -467,7 +467,7 @@ Return ONLY a JSON object with teacherIds array.`,
       const chat = ai.chats.create({
         model: "gemini-2.0-flash",
         config: {
-          systemInstruction: `Sos el asistente de IA oficial de Prana, plataforma de Yoga y Pilates en Argentina.
+          systemInstruction: `Sos el asistente de IA oficial de Omia, plataforma de Yoga & Pilates en Argentina.
 Hablás español argentino natural (vos, che, bárbaro).
 Planes de membresía para profes: Inicial $${prices.plan_inicial_price}/mes, Destacado Pro $${prices.plan_destacado_price}/mes, Institucional $${prices.plan_institucional_price}/mes.
 Profesores disponibles: ${JSON.stringify(teachers?.map((t: any) => ({ id: t.id, name: t.name, specialty: t.specialty, location: t.location, price: t.price })))}
@@ -491,7 +491,7 @@ Siempre usá links markdown como [Ver perfil](/profesor/ID) para que el usuario 
     app.get("*", (_req, res) => res.sendFile(path.join(distPath, "index.html")));
   }
 
-  app.listen(PORT, "0.0.0.0", () => console.log(`Prana server running on port ${PORT}`));
+  app.listen(PORT, "0.0.0.0", () => console.log(`Omia server running on port ${PORT}`));
 }
 
 startServer();

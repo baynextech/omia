@@ -1,5 +1,5 @@
 {
-  "name": "Prana",
+  "name": "Omia",
   "description": "Plataforma de Yoga, Pilates (Reformer/Mat), directorio de profesores, institutos y tienda oficial con asistente IA",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]

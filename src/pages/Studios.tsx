@@ -71,7 +71,7 @@ export function Studios() {
     },
     {
       id: "s4",
-      name: "Prana Belgrano Reformer & Flow",
+      name: "Omia Belgrano Reformer & Flow",
       discipline: "Yoga & Pilates",
       location: "Belgrano",
       address: "Av. Juramento 1432, Belgrano",
@@ -110,7 +110,7 @@ export function Studios() {
   return (
     <div className="py-12 px-6 max-w-7xl mx-auto min-h-screen">
       <SEOMeta 
-        title="Estudios e Institutos de Yoga y Pilates en Buenos Aires | Prana"
+        title="Estudios e Institutos de Yoga y Pilates en Buenos Aires | Omia"
         description="Explorá los mejores estudios, institutos y centros de Yoga y Pilates Reformer en Palermo, Recoleta, Belgrano y San Telmo. Equipados con camas reformer, mats y ambiente consciente."
         keywords="estudios de yoga, institutos de pilates, pilates reformer buenos aires, centros de yoga, escuelas de yoga buenos aires"
       />

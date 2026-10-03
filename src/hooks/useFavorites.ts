@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 export function useFavorites() {
   const [favorites, setFavorites] = useState<string[]>(() => {
     try {
-      const saved = localStorage.getItem('prana_favorites');
+      const saved = localStorage.getItem('omia_favorites');
       return saved ? JSON.parse(saved) : [];
     } catch {
       return [];
@@ -11,7 +11,7 @@ export function useFavorites() {
   });
 
   useEffect(() => {
-    localStorage.setItem('prana_favorites', JSON.stringify(favorites));
+    localStorage.setItem('omia_favorites', JSON.stringify(favorites));
   }, [favorites]);
 
   const toggleFavorite = (id: string) => {

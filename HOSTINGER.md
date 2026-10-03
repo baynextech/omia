@@ -1,6 +1,6 @@
-# Guía de Despliegue en Hostinger - Prana Yoga
+# Guía de Despliegue en Hostinger - Omia
 
-Esta guía te guiará paso a paso para desplegar **Prana** en tu hosting de Hostinger, optimizado para rendimiento, SEO y compatibilidad con rutas de React.
+Esta guía te guiará paso a paso para desplegar **Omia** en tu hosting de Hostinger, optimizado para rendimiento, SEO y compatibilidad con rutas de React.
 
 ---
 

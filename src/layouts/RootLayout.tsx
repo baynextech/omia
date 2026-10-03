@@ -23,7 +23,7 @@ export function RootLayout() {
       <nav className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md z-40 border-b border-[#E5E5E5]">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Link to="/" className="text-2xl font-serif italic font-medium tracking-tight">Prana</Link>
+            <Link to="/" className="text-2xl font-serif italic font-medium tracking-tight">Omia</Link>
           </div>
           
           {/* Desktop links */}
@@ -118,7 +118,7 @@ export function RootLayout() {
                   className="text-base font-semibold py-2 px-3 hover:bg-neutral-50 rounded-xl transition-all flex items-center justify-between text-[#2C2C2C]"
                 >
                   <span className="flex items-center gap-2">
-                    <span>Tienda Prana</span>
+                    <span>Tienda Omia</span>
                     <span className="bg-[#8CAE99] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">YOGA & PILATES</span>
                   </span>
                   <span className="text-xs font-medium text-[#8CAE99]">Productos</span>
@@ -194,7 +194,7 @@ export function RootLayout() {
 
       <footer className="bg-[#FDFBF7] py-12 px-6 border-t border-[#E5E5E5]">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-          <span className="text-xl font-serif italic text-[#2C2C2C]">Prana</span>
+          <span className="text-xl font-serif italic text-[#2C2C2C]">Omia</span>
           <div className="flex gap-6 text-sm text-[#5D5D5D]">
             <a href="#" className="hover:text-[#2C2C2C]">Nosotros</a>
             <a href="#" className="hover:text-[#2C2C2C]">Términos</a>

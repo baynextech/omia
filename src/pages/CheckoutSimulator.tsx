@@ -9,7 +9,7 @@ export function CheckoutSimulator() {
 
   const type = searchParams.get("type") || "booking";
   const itemId = searchParams.get("itemId") || "";
-  const title = searchParams.get("title") || "Servicio Prana Yoga";
+  const title = searchParams.get("title") || "Servicio Omia Yoga";
   const price = searchParams.get("price") || "8000";
   const prefId = searchParams.get("prefId") || "";
 
@@ -133,7 +133,7 @@ export function CheckoutSimulator() {
                       <input type="text" placeholder="COSMO KRAMER" className="w-full bg-white border border-[#E5E5E5] rounded-lg px-3 py-2 text-sm outline-none" disabled />
                     </div>
                   </div>
-                  <p className="text-[11px] text-gray-500">Estamos operando en el entorno seguro simulado de Prana con Mercado Pago.</p>
+                  <p className="text-[11px] text-gray-500">Estamos operando en el entorno seguro simulado de Omia con Mercado Pago.</p>
                 </div>
               )}
 
@@ -159,7 +159,7 @@ export function CheckoutSimulator() {
               </div>
               <h2 className="text-2xl font-bold text-[#1A1A1A] mb-2">¡Pago acreditado!</h2>
               <p className="text-[#5D5D5D] mb-6 max-w-sm">
-                Procesamos tu pago de <strong className="text-[#1A1A1A]">{formattedPrice}</strong> con éxito. Te estamos redirigiendo de vuelta a Prana.
+                Procesamos tu pago de <strong className="text-[#1A1A1A]">{formattedPrice}</strong> con éxito. Te estamos redirigiendo de vuelta a Omia.
               </p>
               <div className="w-24 h-1 bg-gray-100 rounded-full overflow-hidden">
                 <div className="h-full bg-[#009EE3] animate-pulse w-full rounded-full" />
@@ -175,7 +175,7 @@ export function CheckoutSimulator() {
             
             <div className="border-b border-[#E5E5E5] pb-4 mb-4">
               <p className="font-semibold text-[#1A1A1A] mb-1">{title}</p>
-              <p className="text-xs text-[#5D5D5D] capitalize">Tipo: {type === "subscription" ? "Membresía Prana Pro" : "Reserva Online"}</p>
+              <p className="text-xs text-[#5D5D5D] capitalize">Tipo: {type === "subscription" ? "Membresía Omia Pro" : "Reserva Online"}</p>
             </div>
 
             <div className="flex justify-between items-center text-lg font-bold text-[#1A1A1A]">
@@ -184,7 +184,7 @@ export function CheckoutSimulator() {
             </div>
             
             <div className="mt-6 pt-6 border-t border-[#E5E5E5] text-xs text-[#5D5D5D] flex flex-col gap-2">
-              <p>📍 Proveedor: Prana Yoga Argentina</p>
+              <p>📍 Proveedor: Omia Yoga Argentina</p>
               <p>🔒 Conexión cifrada de 256 bits</p>
               <p>Ref: {prefId}</p>
             </div>
@@ -195,7 +195,7 @@ export function CheckoutSimulator() {
       {/* Footer */}
       <footer className="bg-white border-t border-[#E5E5E5] py-4 text-center text-xs text-[#5D5D5D]">
         <div className="max-w-4xl mx-auto px-6">
-          <p>© {new Date().getFullYear()} Mercado Pago. Desarrollado e integrado para Prana Yoga Argentina.</p>
+          <p>© {new Date().getFullYear()} Mercado Pago. Desarrollado e integrado para Omia Yoga Argentina.</p>
         </div>
       </footer>
     </div>

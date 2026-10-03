@@ -33,10 +33,10 @@ export function Hero() {
     };
     const onCanPlay = () => { setReady(true); tryPlay(); };
     const onEnded = () => setCurrentIdx(i => (i + 1) % HERO_VIDEOS.length);
-    if (v.readyState >= 3) { setReady(true); tryPlay(); }
-    else { v.addEventListener("canplay", onCanPlay, { once: true }); }
+    v.load();
+    v.addEventListener("canplay", onCanPlay, { once: true });
     v.addEventListener("ended", onEnded);
-    return () => { v.removeEventListener("ended", onEnded); };
+    return () => { v.removeEventListener("canplay", onCanPlay); v.removeEventListener("ended", onEnded); };
   }, [currentIdx]);
 
   return (
@@ -71,10 +71,9 @@ export function Hero() {
 
         <motion.h1
           variants={item}
-          className="text-5xl sm:text-6xl md:text-7xl font-serif font-light tracking-tight text-white max-w-3xl leading-[1.08] mb-6"
+          className="text-4xl sm:text-5xl md:text-6xl font-serif font-light tracking-tight text-white max-w-2xl leading-[1.1] mb-6"
         >
-          Encontrá tu profe, <span className="italic text-[#C8D8B0]">tu centro</span><br />
-          y tu práctica.
+          Encontrá tu profe, <span className="italic text-[#C8D8B0]">tu centro</span> y tu práctica.
         </motion.h1>
 
         <motion.p

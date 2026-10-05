@@ -1045,13 +1045,21 @@ app.post('/api/webhooks/mercadopago', h(async (req, res) => {
 // ─── Admin ────────────────────────────────────────────────────────────────────
 
 app.get('/api/admin/dashboard', requireAdmin, h(async (_req, res) => {
-  const [users, teachers, bookings, revenue, recentUsers] = await Promise.all([
+  const [users, teachers, bookings, revenue, recentUsers, monthly] = await Promise.all([
     pool.query('SELECT COUNT(*) AS n FROM users'),
     pool.query(`SELECT COUNT(*) AS n FROM teachers WHERE status = 'activo'`),
     pool.query('SELECT COUNT(*) AS n FROM bookings'),
     pool.query(`SELECT type, COALESCE(SUM(amount), 0) AS total FROM transactions WHERE status = 'aprobado' GROUP BY type`),
     pool.query('SELECT name, email, role, created_at FROM users ORDER BY created_at DESC LIMIT 5'),
+    pool.query(
+      `SELECT to_char(m, 'YYYY-MM') AS month,
+              (SELECT COUNT(*) FROM bookings b WHERE date_trunc('month', b.created_at) = m) AS bookings,
+              (SELECT COUNT(*) FROM transactions t WHERE t.status = 'aprobado' AND date_trunc('month', t.created_at) = m) AS transactions
+       FROM generate_series(date_trunc('month', NOW()) - interval '5 months', date_trunc('month', NOW()), interval '1 month') AS m
+       ORDER BY m`
+    ),
   ]);
+  const MONTHS = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
   const byType = Object.fromEntries(revenue.rows.map((r) => [r.type, Number(r.total)]));
   res.json({
     totalUsers: users.rows[0].n,
@@ -1064,6 +1072,11 @@ app.get('/api/admin/dashboard', requireAdmin, h(async (_req, res) => {
       products: byType.product || 0,
     },
     recentUsers: recentUsers.rows,
+    monthly: monthly.rows.map((r) => ({
+      label: MONTHS[parseInt(r.month.slice(5), 10) - 1],
+      bookings: r.bookings,
+      transactions: r.transactions,
+    })),
   });
 }));
 

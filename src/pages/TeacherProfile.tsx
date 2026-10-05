@@ -322,7 +322,7 @@ export function TeacherProfile() {
               <div className="flex items-center gap-1.5 text-[#5D5D5D]">
                 <Star className="w-5 h-5 fill-[#98A77C] text-[#98A77C]" />
                 <span className="font-medium text-[#2C2C2C]">{teacher.rating}</span>
-                <span className="text-sm">({teacher.reviews} reseñas)</span>
+                <span className="text-sm">({teacher.reviews} {teacher.reviews === 1 ? "reseña" : "reseñas"})</span>
               </div>
             </div>
           </div>

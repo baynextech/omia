@@ -15,6 +15,8 @@ export function RootLayout() {
   // Solo la home tiene un hero oscuro detrás; en el resto el encabezado va siempre sólido.
   const { pathname } = useLocation();
   const scrolled = isScrolled || pathname !== "/";
+  // Los paneles (/perfil y /admin) traen su propia barra lateral y cabecera: ahí no va el menú ni el pie del sitio.
+  const isPanel = isAuthenticated && /^\/(perfil|admin)/.test(pathname);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -30,7 +32,7 @@ export function RootLayout() {
   return (
     <div className="min-h-screen bg-[#F4EFE4] font-sans text-[#2C2C2C]">
       {/* Navigation */}
-      <nav className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
+      <nav className={`${isPanel ? "hidden " : ""}fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
         scrolled
           ? "bg-[#F4EFE4]/95 backdrop-blur-md shadow-sm border-b border-[#E0D8CC]"
           : "bg-transparent"
@@ -203,7 +205,7 @@ export function RootLayout() {
         <Outlet />
       </main>
 
-      <footer className="bg-[#1C3829] py-16 px-6">
+      <footer className={`${isPanel ? "hidden " : ""}bg-[#1C3829] py-16 px-6`}>
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row items-start justify-between gap-10 mb-12">
             <div>
@@ -234,7 +236,7 @@ export function RootLayout() {
             </div>
           </div>
           <div className="border-t border-[#2a4d38] pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-[#6B8C78] text-sm">© 2025 Omia Bienestar. Todos los derechos reservados.</p>
+            <p className="text-[#6B8C78] text-sm">© {new Date().getFullYear()} Omia Bienestar. Todos los derechos reservados.</p>
             <p className="text-[#6B8C78] text-xs">Yoga · Pilates · Reformer · Mat · Barre · Buenos Aires</p>
           </div>
         </div>

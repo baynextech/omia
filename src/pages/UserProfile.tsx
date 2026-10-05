@@ -48,6 +48,9 @@ const convertToWebP = (file: File): Promise<string> => {
   });
 };
 
+// "2026-10-12" → "12/10/2026"
+const formatDate = (iso: string) => (iso || "").split("-").reverse().join("/");
+
 interface Booking {
   id: string;
   teacherId: string;
@@ -498,11 +501,6 @@ export function UserProfile() {
                     <stat.icon size={15} className="text-[#98A77C]" />
                   </div>
                   <p className="text-3xl font-light text-[#2C2C2C]">{stat.value}</p>
-                  <div className="flex items-end gap-0.5 mt-3 h-8">
-                    {stat.bars.map((h, i) => (
-                      <div key={i} className="flex-1 rounded-sm bg-[#98A77C]/30" style={{height:`${h}%`}} />
-                    ))}
-                  </div>
                 </div>
               ))}
             </div>
@@ -667,7 +665,7 @@ export function UserProfile() {
                           <p className="font-medium text-[#2C2C2C]">{booking.studentName || "Alumno/a"}</p>
                           {booking.studentEmail && <a href={`mailto:${booking.studentEmail}`} className="text-xs text-[#98A77C] hover:underline">{booking.studentEmail}</a>}
                         </td>
-                        <td className="px-6 py-4">{booking.date}</td>
+                        <td className="px-6 py-4">{formatDate(booking.date)}</td>
                         <td className="px-6 py-4">{booking.time} hs</td>
                         <td className="px-6 py-4 font-mono">{booking.price}</td>
                         <td className="px-6 py-4">{booking.paymentStatus}</td>
@@ -701,7 +699,7 @@ export function UserProfile() {
                       <div>
                         <h3 className="font-semibold text-[#2C2C2C] text-lg">Sesión con {booking.teacherName}</h3>
                         <p className="text-sm text-[#5D5D5D] mt-1 flex items-center gap-1">
-                          <span>Fecha: <strong>{booking.date}</strong></span>
+                          <span>Fecha: <strong>{formatDate(booking.date)}</strong></span>
                           <span className="mx-1">•</span>
                           <span>Hora: <strong>{booking.time} hs</strong></span>
                         </p>
@@ -860,7 +858,6 @@ export function UserProfile() {
                   <span className="p-3 bg-[#98A77C]/10 text-[#98A77C] rounded-2xl">
                     <Eye className="w-5 h-5" />
                   </span>
-                  <span className="text-xs text-green-700 bg-green-100 font-semibold px-2 py-0.5 rounded-sm">+12%</span>
                 </div>
                 <p className="text-sm text-[#5D5D5D] font-medium uppercase tracking-wider">Apariciones en Búsqueda</p>
                 <h3 className="text-3xl font-mono font-bold text-[#2C2C2C] mt-1">{teacherStats.impressions}</h3>
@@ -873,7 +870,6 @@ export function UserProfile() {
                   <span className="p-3 bg-blue-50 text-blue-500 rounded-2xl">
                     <User className="w-5 h-5" />
                   </span>
-                  <span className="text-xs text-green-700 bg-green-100 font-semibold px-2 py-0.5 rounded-sm">+8%</span>
                 </div>
                 <p className="text-sm text-[#5D5D5D] font-medium uppercase tracking-wider">Visitas al Perfil</p>
                 <h3 className="text-3xl font-mono font-bold text-[#2C2C2C] mt-1">{teacherStats.visitors.length}</h3>

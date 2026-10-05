@@ -4,4 +4,4 @@ Disallow: /api/
 Disallow: /perfil
 Disallow: /checkout-simulator
 
-Sitemap: https://omia.com/sitemap.xml
+Sitemap: https://omia.site/sitemap.xml

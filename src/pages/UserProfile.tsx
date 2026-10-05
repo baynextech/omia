@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { apiFetch } from "../lib/api";
+import { apiFetch, apiJson } from "../lib/api";
+import { usePlans, startCheckout } from "../hooks/usePlans";
 import { User, Heart, MessageSquare, Camera, Edit2, Star, Save, Calendar, ShieldCheck, Sparkles, AlertCircle, CheckCircle2, Eye, DollarSign, ArrowUpRight, Mail, Phone, Check, UploadCloud, X, Plus, TrendingUp, LayoutDashboard } from "lucide-react";
 import { TeacherCard, Teacher } from "../components/TeacherCard";
 import { useFavorites } from "../hooks/useFavorites";
@@ -47,6 +48,9 @@ const convertToWebP = (file: File): Promise<string> => {
   });
 };
 
+// "2026-10-12" → "12/10/2026"
+const formatDate = (iso: string) => (iso || "").split("-").reverse().join("/");
+
 interface Booking {
   id: string;
   teacherId: string;
@@ -70,7 +74,9 @@ export function UserProfile() {
     isPremium: false,
     role: "alumno" as "alumno" | "profesor" | "instituto",
     plan: "ninguno" as "ninguno" | "inicial" | "destacado" | "institucional",
-    teacherId: null as string | null
+    teacherId: null as string | null,
+    teacherStatus: null as string | null,
+    planExpiresAt: null as string | null
   });
   
   const [editForm, setEditForm] = useState({ 
@@ -81,7 +87,9 @@ export function UserProfile() {
     isPremium: false,
     role: "alumno" as "alumno" | "profesor" | "instituto",
     plan: "ninguno" as "ninguno" | "inicial" | "destacado" | "institucional",
-    teacherId: null as string | null
+    teacherId: null as string | null,
+    teacherStatus: null as string | null,
+    planExpiresAt: null as string | null
   });
 
   const [favoriteTeachers, setFavoriteTeachers] = useState<Teacher[]>([]);
@@ -105,7 +113,10 @@ export function UserProfile() {
     image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&q=80&w=600",
     email: "",
     phone: "",
-    images: [] as string[]
+    images: [] as string[],
+    address: "",
+    hours: "",
+    amenities: [] as string[]
   });
 
   const [isLoading, setIsLoading] = useState(true);
@@ -115,6 +126,7 @@ export function UserProfile() {
   const [saveLandingSuccess, setSaveLandingSuccess] = useState(false);
   
   const { favorites } = useFavorites();
+  const { formatPrice } = usePlans();
   const { token, isAuthenticated, profile: authProfile, logout } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -127,33 +139,31 @@ export function UserProfile() {
   const fetchUserData = async () => {
     if (!token) { setIsLoading(false); return; }
     try {
-      const headers = { Authorization: `Bearer ${token}` };
-      const [profileRes, teachersRes, reviewsRes, bookingsRes, visitedRes, statsRes] = await Promise.all([
-        apiFetch("/api/user/profile", { headers }),
-        apiFetch("/api/teachers?location=Todos"),
-        apiFetch("/api/user/reviews", { headers }),
-        apiFetch("/api/user/bookings", { headers }),
-        apiFetch("/api/user/visited", { headers }),
-        apiFetch("/api/user/teacher-stats", { headers })
-      ]);
+      const profileData = await (await apiFetch("/api/user/profile")).json();
+      const isPro = profileData.role === "profesor" || profileData.role === "instituto";
 
-      const profileData = await profileRes.json();
-      const teachersData = await teachersRes.json();
-      const reviewsData = await reviewsRes.json();
-      const bookingsData = await bookingsRes.json();
-      const visitedData = await visitedRes.json();
-      const statsData = await statsRes.json();
+      // Cada panel pide lo suyo: quien contrata ve lo que reservó y guardó;
+      // el profesional o instituto ve lo que recibió.
+      const getList = (path: string) => apiFetch(path).then(r => (r.ok ? r.json() : [])).then(d => (Array.isArray(d) ? d : []));
+      const [favoritesData, reviewsData, bookingsData, visitedData, statsData, ownTeacher] = await Promise.all([
+        isPro ? [] : getList("/api/user/favorites"),
+        getList("/api/user/reviews"),
+        getList(isPro ? "/api/teacher/bookings" : "/api/user/bookings"),
+        isPro ? [] : getList("/api/user/visited"),
+        apiFetch("/api/user/teacher-stats").then(r => r.json()),
+        isPro ? apiFetch("/api/teacher/profile").then(r => r.json()) : null
+      ]);
 
       setProfile(profileData);
       setEditForm(profileData);
-      setFavoriteTeachers(teachersData.filter((t: Teacher) => favorites.includes(t.id)));
+      setFavoriteTeachers(favoritesData);
       setReviews(reviewsData);
       setBookings(bookingsData);
       setVisitedTeachers(visitedData);
-      setTeacherStats(statsData);
+      setTeacherStats({ visitors: [], impressions: 0, earned: 0, pendingPayout: 0, ...statsData });
 
       // Sincronizar el formulario de landing page
-      const linkedTeacher = teachersData.find((t: Teacher) => t.id === profileData.teacherId);
+      const linkedTeacher = ownTeacher as Teacher | null;
       if (linkedTeacher) {
         setLandingForm({
           name: linkedTeacher.name,
@@ -165,7 +175,10 @@ export function UserProfile() {
           image: linkedTeacher.image || "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&q=80&w=600",
           email: linkedTeacher.email || profileData.email || "",
           phone: linkedTeacher.phone || "",
-          images: linkedTeacher.images || []
+          images: linkedTeacher.images || [],
+          address: (linkedTeacher as any).address || "",
+          hours: (linkedTeacher as any).hours || "",
+          amenities: (linkedTeacher as any).amenities || []
         });
       } else {
         setLandingForm(prev => ({
@@ -191,26 +204,39 @@ export function UserProfile() {
       const type = searchParams.get("type");
       const itemId = searchParams.get("itemId");
 
-      if (paymentStatus === "success" && type && itemId) {
+      const tx = searchParams.get("tx");
+
+      if (paymentStatus && tx) {
         setIsLoading(true);
-        try {
-          const confirmRes = await apiFetch("/api/payments/confirm", {
-            method: "POST",
-            headers: authHeaders(),
-            body: JSON.stringify({ type, itemId })
-          });
-          if (confirmRes.ok) {
-            setPaymentResult({
-              success: true,
-              message: type === "subscription" 
-                ? `¡Felicidades! Tu plan de pauta "${itemId.toUpperCase()}" ahora está activo en Omia.`
-                : "¡Reserva de clase abonada con éxito! Tu instructor ya recibió la confirmación."
+        if (paymentStatus === "failure") {
+          setPaymentResult({ success: false, message: "El pago no se completó. Podés intentarlo de nuevo cuando quieras." });
+        } else {
+          try {
+            // El servidor consulta el pago en Mercado Pago; acá solo se muestra el resultado.
+            const { ok, data } = await apiJson("/api/payments/confirm", {
+              tx,
+              payment_id: searchParams.get("payment_id") || searchParams.get("collection_id")
             });
-            setSearchParams({});
+            if (ok && data.success) {
+              setPaymentResult({
+                success: true,
+                message: type === "subscription"
+                  ? "¡Listo! Tu plan está activo y tu perfil ya figura en Omia."
+                  : type === "product"
+                    ? "¡Compra abonada con éxito! Te vamos a contactar para coordinar la entrega."
+                    : "¡Reserva de clase abonada con éxito!"
+              });
+            } else {
+              setPaymentResult({
+                success: false,
+                message: "Todavía no recibimos la confirmación del pago. Si ya pagaste, se va a acreditar solo en unos minutos."
+              });
+            }
+          } catch (err) {
+            console.error("Confirm error", err);
           }
-        } catch (err) {
-          console.error("Confirm error", err);
         }
+        setSearchParams({});
       }
       
       await fetchUserData();
@@ -303,26 +329,19 @@ export function UserProfile() {
     }
   };
 
-  const handlePay = async (type: "booking" | "subscription", itemId: string, title: string, price: string) => {
+  const handlePay = async (type: "booking" | "subscription", itemId: string) => {
     setIsPayingId(itemId);
-    try {
-      const response = await apiFetch("/api/payments/mercadopago", {
-        method: "POST",
-        headers: authHeaders(),
-        body: JSON.stringify({ type, itemId, title, price })
-      });
-      const data = await response.json();
-      if (data.success && data.checkoutUrl) {
-        window.location.href = data.checkoutUrl;
-      } else {
-        alert("Error al iniciar el pago con Mercado Pago");
-      }
-    } catch (error) {
-      console.error(error);
-      alert("Error de conexión");
-    } finally {
-      setIsPayingId(null);
-    }
+    const error = await startCheckout({ type, itemId });
+    if (error) alert(error);
+    setIsPayingId(null);
+  };
+
+  const handleReplyReview = async (review: any) => {
+    const reply = window.prompt("Tu respuesta (queda visible en tu perfil público):", review.reply || "");
+    if (reply === null) return;
+    const { ok, data } = await apiJson(`/api/reviews/${review.id}/reply`, { reply });
+    if (ok) setReviews(prev => prev.map(r => (r.id === review.id ? data : r)));
+    else alert(data.error || "No se pudo guardar la respuesta");
   };
 
   const handleSaveLanding = async (e: React.FormEvent) => {
@@ -334,7 +353,7 @@ export function UserProfile() {
       const res = await apiFetch("/api/teachers/create-or-update", {
         method: "POST",
         headers: authHeaders(),
-        body: JSON.stringify(landingForm)
+        body: JSON.stringify({ ...landingForm, amenities: landingForm.amenities.map(x => x.trim()).filter(Boolean) })
       });
       
       if (res.ok) {
@@ -343,7 +362,8 @@ export function UserProfile() {
         setSaveLandingSuccess(true);
         setTimeout(() => setSaveLandingSuccess(false), 8000);
       } else {
-        alert("Error al publicar la landing page.");
+        const data = await res.json().catch(() => ({}));
+        alert(data.error || "No se pudo guardar tu página.");
       }
     } catch (err) {
       console.error(err);
@@ -458,7 +478,7 @@ export function UserProfile() {
           <div className="mb-8 p-5 bg-[#98A77C]/10 border-2 border-[#98A77C] rounded-3xl flex items-start gap-4 animate-in slide-in-from-top-5 duration-300">
             <CheckCircle2 className="w-6 h-6 text-[#98A77C] shrink-0 mt-0.5" />
             <div>
-              <h3 className="font-semibold text-[#2C2C2C] mb-1">¡Pago Aprobado con Mercado Pago!</h3>
+              <h3 className="font-semibold text-[#2C2C2C] mb-1">{paymentResult.success ? "¡Pago aprobado con Mercado Pago!" : "Pago sin confirmar"}</h3>
               <p className="text-sm text-[#5D5D5D]">{paymentResult.message}</p>
             </div>
             <button onClick={() => setPaymentResult(null)} className="ml-auto text-[#5D5D5D] hover:text-[#2C2C2C] text-sm font-medium">Cerrar</button>
@@ -481,11 +501,6 @@ export function UserProfile() {
                     <stat.icon size={15} className="text-[#98A77C]" />
                   </div>
                   <p className="text-3xl font-light text-[#2C2C2C]">{stat.value}</p>
-                  <div className="flex items-end gap-0.5 mt-3 h-8">
-                    {stat.bars.map((h, i) => (
-                      <div key={i} className="flex-1 rounded-sm bg-[#98A77C]/30" style={{height:`${h}%`}} />
-                    ))}
-                  </div>
                 </div>
               ))}
             </div>
@@ -595,7 +610,7 @@ export function UserProfile() {
                       </select>
                     ) : (
                       <p className="text-[#2C2C2C] font-medium p-3 bg-[#F4EFE4] rounded-xl border border-transparent capitalize">
-                        {profile.role === "alumno" ? "Alumno" : profile.role === "profesor" ? "Profesor" : "Instituto"}
+                        {({ alumno: "Alumno", profesor: "Profesor", instituto: "Instituto", admin: "Administrador" } as Record<string, string>)[profile.role] || profile.role}
                       </p>
                     )}
                   </div>
@@ -627,6 +642,48 @@ export function UserProfile() {
           </div>
         )}
 
+        {/* TAB 2b: RESERVAS RECIBIDAS (PROFESOR / INSTITUTO) */}
+        {activeTab === "bookings" && isTeacherOrInstitute && (
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+            <h1 className="text-3xl font-light tracking-tight text-[#2C2C2C] mb-6">Reservas recibidas</h1>
+            {bookings.length > 0 ? (
+              <div className="bg-white border border-[#E8E0D0] rounded-3xl overflow-hidden shadow-sm">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-left text-xs uppercase tracking-wider text-[#5D5D5D] border-b border-[#E8E0D0]">
+                      <th className="px-6 py-4">Alumno/a</th>
+                      <th className="px-6 py-4">Fecha</th>
+                      <th className="px-6 py-4">Hora</th>
+                      <th className="px-6 py-4">Precio</th>
+                      <th className="px-6 py-4">Pago</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {bookings.map((booking: any) => (
+                      <tr key={booking.id} className="border-b border-[#E8E0D0] last:border-0">
+                        <td className="px-6 py-4">
+                          <p className="font-medium text-[#2C2C2C]">{booking.studentName || "Alumno/a"}</p>
+                          {booking.studentEmail && <a href={`mailto:${booking.studentEmail}`} className="text-xs text-[#98A77C] hover:underline">{booking.studentEmail}</a>}
+                        </td>
+                        <td className="px-6 py-4">{formatDate(booking.date)}</td>
+                        <td className="px-6 py-4">{booking.time} hs</td>
+                        <td className="px-6 py-4 font-mono">{booking.price}</td>
+                        <td className="px-6 py-4">{booking.paymentStatus}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="bg-[#F4EFE4] rounded-3xl border border-[#E8E0D0] py-20 px-6 text-center">
+                <Calendar className="w-12 h-12 text-[#E5E5E5] mx-auto mb-4" />
+                <h2 className="text-xl font-medium text-[#2C2C2C] mb-2">Todavía no recibiste reservas</h2>
+                <p className="text-[#5D5D5D] max-w-sm mx-auto">Cuando alguien reserve una clase desde tu perfil, la vas a ver acá con sus datos de contacto.</p>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* TAB 2: RESERVAS (SOLO ALUMNO) */}
         {activeTab === "bookings" && !isTeacherOrInstitute && (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
@@ -642,7 +699,7 @@ export function UserProfile() {
                       <div>
                         <h3 className="font-semibold text-[#2C2C2C] text-lg">Sesión con {booking.teacherName}</h3>
                         <p className="text-sm text-[#5D5D5D] mt-1 flex items-center gap-1">
-                          <span>Fecha: <strong>{booking.date}</strong></span>
+                          <span>Fecha: <strong>{formatDate(booking.date)}</strong></span>
                           <span className="mx-1">•</span>
                           <span>Hora: <strong>{booking.time} hs</strong></span>
                         </p>
@@ -664,7 +721,7 @@ export function UserProfile() {
 
                       {booking.paymentStatus === "Pendiente" && (
                         <button
-                          onClick={() => handlePay("booking", booking.id, `Sesión con ${booking.teacherName}`, booking.price)}
+                          onClick={() => handlePay("booking", booking.id)}
                           disabled={isPayingId === booking.id}
                           className="px-5 py-2.5 bg-[#009EE3] hover:bg-[#008CD0] text-white rounded-sm text-xs font-semibold transition-colors flex items-center gap-1.5 shadow-sm disabled:opacity-50 cursor-pointer"
                         >
@@ -801,7 +858,6 @@ export function UserProfile() {
                   <span className="p-3 bg-[#98A77C]/10 text-[#98A77C] rounded-2xl">
                     <Eye className="w-5 h-5" />
                   </span>
-                  <span className="text-xs text-green-700 bg-green-100 font-semibold px-2 py-0.5 rounded-sm">+12%</span>
                 </div>
                 <p className="text-sm text-[#5D5D5D] font-medium uppercase tracking-wider">Apariciones en Búsqueda</p>
                 <h3 className="text-3xl font-mono font-bold text-[#2C2C2C] mt-1">{teacherStats.impressions}</h3>
@@ -814,7 +870,6 @@ export function UserProfile() {
                   <span className="p-3 bg-blue-50 text-blue-500 rounded-2xl">
                     <User className="w-5 h-5" />
                   </span>
-                  <span className="text-xs text-green-700 bg-green-100 font-semibold px-2 py-0.5 rounded-sm">+8%</span>
                 </div>
                 <p className="text-sm text-[#5D5D5D] font-medium uppercase tracking-wider">Visitas al Perfil</p>
                 <h3 className="text-3xl font-mono font-bold text-[#2C2C2C] mt-1">{teacherStats.visitors.length}</h3>
@@ -935,9 +990,13 @@ export function UserProfile() {
               <div className="mb-8 p-5 bg-green-50 border-2 border-[#98A77C] rounded-3xl flex items-start gap-4 animate-in slide-in-from-top-5 duration-300">
                 <CheckCircle2 className="w-6 h-6 text-[#98A77C] shrink-0 mt-0.5" />
                 <div>
-                  <h3 className="font-semibold text-green-900 mb-1">¡Landing Page Publicada con Éxito!</h3>
+                  <h3 className="font-semibold text-green-900 mb-1">
+                    {profile.teacherStatus === "activo" ? "¡Cambios publicados!" : "¡Perfil guardado!"}
+                  </h3>
                   <p className="text-sm text-green-700">
-                    Tu publicación se encuentra online. Podés compartir este enlace con tus alumnos en tus redes para que reserven directamente:{" "}
+                    {profile.teacherStatus === "activo"
+                      ? "Tu publicación está online. Podés compartir este enlace: "
+                      : "Para que aparezca en el directorio, activá tu plan en la pestaña Plan Premium. Así se va a ver: "}
                     <Link to={`/profesor/${profile.teacherId}`} className="font-bold underline text-[#2C2C2C]">
                       {window.location.origin}/profesor/{profile.teacherId}
                     </Link>
@@ -999,6 +1058,23 @@ export function UserProfile() {
                   />
                 </div>
               </div>
+
+              {profile.role === "instituto" && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-semibold text-[#5D5D5D] mb-2">Dirección</label>
+                    <input type="text" value={landingForm.address} onChange={e => setLandingForm({...landingForm, address: e.target.value})} placeholder="Ej. Humboldt 1942, Palermo" className="w-full bg-[#F4EFE4] border border-[#E8E0D0] focus:border-[#98A77C] focus:ring-1 focus:ring-[#98A77C] text-[#2C2C2C] rounded-xl px-4 py-3 outline-none" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-[#5D5D5D] mb-2">Horarios de atención</label>
+                    <input type="text" value={landingForm.hours} onChange={e => setLandingForm({...landingForm, hours: e.target.value})} placeholder="Ej. Lun a Sáb 07:00 a 21:00 hs" className="w-full bg-[#F4EFE4] border border-[#E8E0D0] focus:border-[#98A77C] focus:ring-1 focus:ring-[#98A77C] text-[#2C2C2C] rounded-xl px-4 py-3 outline-none" />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-semibold text-[#5D5D5D] mb-2">Comodidades (separadas por coma)</label>
+                    <input type="text" value={landingForm.amenities.join(", ")} onChange={e => setLandingForm({...landingForm, amenities: e.target.value.split(",").map(a => a.trimStart()).filter((a, i, all) => a || i === all.length - 1)})} placeholder="Ej. Camas Reformer, Mat incluido, Duchas" className="w-full bg-[#F4EFE4] border border-[#E8E0D0] focus:border-[#98A77C] focus:ring-1 focus:ring-[#98A77C] text-[#2C2C2C] rounded-xl px-4 py-3 outline-none" />
+                  </div>
+                </div>
+              )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
@@ -1216,7 +1292,9 @@ export function UserProfile() {
                 <div className="bg-white/80 backdrop-blur border border-[#98A77C] rounded-2xl p-4 text-center shrink-0 w-full md:w-auto">
                   <p className="text-xs text-[#5D5D5D] font-medium uppercase tracking-wider mb-1">Estado de Facturación</p>
                   <p className="text-lg font-bold text-green-700">Abonado vía Mercado Pago</p>
-                  <p className="text-xs text-[#5D5D5D] mt-1">Suscripción Mensual Activa</p>
+                  <p className="text-xs text-[#5D5D5D] mt-1">
+                    {profile.planExpiresAt ? `Vigente hasta el ${new Date(profile.planExpiresAt).toLocaleDateString("es-AR")}` : "Plan activo"}
+                  </p>
                 </div>
               </div>
             ) : (
@@ -1228,22 +1306,35 @@ export function UserProfile() {
                     Para poder publicar tu landing page, subir tus datos, imágenes y figurar en las búsquedas inteligentes del directorio de Omia, debés contar con un plan de pauta mensual activo. El cobro se realiza de forma fija sin comisiones sobre tus ventas.
                   </p>
                   
-                  <div className="p-6 bg-[#F4EFE4] rounded-3xl border border-[#E8E0D0] flex flex-col sm:flex-row justify-between items-center gap-4 text-left">
-                    <div>
-                      <h4 className="font-semibold text-[#2C2C2C]">Plan Destacado Pro (Más Recomendado)</h4>
-                      <p className="text-xs text-[#5D5D5D] mt-0.5">Prioridad, insignia premium y estadísticas completas.</p>
-                    </div>
-                    <div className="flex items-center gap-4 shrink-0 w-full sm:w-auto justify-between sm:justify-start">
-                      <span className="text-2xl font-mono font-bold text-[#2C2C2C]">$43.900<span className="text-xs text-[#5D5D5D] font-sans">/mes</span></span>
-                      <button
-                        onClick={() => handlePay("subscription", "destacado", "Membresía Omia - Plan Destacado", "43900")}
-                        disabled={isPayingId === "destacado"}
-                        className="px-5 py-3 bg-[#009EE3] hover:bg-[#008CD0] text-white rounded-sm text-xs font-bold transition-all shadow-sm"
-                      >
-                        Abonar Plan
-                      </button>
-                    </div>
+                  <div className="flex flex-col gap-3">
+                    {([
+                      { id: "inicial", name: "Plan Inicial", desc: "Tu perfil publicado en el directorio." },
+                      { id: "destacado", name: "Plan Destacado (más elegido)", desc: "Prioridad en las búsquedas, insignia y estadísticas completas." },
+                      { id: "institucional", name: "Plan Institucional", desc: "Para institutos y estudios con varios profesores." },
+                    ] as const).map(plan => (
+                      <div key={plan.id} className="p-6 bg-[#F4EFE4] rounded-3xl border border-[#E8E0D0] flex flex-col sm:flex-row justify-between items-center gap-4 text-left">
+                        <div>
+                          <h4 className="font-semibold text-[#2C2C2C]">{plan.name}</h4>
+                          <p className="text-xs text-[#5D5D5D] mt-0.5">{plan.desc}</p>
+                        </div>
+                        <div className="flex items-center gap-4 shrink-0 w-full sm:w-auto justify-between sm:justify-start">
+                          <span className="text-2xl font-mono font-bold text-[#2C2C2C]">{formatPrice(plan.id)}<span className="text-xs text-[#5D5D5D] font-sans">/mes</span></span>
+                          <button
+                            onClick={() => handlePay("subscription", plan.id)}
+                            disabled={isPayingId !== null}
+                            className="px-5 py-3 bg-[#009EE3] hover:bg-[#008CD0] disabled:opacity-60 text-white rounded-sm text-xs font-bold transition-all shadow-sm"
+                          >
+                            {isPayingId === plan.id ? "Abriendo…" : "Abonar Plan"}
+                          </button>
+                        </div>
+                      </div>
+                    ))}
                   </div>
+                  {!profile.teacherId && (
+                    <p className="mt-6 text-sm text-[#5D5D5D]">
+                      Antes de abonar, completá y guardá tu perfil en la pestaña <strong>Mi Página</strong>.
+                    </p>
+                  )}
 
                   <div className="mt-8 text-xs text-[#5D5D5D]">
                     ¿Querés ver otros planes de precios? <Link to="/" className="text-[#98A77C] font-medium hover:underline">Ir a la tabla comparativa de 3 planes en la Home.</Link>
@@ -1285,6 +1376,16 @@ export function UserProfile() {
                     <p className="text-[#2C2C2C] bg-[#F4EFE4] p-4 rounded-2xl italic">
                       "{review.comment}"
                     </p>
+                    {review.reply && (
+                      <p className="mt-3 ml-6 text-sm text-[#5D5D5D] border-l-2 border-[#98A77C] pl-4">
+                        <strong className="text-[#2C2C2C]">Respuesta del profesional:</strong> {review.reply}
+                      </p>
+                    )}
+                    {isTeacherOrInstitute && (
+                      <button onClick={() => handleReplyReview(review)} className="mt-3 text-sm font-medium text-[#98A77C] hover:underline">
+                        {review.reply ? "Editar respuesta" : "Responder"}
+                      </button>
+                    )}
                   </div>
                 ))}
               </div>

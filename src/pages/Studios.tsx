@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { apiFetch } from "../lib/api";
 import { Search, MapPin, Coffee, Compass, Sparkles, Clock, Layers } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { SEOMeta } from "../components/SEOMeta";
@@ -6,7 +8,7 @@ import { SEOMeta } from "../components/SEOMeta";
 interface Studio {
   id: string;
   name: string;
-  discipline: "Yoga" | "Pilates" | "Yoga & Pilates";
+  discipline: string;
   location: string;
   address: string;
   phone: string;
@@ -15,7 +17,8 @@ interface Studio {
   hours: string;
   description: string;
   image: string;
-  coordinates: string;
+  rating: number;
+  reviews: number;
 }
 
 export function Studios() {
@@ -26,82 +29,19 @@ export function Studios() {
   const locations = ["Todos", "Palermo", "San Telmo", "Belgrano", "Recoleta"];
   const disciplines = ["Todos", "Yoga", "Pilates", "Yoga & Pilates"];
 
-  const studiosList: Studio[] = [
-    {
-      id: "s1",
-      name: "Tierra Studio Yoga & Pilates",
-      discipline: "Yoga & Pilates",
-      location: "Palermo",
-      address: "Humboldt 1942, Palermo",
-      phone: "+54 11 4771-8890",
-      price: "$12.000 / clase",
-      amenities: ["Camas Reformer de madera", "Mat incluido", "Barra de té silvestre", "Duchas calientes"],
-      hours: "Lun a Sáb 07:00 a 21:00 hs",
-      description: "Un oasis urbano construido enteramente con materiales nobles y orgánicos. Especialistas en Vinyasa Dinámico, Iyengar y Pilates Reformer en grupos reducidos.",
-      image: "https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&q=80&w=600",
-      coordinates: "34.5843° S, 58.4371° W"
-    },
-    {
-      id: "s2",
-      name: "Balance Pilates & Reformer Center",
-      discipline: "Pilates",
-      location: "Recoleta",
-      address: "Ayacucho 1240, Recoleta",
-      phone: "+54 11 4801-3322",
-      price: "$13.000 / clase",
-      amenities: ["Equipos Reformer & Cadillac", "Aros Magic Circle", "Instructores Kinesiólogos", "Lockers e higienizantes"],
-      hours: "Lun a Vie 07:30 a 20:30 hs",
-      description: "Estudio boutique de Pilates Reformer, Mat y reeducación postural. Equipos de última generación y atención personalizada de máximo 4 personas por sala.",
-      image: "https://images.unsplash.com/photo-1518310383802-640c2de311b2?auto=format&fit=crop&q=80&w=600",
-      coordinates: "34.5912° S, 58.3912° W"
-    },
-    {
-      id: "s3",
-      name: "Cúpula Zen",
-      discipline: "Yoga",
-      location: "San Telmo",
-      address: "Defensa 841, San Telmo",
-      phone: "+54 11 4361-5521",
-      price: "$10.500 / clase",
-      amenities: ["Almohadones de zafu", "Sahumerios naturales", "Mat incluido", "Música de cuencos"],
-      hours: "Lun a Vie 08:00 a 20:00 hs",
-      description: "Ubicado bajo una cúpula histórica restaurada del siglo XIX. Un templo de silencio ideal para Ashtanga tradicional, meditación zen y respiración consciente.",
-      image: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&q=80&w=600",
-      coordinates: "34.6186° S, 58.3712° W"
-    },
-    {
-      id: "s4",
-      name: "Omia Belgrano Reformer & Flow",
-      discipline: "Yoga & Pilates",
-      location: "Belgrano",
-      address: "Av. Juramento 1432, Belgrano",
-      phone: "+54 11 4782-9912",
-      price: "$11.000 / clase",
-      amenities: ["Reformer & Mat", "Calefacción Infrarroja", "Duchas calientes", "Lockers digitales"],
-      hours: "Todos los días 06:30 a 22:00 hs",
-      description: "Espacioso, luminoso y equipado con la última tecnología en salones de Hot Yoga y Pilates Reformer. Instructores internacionales y certificaciones oficiales.",
-      image: "https://images.unsplash.com/photo-1599447421416-3414500d18a5?auto=format&fit=crop&q=80&w=600",
-      coordinates: "34.5621° S, 58.4568° W"
-    },
-    {
-      id: "s5",
-      name: "Sattva Recoleta Yoga",
-      discipline: "Yoga",
-      location: "Recoleta",
-      address: "Quintana 340, Recoleta",
-      phone: "+54 11 4811-0012",
-      price: "$13.500 / clase",
-      amenities: ["Mat de corcho natural", "Te de jengibre de cortesía", "Toallas limpias", "Biblioteca"],
-      hours: "Lun a Vie 08:30 a 21:00 hs",
-      description: "Un centro boutique exclusivo enfocado en la restauración profunda. Clases de Yin Yoga, restaurativo y meditación guiada con aromaterapia de grado terapéutico.",
-      image: "https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&q=80&w=600",
-      coordinates: "34.5891° S, 58.3904° W"
-    }
-  ];
+  const [studiosList, setStudiosList] = useState<Studio[]>([]);
+
+  // Los institutos son las fichas de tipo "instituto" cargadas en la plataforma.
+  useEffect(() => {
+    apiFetch("/api/institutes")
+      .then(res => res.json())
+      .then(data => setStudiosList(Array.isArray(data) ? data : []))
+      .catch(err => console.error(err));
+  }, []);
 
   const filteredStudios = studiosList.filter((studio) => {
     const matchesSearch = studio.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          studio.description.toLowerCase().includes(searchQuery.toLowerCase());
+                          (studio.description || "").toLowerCase().includes(searchQuery.toLowerCase());
     const matchesLocation = locationFilter === "Todos" || studio.location === locationFilter;
     const matchesDiscipline = disciplineFilter === "Todos" || studio.discipline === disciplineFilter || studio.discipline === "Yoga & Pilates";
     return matchesSearch && matchesLocation && matchesDiscipline;
@@ -218,7 +158,8 @@ export function Studios() {
 
                     <p className="text-xs text-[#5D5D5D] font-mono mb-4 flex items-center gap-1.5">
                       <Compass className="w-3.5 h-3.5" />
-                      <span>{studio.coordinates}</span>
+                      <span>{studio.address || studio.location}</span>
+                      {studio.reviews > 0 && <span>· ★ {studio.rating} ({studio.reviews} {studio.reviews === 1 ? "reseña" : "reseñas"})</span>}
                     </p>
 
                     <p className="text-[#5D5D5D] text-sm leading-relaxed mb-6">
@@ -232,7 +173,7 @@ export function Studios() {
                         Comodidades del espacio:
                       </p>
                       <div className="flex flex-wrap gap-2">
-                        {studio.amenities.map((amenity, idx) => (
+                        {(studio.amenities || []).map((amenity, idx) => (
                           <span key={idx} className="bg-[#F4EFE4] border border-[#E8E0D0] text-[#5D5D5D] text-xs px-3 py-1 rounded-sm flex items-center gap-1">
                             <Sparkles className="w-3 h-3 text-[#98A77C]" />
                             {amenity}
@@ -259,12 +200,12 @@ export function Studios() {
                       >
                         Llamar
                       </a>
-                      <button 
-                        onClick={() => alert(`¡Gracias por tu interés en ${studio.name}! El mapa y reserva directa de pases estará habilitado pronto.`)}
-                        className="flex-1 bg-[#2C2C2C] hover:bg-black text-white py-3 rounded-sm text-sm font-medium transition-colors"
+                      <Link
+                        to={`/profesor/${studio.id}`}
+                        className="flex-1 text-center bg-[#2C2C2C] hover:bg-black text-white py-3 rounded-sm text-sm font-medium transition-colors"
                       >
-                        Ver Clases
-                      </button>
+                        Ver perfil y reseñas
+                      </Link>
                     </div>
                   </div>
                 </div>

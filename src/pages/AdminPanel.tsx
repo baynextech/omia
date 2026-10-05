@@ -44,7 +44,7 @@ const trCls = "border-b border-[#E5E5E5] last:border-0 hover:bg-[#f4f7f1] transi
 
 // ─── Componente principal ─────────────────────────────────────────────────────
 export function AdminPanel() {
-  const { isAdmin, token, profile } = useAuth();
+  const { isAdmin, isLoading: authLoading, token, profile } = useAuth();
   const navigate = useNavigate();
   const [tab, setTab] = useState<Tab>("dashboard");
   const [dashboard, setDashboard] = useState<any>(null);
@@ -71,9 +71,10 @@ export function AdminPanel() {
   const [searchTransactions, setSearchTransactions] = useState("");
 
   useEffect(() => {
+    if (authLoading) return;
     if (!isAdmin) { navigate("/perfil"); return; }
     loadTab("dashboard");
-  }, [isAdmin]);
+  }, [isAdmin, authLoading]);
 
   useEffect(() => { if (!loaded.has(tab)) loadTab(tab); }, [tab]);
 
@@ -330,12 +331,6 @@ export function AdminPanel() {
                     </div>
                     <p className="text-[10px] text-[#98A77C] uppercase tracking-widest font-semibold mb-1">{stat.label}</p>
                     <p className="text-3xl font-light text-[#2C2C2C]">{stat.value}</p>
-                    <p className="text-[#98A77C] text-xs mt-1">{stat.trend}</p>
-                    <div className="flex items-end gap-0.5 mt-3 h-8">
-                      {stat.bars.map((h, i) => (
-                        <div key={i} className="flex-1 rounded-sm bg-[#98A77C]/30 transition-all" style={{height:`${h}%`}} />
-                      ))}
-                    </div>
                   </div>
                 ))}
               </div>
@@ -382,35 +377,30 @@ export function AdminPanel() {
                 <div className="flex items-center justify-between mb-5">
                   <div>
                     <h3 className="font-medium text-[#2C2C2C] text-sm">Actividad mensual</h3>
-                    <p className="text-xs text-[#5D5D5D] mt-0.5">Reservas y transacciones</p>
+                    <p className="text-xs text-[#5D5D5D] mt-0.5">Reservas y pagos aprobados por mes</p>
                   </div>
-                  <span className="text-xs bg-[#98A77C]/15 text-[#728156] px-3 py-1 rounded-sm font-medium">Este año</span>
+                  <span className="text-xs bg-[#98A77C]/15 text-[#728156] px-3 py-1 rounded-sm font-medium">Últimos 6 meses</span>
                 </div>
-                <div className="flex items-end justify-between gap-1.5 h-32">
-                  {[
-                    { label: "Ene", res: 45, tx: 30 },
-                    { label: "Feb", res: 60, tx: 45 },
-                    { label: "Mar", res: 35, tx: 25 },
-                    { label: "Abr", res: 80, tx: 60 },
-                    { label: "May", res: 55, tx: 40 },
-                    { label: "Jun", res: 90, tx: 70 },
-                    { label: "Jul", res: 65, tx: 50 },
-                    { label: "Ago", res: 75, tx: 55 },
-                    { label: "Sep", res: 85, tx: 65 },
-                    { label: "Oct", res: 70, tx: 48 },
-                  ].map((d) => (
-                    <div key={d.label} className="flex-1 flex flex-col items-center gap-1">
-                      <div className="w-full flex items-end gap-0.5" style={{ height: "100px" }}>
-                        <div className="flex-1 bg-[#1a2a1a] rounded-t-sm transition-all hover:bg-[#2a3a2a]" style={{ height: `${d.res}%` }} />
-                        <div className="flex-1 bg-[#98A77C]/50 rounded-t-sm" style={{ height: `${d.tx}%` }} />
-                      </div>
-                      <span className="text-[9px] text-[#5D5D5D]">{d.label}</span>
+                {(() => {
+                  const monthly: { label: string; bookings: number; transactions: number }[] = dashboard.monthly || [];
+                  const max = Math.max(1, ...monthly.map(m => Math.max(m.bookings, m.transactions)));
+                  return (
+                    <div className="flex items-end justify-between gap-1.5 h-32">
+                      {monthly.map((m) => (
+                        <div key={m.label} className="flex-1 flex flex-col items-center gap-1" title={`${m.bookings} reservas · ${m.transactions} pagos aprobados`}>
+                          <div className="w-full flex items-end gap-0.5" style={{ height: "100px" }}>
+                            <div className="flex-1 bg-[#1a2a1a] rounded-t-sm" style={{ height: `${(m.bookings / max) * 100}%` }} />
+                            <div className="flex-1 bg-[#98A77C]/50 rounded-t-sm" style={{ height: `${(m.transactions / max) * 100}%` }} />
+                          </div>
+                          <span className="text-[9px] text-[#5D5D5D]">{m.label}</span>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
+                  );
+                })()}
                 <div className="flex items-center gap-4 mt-3 pt-3 border-t border-[#E5E5E5]">
                   <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-sm bg-[#1a2a1a]"/><span className="text-xs text-[#5D5D5D]">Reservas</span></div>
-                  <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-sm bg-[#98A77C]/50"/><span className="text-xs text-[#5D5D5D]">Transacciones</span></div>
+                  <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-sm bg-[#98A77C]/50"/><span className="text-xs text-[#5D5D5D]">Pagos aprobados</span></div>
                 </div>
               </div>
             </div>

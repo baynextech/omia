@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Outlet, Link } from "react-router-dom";
+import { Outlet, Link, useLocation } from "react-router-dom";
 import { AIChat } from "../components/AIChat";
 import { useAuth } from "../contexts/AuthContext";
 import { AuthModal } from "../components/AuthModal";
@@ -11,7 +11,12 @@ export function RootLayout() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState<"login" | "register">("login");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const [isScrolled, setScrolled] = useState(false);
+  // Solo la home tiene un hero oscuro detrás; en el resto el encabezado va siempre sólido.
+  const { pathname } = useLocation();
+  const scrolled = isScrolled || pathname !== "/";
+  // Los paneles (/perfil y /admin) traen su propia barra lateral y cabecera: ahí no va el menú ni el pie del sitio.
+  const isPanel = isAuthenticated && /^\/(perfil|admin)/.test(pathname);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -27,7 +32,7 @@ export function RootLayout() {
   return (
     <div className="min-h-screen bg-[#F4EFE4] font-sans text-[#2C2C2C]">
       {/* Navigation */}
-      <nav className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
+      <nav className={`${isPanel ? "hidden " : ""}fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
         scrolled
           ? "bg-[#F4EFE4]/95 backdrop-blur-md shadow-sm border-b border-[#E0D8CC]"
           : "bg-transparent"
@@ -42,6 +47,7 @@ export function RootLayout() {
             {[
               { to: "/directorio", label: "Directorio" },
               { to: "/estudios", label: "Estudios" },
+              { to: "/ranking", label: "Ranking" },
               { to: "/tienda", label: "Tienda" },
               { to: "/para-profes", label: "Para Profes" },
             ].map(({ to, label }) => (
@@ -134,6 +140,7 @@ export function RootLayout() {
                 {[
                   { to: "/directorio", label: "Directorio de Profesores", sub: "Buscar" },
                   { to: "/estudios", label: "Estudios e Institutos", sub: "Centros" },
+                  { to: "/ranking", label: "Ranking de Profesionales", sub: "Top" },
                   { to: "/tienda", label: "Tienda Omia", sub: "Productos" },
                   { to: "/para-profes", label: "Membresías para Profes", sub: "Planes" },
                 ].map(({ to, label, sub }) => (
@@ -198,7 +205,7 @@ export function RootLayout() {
         <Outlet />
       </main>
 
-      <footer className="bg-[#1C3829] py-16 px-6">
+      <footer className={`${isPanel ? "hidden " : ""}bg-[#1C3829] py-16 px-6`}>
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row items-start justify-between gap-10 mb-12">
             <div>
@@ -212,6 +219,7 @@ export function RootLayout() {
                 <span className="text-[#F4EFE4] text-xs font-bold uppercase tracking-widest">Plataforma</span>
                 <Link to="/directorio" className="text-[#9DB085] text-sm hover:text-[#F4EFE4] transition-colors">Directorio</Link>
                 <Link to="/estudios" className="text-[#9DB085] text-sm hover:text-[#F4EFE4] transition-colors">Estudios</Link>
+                <Link to="/ranking" className="text-[#9DB085] text-sm hover:text-[#F4EFE4] transition-colors">Ranking</Link>
                 <Link to="/tienda" className="text-[#9DB085] text-sm hover:text-[#F4EFE4] transition-colors">Tienda</Link>
               </div>
               <div className="flex flex-col gap-3">
@@ -228,7 +236,7 @@ export function RootLayout() {
             </div>
           </div>
           <div className="border-t border-[#2a4d38] pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-[#6B8C78] text-sm">© 2025 Omia Bienestar. Todos los derechos reservados.</p>
+            <p className="text-[#6B8C78] text-sm">© {new Date().getFullYear()} Omia Bienestar. Todos los derechos reservados.</p>
             <p className="text-[#6B8C78] text-xs">Yoga · Pilates · Reformer · Mat · Barre · Buenos Aires</p>
           </div>
         </div>

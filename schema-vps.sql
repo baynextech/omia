@@ -129,3 +129,6 @@ INSERT INTO admin_config (key, value, label) VALUES
   ('plan_destacado_price',     '43900', 'Precio Plan Destacado (ARS)'),
   ('plan_institucional_price', '49900', 'Precio Plan Institucional (ARS)')
 ON CONFLICT (key) DO NOTHING;
+
+-- Después de este archivo hay que aplicar las migraciones en orden:
+--   npm run db:migrate   (o psql "$DATABASE_URL" -f migrations/001_alta_pagos_ranking.sql)

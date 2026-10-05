@@ -1,37 +1,24 @@
 import { useState } from "react";
 import { Sparkles, CheckCircle2, ShieldCheck, CreditCard, HelpCircle } from "lucide-react";
-import { apiFetch } from "../lib/api";
+import { useNavigate } from "react-router-dom";
+import { usePlans, startCheckout } from "../hooks/usePlans";
 import { motion } from "motion/react";
 import { SEOMeta } from "../components/SEOMeta";
 
 export function ForTeachers() {
   const [isPaying, setIsPaying] = useState(false);
+  const navigate = useNavigate();
+  const { formatPrice } = usePlans();
 
   const handleSubscribe = async () => {
     setIsPaying(true);
-    try {
-      const response = await apiFetch("/api/payments/mercadopago", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          type: "subscription",
-          itemId: "premium-sub",
-          title: "Membresía Omia Pro",
-          price: "43900"
-        })
-      });
-      const data = await response.json();
-      if (data.success && data.checkoutUrl) {
-        window.location.href = data.checkoutUrl;
-      } else {
-        alert("Error al procesar el cobro con Mercado Pago");
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Error de conexión con Mercado Pago");
-    } finally {
-      setIsPaying(false);
+    const error = await startCheckout({ type: "subscription", itemId: "destacado" });
+    if (error) {
+      alert(error);
+      // Sin sesión o sin ficha cargada, el paso siguiente está en el panel.
+      navigate("/perfil");
     }
+    setIsPaying(false);
   };
 
   return (
@@ -135,7 +122,7 @@ export function ForTeachers() {
           <h3 className="text-xl font-medium text-[#2C2C2C] mb-4">Membresía Mensual</h3>
           
           <div className="flex items-baseline gap-1 mb-2">
-            <span className="text-5xl font-bold text-[#2C2C2C]">$43.900</span>
+            <span className="text-5xl font-bold text-[#2C2C2C]">{formatPrice("destacado")}</span>
             <span className="text-sm text-[#5D5D5D] font-medium">/ mes</span>
           </div>
           <span className="text-xs text-[#98A77C] font-medium mb-8">Precio final en ARS</span>

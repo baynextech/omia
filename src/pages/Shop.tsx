@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { apiFetch } from "../lib/api";
+import { startCheckout } from "../hooks/usePlans";
 import { 
   ShoppingBag, Search, Filter, Star, Check, Plus, Minus, X, Trash2, 
   Sparkles, ShieldCheck, Truck, ArrowRight, PhoneCall, CreditCard, Heart, ShoppingCart 
@@ -10,11 +11,9 @@ import { SEOMeta } from "../components/SEOMeta";
 export interface Product {
   id: string;
   name: string;
-  category: "Mats" | "Accesorios" | "Pilates Equipment" | "Indumentaria" | "Aromaterapia";
-  discipline: "Yoga" | "Pilates" | "Yoga & Pilates";
+  category: string;
+  discipline: string;
   price: number;
-  rating: number;
-  reviewsCount: number;
   image: string;
   badge?: string;
   description: string;
@@ -27,135 +26,18 @@ export interface CartItem {
   quantity: number;
 }
 
-const PRODUCTS: Product[] = [
-  {
-    id: "p1",
-    name: "Mat Eco Rubber Align 5mm",
-    category: "Mats",
-    discipline: "Yoga & Pilates",
-    price: 42000,
-    rating: 4.9,
-    reviewsCount: 88,
-    image: "https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?auto=format&fit=crop&q=80&w=600",
-    badge: "Eco Friendly",
-    description: "Mat profesional fabricado con caucho natural 100% biodegradable. Líneas de alineación láser para perfeccionar posturas y grip antideslizante máximo.",
-    features: ["Caucho natural de 5mm de espesor", "Líneas de alineación central y transversal", "Antideslizante extremo en húmedo y seco", "Libre de PVC y químicos nocivos"],
-    inStock: true
-  },
-  {
-    id: "p2",
-    name: "Mat Extra Grip Reformer & Mat Pro 15mm",
-    category: "Mats",
-    discipline: "Pilates",
-    price: 48500,
-    rating: 5.0,
-    reviewsCount: 64,
-    image: "https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&q=80&w=600",
-    badge: "Pilates Pro",
-    description: "Colchoneta acolchada de alta densidad ideal para Pilates Mat, ejercicios de columna y protección articular. No se deforma con el uso intenso.",
-    features: ["15mm de grosor con memoria de amortiguación", "Superficie de textura estriada anti-desplazamiento", "Incluye correa de transporte ajustable", "Resistente al agua y fácil de limpiar"],
-    inStock: true
-  },
-  {
-    id: "p3",
-    name: "Anillo de Pilates Magic Circle Flex",
-    category: "Pilates Equipment",
-    discipline: "Pilates",
-    price: 18500,
-    rating: 4.8,
-    reviewsCount: 42,
-    image: "https://images.unsplash.com/photo-1518310383802-640c2de311b2?auto=format&fit=crop&q=80&w=600",
-    badge: "Más Vendido",
-    description: "Aro flexible de fibra de vidrio recubierta de goma suave con almohadillas anatómicas laterales para entrenamiento de piernas, brazos y core.",
-    features: ["Diámetro de 38 cm estándar internacional", "Resistencia progresiva ergonómica", "Acolchado doble antiderrapante interior y exterior", "Ideal para tonificación de aductores y torso"],
-    inStock: true
-  },
-  {
-    id: "p4",
-    name: "Bloques de Corcho Orgánico (Par)",
-    category: "Accesorios",
-    discipline: "Yoga & Pilates",
-    price: 14200,
-    rating: 4.9,
-    reviewsCount: 110,
-    image: "https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&q=80&w=600",
-    badge: "Sostenible",
-    description: "Par de bloques rígidos de corcho natural con bordes biselados para firmeza, apoyo y flexibilidad en posturas exigentes.",
-    features: ["100% corcho de roble certificado", "Bordes redondeados para un agarre cómodo", "Soporta peso de hasta 180kg sin flexionarse", "Superficie suave y antibacteriana"],
-    inStock: true
-  },
-  {
-    id: "p5",
-    name: "Medias Antideslizantes Grip Pilates & Barre",
-    category: "Indumentaria",
-    discipline: "Pilates",
-    price: 6500,
-    rating: 4.7,
-    reviewsCount: 95,
-    image: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&q=80&w=600",
-    badge: "Recomendado",
-    description: "Medias respirables con microgotas de silicona de alta adherencia en la planta para uso en máquinas Reformer, tablas y mat.",
-    features: ["Algodón peinado con elastano respirable", "Silicona antiderrapante de alta precisión", "Ajuste perfecto en empeine con arco elástico", "Disponibles en varias tallas (S, M, L)"],
-    inStock: true
-  },
-  {
-    id: "p6",
-    name: "Cinta Strap de Estiramiento Algodón 2.5m",
-    category: "Accesorios",
-    discipline: "Yoga & Pilates",
-    price: 8900,
-    rating: 4.8,
-    reviewsCount: 53,
-    image: "https://images.unsplash.com/photo-1599447421416-3414500d18a5?auto=format&fit=crop&q=80&w=600",
-    description: "Correa de estiramiento asistido con hebilla metálica de doble argolla en D. Ayuda a profundizar estiramientos de isquiotibiales y hombros.",
-    features: ["250 cm de largo x 3.8 cm de ancho", "Hebilla metálica reforzada sin deslizamiento", "Algodón suave para no dañar las manos", "Ideal para flexibilización progresiva"],
-    inStock: true
-  },
-  {
-    id: "p7",
-    name: "Kit Bandas Elásticas de Resistencia (Set x 3)",
-    category: "Pilates Equipment",
-    discipline: "Pilates",
-    price: 12500,
-    rating: 4.9,
-    reviewsCount: 76,
-    image: "https://images.unsplash.com/photo-1518241353330-0f7941c2d9b5?auto=format&fit=crop&q=80&w=600",
-    badge: "Kit Completo",
-    description: "Set de 3 mini bands de látex natural de diferentes intensidades (Suave, Media, Fuerte) para trabajo de glúteos, cadera y estabilidad postural.",
-    features: ["Tres niveles de tensión codificados por color", "Látex 100% natural ultra durable", "Incluye bolsita de guardado en red", "Ideales para complementar ejercicios de Pilates Mat"],
-    inStock: true
-  },
-  {
-    id: "p8",
-    name: "Spray Orgánico Limpia Mat Eucalipto & Lavanda",
-    category: "Aromaterapia",
-    discipline: "Yoga & Pilates",
-    price: 9800,
-    rating: 5.0,
-    reviewsCount: 130,
-    image: "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&q=80&w=600",
-    badge: "100% Orgánico",
-    description: "Limpiador higienizante natural con aceites esenciales desinfectantes sin enjuague. Deja tu mat fresco, libre de bacterias y con aroma relajante.",
-    features: ["Fórmula vegana con agua destilada y aceites orgánicos", "Propiedades antisépticas de lavanda y eucalipto", "Envase de 250ml con gatillo pulverizador fino", "Apto para mats de hule, corcho, PVC y TPE"],
-    inStock: true
-  },
-  {
-    id: "p9",
-    name: "Calza Seamless High-Waist Yoga & Reformer",
-    category: "Indumentaria",
-    discipline: "Yoga & Pilates",
-    price: 28000,
-    rating: 4.8,
-    reviewsCount: 67,
-    image: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&q=80&w=600",
-    description: "Calza de tiro alto sin costuras molestas. Tela de compresión suave que no transparenta en ninguna flexión.",
-    features: ["Tejido Seamless respirable de secado rápido", "Cintura ancha moldeadora que no se desliza", "Cero transparencias comprobado en flexiones profundas", "Telas suaves al tacto para máximo confort"],
-    inStock: true
-  }
-];
-
 export function Shop() {
+  const [products, setProducts] = useState<Product[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>("Todos");
+
+  // Los productos se cargan desde el panel de administración.
+  useEffect(() => {
+    apiFetch("/api/products")
+      .then(res => res.json())
+      .then(data => setProducts(Array.isArray(data) ? data : []))
+      .catch(err => console.error(err));
+  }, []);
+
   const [selectedDiscipline, setSelectedDiscipline] = useState<string>("Todas");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -208,7 +90,7 @@ export function Shop() {
   const cartTotal = cart.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
   const totalItemsCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
-  const filteredProducts = PRODUCTS.filter(product => {
+  const filteredProducts = products.filter(product => {
     const matchesCategory = selectedCategory === "Todos" || product.category === selectedCategory;
     const matchesDiscipline = selectedDiscipline === "Todas" || product.discipline === selectedDiscipline || product.discipline === "Yoga & Pilates";
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -219,32 +101,13 @@ export function Shop() {
   const handleCheckoutMercadoPago = async () => {
     if (cart.length === 0) return;
     setIsProcessingPayment(true);
-    try {
-      const summaryTitle = `Compra Omia Shop (${cart.length} productos)`;
-      const res = await apiFetch("/api/payments/mercadopago", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          type: "shop_order",
-          itemId: "order_" + Date.now(),
-          title: summaryTitle,
-          price: cartTotal
-        })
-      });
-      const data = await res.json();
-      if (data.checkoutUrl) {
-        window.location.href = data.checkoutUrl;
-      } else {
-        alert("¡Pedido registrado con éxito! Te derivaremos a la confirmación.");
-        setCart([]);
-        setIsCartOpen(false);
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Hubo un error al generar la orden. Probá nuevamente.");
-    } finally {
-      setIsProcessingPayment(false);
-    }
+    // Se mandan solo ids y cantidades: el total lo calcula el servidor.
+    const error = await startCheckout({
+      type: "product",
+      items: cart.map(item => ({ id: item.product.id, quantity: item.quantity }))
+    });
+    if (error) alert(error);
+    setIsProcessingPayment(false);
   };
 
   const handleWhatsAppCheckout = () => {
@@ -264,7 +127,7 @@ export function Shop() {
         jsonLd={{
           "@context": "https://schema.org",
           "@type": "ItemList",
-          "itemListElement": PRODUCTS.map((prod, index) => ({
+          "itemListElement": products.map((prod, index) => ({
             "@type": "ListItem",
             "position": index + 1,
             "item": {
@@ -460,11 +323,6 @@ export function Shop() {
                 {/* Card Body */}
                 <div className="p-6 flex flex-col justify-between flex-grow">
                   <div>
-                    <div className="flex items-center gap-1 mb-2 text-[#98A77C]">
-                      <Star className="w-4 h-4 fill-current" />
-                      <span className="text-xs font-bold text-[#2C2C2C]">{product.rating}</span>
-                      <span className="text-xs text-[#5D5D5D]">({product.reviewsCount} opiniones)</span>
-                    </div>
 
                     <h3 className="text-xl font-semibold text-[#2C2C2C] mb-2 tracking-tight group-hover:text-[#98A77C] transition-colors">
                       {product.name}
@@ -541,13 +399,6 @@ export function Shop() {
                     </span>
                     <h2 className="text-2xl font-bold text-[#2C2C2C] mb-2">{quickViewProduct.name}</h2>
                     
-                    <div className="flex items-center gap-2 mb-4 text-xs text-[#5D5D5D]">
-                      <div className="flex items-center text-[#98A77C]">
-                        <Star className="w-4 h-4 fill-current" />
-                        <span className="font-bold ml-1 text-[#2C2C2C]">{quickViewProduct.rating}</span>
-                      </div>
-                      <span>• {quickViewProduct.reviewsCount} calificaciones</span>
-                    </div>
 
                     <p className="text-sm text-[#5D5D5D] leading-relaxed mb-6">
                       {quickViewProduct.description}

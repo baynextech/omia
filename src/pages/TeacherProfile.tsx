@@ -14,6 +14,14 @@ export function TeacherProfile() {
   const [teacher, setTeacher] = useState<Teacher | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isReviewOpen, setIsReviewOpen] = useState(false);
+  const [reviewList, setReviewList] = useState<any[]>([]);
+
+  const loadReviews = () => {
+    apiFetch(`/api/teachers/${id}/reviews`)
+      .then(res => res.json())
+      .then(data => setReviewList(Array.isArray(data) ? data : []))
+      .catch(() => {});
+  };
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [activePhotoIndex, setActivePhotoIndex] = useState<number | null>(null);
@@ -28,6 +36,7 @@ export function TeacherProfile() {
       })
       .then((data) => {
         setTeacher(data);
+        loadReviews();
         // Registrar visita en el servidor
         apiFetch(`/api/teachers/${id}/visit`, {
           method: "POST",
@@ -37,7 +46,7 @@ export function TeacherProfile() {
       })
       .catch((err) => console.error(err))
       .finally(() => setIsLoading(false));
-  }, [id, user]);
+  }, [id]);
 
   const handleShare = () => {
     const url = `${window.location.origin}/profesor/${id}`;
@@ -313,7 +322,7 @@ export function TeacherProfile() {
               <div className="flex items-center gap-1.5 text-[#5D5D5D]">
                 <Star className="w-5 h-5 fill-[#98A77C] text-[#98A77C]" />
                 <span className="font-medium text-[#2C2C2C]">{teacher.rating}</span>
-                <span className="text-sm">({teacher.reviews} reseñas)</span>
+                <span className="text-sm">({teacher.reviews} {teacher.reviews === 1 ? "reseña" : "reseñas"})</span>
               </div>
             </div>
           </div>
@@ -391,6 +400,43 @@ export function TeacherProfile() {
               <Star className="w-5 h-5" /> Dejar Reseña
             </button>
           </div>
+
+          {/* RESEÑAS Y COMENTARIOS */}
+          <div className="pt-10 mt-10 border-t border-[#E8E0D0]">
+            <h2 className="text-2xl font-medium text-[#2C2C2C] mb-6">
+              Reseñas {reviewList.length > 0 && <span className="text-[#5D5D5D] text-lg">({reviewList.length})</span>}
+            </h2>
+            {reviewList.length > 0 ? (
+              <div className="flex flex-col gap-5">
+                {reviewList.map((review) => (
+                  <div key={review.id} className="bg-[#F4EFE4] border border-[#E8E0D0] rounded-2xl p-5">
+                    <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-[#2C2C2C]">{review.userName}</span>
+                        {review.verified && (
+                          <span className="text-[10px] uppercase tracking-wider font-bold bg-[#98A77C]/15 text-[#5f7046] px-2 py-0.5 rounded-sm">Tomó clases</span>
+                        )}
+                      </div>
+                      <span className="text-xs text-[#5D5D5D]">{new Date(review.date).toLocaleDateString("es-AR")}</span>
+                    </div>
+                    <div className="flex items-center gap-0.5 mb-2" aria-label={`${review.rating} de 5`}>
+                      {[1, 2, 3, 4, 5].map((n) => (
+                        <Star key={n} className={`w-4 h-4 ${n <= review.rating ? "fill-[#98A77C] text-[#98A77C]" : "text-[#D8D0C0]"}`} />
+                      ))}
+                    </div>
+                    {review.comment && <p className="text-[#2C2C2C] leading-relaxed">{review.comment}</p>}
+                    {review.reply && (
+                      <p className="mt-3 ml-4 text-sm text-[#5D5D5D] border-l-2 border-[#98A77C] pl-4">
+                        <strong className="text-[#2C2C2C]">Respuesta de {teacher.name}:</strong> {review.reply}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-[#5D5D5D]">Todavía no tiene reseñas. ¡Sé la primera persona en dejar una!</p>
+            )}
+          </div>
         </div>
       </div>
 
@@ -452,7 +498,7 @@ export function TeacherProfile() {
         <ReviewModal 
           teacher={teacher} 
           onClose={() => setIsReviewOpen(false)}
-          onSubmitSuccess={(updatedTeacher) => setTeacher(updatedTeacher)}
+          onSubmitSuccess={(updatedTeacher) => { setTeacher(updatedTeacher); loadReviews(); }}
         />
       )}
 

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { apiFetch } from "../lib/api";
+import { usePlans, startCheckout } from "../hooks/usePlans";
 import { MapPin, Check, ArrowRight, Star, Heart } from "lucide-react";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Hero } from "../components/Hero";
@@ -35,6 +36,7 @@ export function Home() {
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [locationFilter, setLocationFilter] = useState("Todos");
   const { isAuthenticated } = useAuth();
+  const { formatPrice } = usePlans();
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState<"login" | "register">("register");
 
@@ -43,27 +45,18 @@ export function Home() {
   useEffect(() => {
     apiFetch(`/api/teachers?location=${locationFilter}`)
       .then(res => res.json())
-      .then(data => setTeachers(data))
+      .then(data => setTeachers(Array.isArray(data) ? data : []))
       .catch(err => console.error(err));
   }, [locationFilter]);
 
-  const handleSubscribe = async (planId: string, planName: string, planPrice: number) => {
+  const handleSubscribe = async (planId: string) => {
     if (!isAuthenticated) {
       setAuthMode("register");
       setIsAuthOpen(true);
       return;
     }
-    try {
-      const res = await apiFetch("/api/payments/mercadopago", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type: "subscription", itemId: planId, title: `Suscripción Omia - ${planName}`, price: planPrice })
-      });
-      const data = await res.json();
-      if (data.checkoutUrl) window.location.href = data.checkoutUrl;
-    } catch (err) {
-      console.error("Error setting up checkout:", err);
-    }
+    const error = await startCheckout({ type: "subscription", itemId: planId });
+    if (error) alert(error);
   };
 
   return (
@@ -76,8 +69,8 @@ export function Home() {
         jsonLd={{
           "@context": "https://schema.org",
           "@graph": [
-            { "@type": "WebSite", "@id": "https://omia.com/#website", "url": "https://omia.com/", "name": "Omia Yoga & Pilates", "description": "La plataforma líder para conectar con profesores e institutos de Yoga & Pilates en Argentina.", "inLanguage": "es-AR" },
-            { "@type": "Organization", "@id": "https://omia.com/#organization", "name": "Omia Bienestar", "url": "https://omia.com/", "logo": "https://omia.com/images/yoga_hero_1779994397642.png", "sameAs": ["https://instagram.com/omiayoga.ar"] }
+            { "@type": "WebSite", "@id": "https://omia.site/#website", "url": "https://omia.site/", "name": "Omia Yoga & Pilates", "description": "La plataforma líder para conectar con profesores e institutos de Yoga & Pilates en Argentina.", "inLanguage": "es-AR" },
+            { "@type": "Organization", "@id": "https://omia.site/#organization", "name": "Omia Bienestar", "url": "https://omia.site/", "logo": "https://omia.site/images/yoga_hero_1779994397642.png", "sameAs": ["https://instagram.com/omiayoga.ar"] }
           ]
         }}
       />
@@ -249,7 +242,7 @@ export function Home() {
                 <h3 className="text-lg font-serif font-medium text-[#F4EFE4] mb-2">Plan Inicial</h3>
                 <p className="text-[#9DB085] text-xs mb-6 leading-relaxed">Para profesores independientes que recién comienzan.</p>
                 <div className="flex items-baseline mb-8">
-                  <span className="text-4xl font-light text-[#C8D8B0] font-mono">$39.900</span>
+                  <span className="text-4xl font-light text-[#C8D8B0] font-mono">{formatPrice("inicial")}</span>
                   <span className="text-[#9DB085] ml-2 text-xs">/ mes</span>
                 </div>
                 <ul className="space-y-3 mb-8">
@@ -267,7 +260,7 @@ export function Home() {
                 </ul>
               </div>
               <button
-                onClick={() => handleSubscribe("inicial", "Plan Inicial", 39900)}
+                onClick={() => handleSubscribe("inicial")}
                 className="w-full bg-transparent hover:bg-[#98A77C] active:scale-[0.97] text-[#9DB085] hover:text-white border border-[#3a6048] hover:border-[#98A77C] py-3 rounded-sm font-medium transition-all text-sm"
               >
                 Elegir Inicial
@@ -283,7 +276,7 @@ export function Home() {
                 <h3 className="text-lg font-serif font-medium text-white mb-2">Plan Destacado</h3>
                 <p className="text-white/70 text-xs mb-6 leading-relaxed">Para instructores que buscan prioridad y estadísticas.</p>
                 <div className="flex items-baseline mb-8">
-                  <span className="text-4xl font-light text-white font-mono">$43.900</span>
+                  <span className="text-4xl font-light text-white font-mono">{formatPrice("destacado")}</span>
                   <span className="text-white/60 ml-2 text-xs">/ mes</span>
                 </div>
                 <ul className="space-y-3 mb-8">
@@ -302,7 +295,7 @@ export function Home() {
                 </ul>
               </div>
               <button
-                onClick={() => handleSubscribe("destacado", "Plan Destacado Pro", 43900)}
+                onClick={() => handleSubscribe("destacado")}
                 className="w-full bg-white hover:bg-[#F4EFE4] active:scale-[0.97] text-[#1C3829] py-3 rounded-sm font-semibold transition-all text-sm"
               >
                 Suscribirme Pro
@@ -315,7 +308,7 @@ export function Home() {
                 <h3 className="text-lg font-serif font-medium text-[#F4EFE4] mb-2">Plan Institutos</h3>
                 <p className="text-[#9DB085] text-xs mb-6 leading-relaxed">Para centros, estudios de yoga y escuelas.</p>
                 <div className="flex items-baseline mb-8">
-                  <span className="text-4xl font-light text-[#C8D8B0] font-mono">$49.900</span>
+                  <span className="text-4xl font-light text-[#C8D8B0] font-mono">{formatPrice("institucional")}</span>
                   <span className="text-[#9DB085] ml-2 text-xs">/ mes</span>
                 </div>
                 <ul className="space-y-3 mb-8">
@@ -334,7 +327,7 @@ export function Home() {
                 </ul>
               </div>
               <button
-                onClick={() => handleSubscribe("institucional", "Plan Institutos", 49900)}
+                onClick={() => handleSubscribe("institucional")}
                 className="w-full bg-transparent hover:bg-[#98A77C] active:scale-[0.97] text-[#9DB085] hover:text-white border border-[#3a6048] hover:border-[#98A77C] py-3 rounded-sm font-medium transition-all text-sm"
               >
                 Elegir Institutos

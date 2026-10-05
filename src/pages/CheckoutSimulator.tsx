@@ -12,6 +12,7 @@ export function CheckoutSimulator() {
   const title = searchParams.get("title") || "Servicio Omia Yoga";
   const price = searchParams.get("price") || "8000";
   const prefId = searchParams.get("prefId") || "";
+  const tx = searchParams.get("tx") || "";
 
   const [paymentMethod, setPaymentMethod] = useState<"card" | "wallet" | "transfer">("card");
   const [isProcessing, setIsProcessing] = useState(false);
@@ -34,11 +35,11 @@ export function CheckoutSimulator() {
   useEffect(() => {
     if (isSuccess) {
       const timer = setTimeout(() => {
-        navigate(`/perfil?payment=success&type=${type}&itemId=${itemId}&prefId=${prefId}`);
+        navigate(`/perfil?payment=success&type=${type}&itemId=${itemId}&prefId=${prefId}&tx=${tx}`);
       }, 2500);
       return () => clearTimeout(timer);
     }
-  }, [isSuccess, type, itemId, prefId, navigate]);
+  }, [isSuccess, type, itemId, prefId, tx, navigate]);
 
   return (
     <div className="min-h-screen bg-[#F0F2F5] text-[#2C2C2C] font-sans flex flex-col justify-between">

@@ -39,7 +39,7 @@ export function Directory() {
     
     apiFetch(`/api/teachers?discipline=${encodeURIComponent(disciplineFilter)}&location=${encodeURIComponent(locationFilter)}&specialty=${encodeURIComponent(specialtyFilter)}&priceRange=${encodeURIComponent(priceFilter)}&availability=${encodeURIComponent(availabilityFilter)}`)
       .then(res => res.json())
-      .then(data => setTeachers(data))
+      .then(data => setTeachers(Array.isArray(data) ? data : []))
       .catch(err => console.error(err));
   }, [disciplineFilter, locationFilter, specialtyFilter, priceFilter, availabilityFilter, smartQuery]);
 
@@ -58,7 +58,7 @@ export function Directory() {
         body: JSON.stringify({ query: smartQuery })
       });
       const data = await response.json();
-      setTeachers(data);
+      setTeachers(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("Smart search error", err);
     } finally {

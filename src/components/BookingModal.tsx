@@ -68,6 +68,9 @@ export function BookingModal({ teacher, onClose, onSuccess }: BookingModalProps)
       
       if (response.ok) {
         onSuccess();
+      } else {
+        const data = await response.json().catch(() => ({}));
+        alert(response.status === 401 ? "Ingresá a tu cuenta para reservar." : data.error || "No se pudo crear la reserva.");
       }
     } catch (error) {
       console.error(error);

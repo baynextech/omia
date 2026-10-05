@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X, Mail, Lock, User, AlertCircle, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -18,7 +18,15 @@ export function AuthModal({ isOpen, onClose, initialMode = "login" }: AuthModalP
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { login, register, loginWithGithub } = useAuth();
+  const { login, register } = useAuth();
+
+  // El modal queda montado: al abrirlo hay que respetar el modo pedido (ingresar o registrarse).
+  useEffect(() => {
+    if (isOpen) {
+      setMode(initialMode);
+      setError("");
+    }
+  }, [isOpen, initialMode]);
 
   if (!isOpen) return null;
 
@@ -37,7 +45,7 @@ export function AuthModal({ isOpen, onClose, initialMode = "login" }: AuthModalP
     setLoading(true);
     try {
       if (mode === "register") {
-        const result = await register(email, password, name, role === "instituto" ? "profesor" : role);
+        const result = await register(email, password, name, role);
         if (result.error) {
           setError(result.error);
           return;
@@ -83,23 +91,6 @@ export function AuthModal({ isOpen, onClose, initialMode = "login" }: AuthModalP
             {mode === "forgot" && !isResetSent && "Ingresá tu mail y te enviamos un link"}
             {mode === "forgot" && isResetSent && "¡Listo! Revisá tu casilla de correo"}
           </p>
-        </div>
-
-        {/* GitHub OAuth */}
-        <button
-          onClick={() => { onClose(); loginWithGithub(); }}
-          className="w-full flex items-center justify-center gap-3 py-3 px-4 bg-[#24292F] hover:bg-[#1a1f24] text-white rounded-2xl font-medium transition-colors text-sm"
-        >
-          <svg viewBox="0 0 24 24" className="w-5 h-5 fill-white">
-            <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
-          </svg>
-          Continuar con GitHub
-        </button>
-
-        <div className="flex items-center gap-3 my-1">
-          <div className="flex-1 h-px bg-[#E5E5E5]" />
-          <span className="text-xs text-[#5D5D5D] font-medium">o con email</span>
-          <div className="flex-1 h-px bg-[#E5E5E5]" />
         </div>
 
         {error && (
@@ -175,7 +166,8 @@ export function AuthModal({ isOpen, onClose, initialMode = "login" }: AuthModalP
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#5D5D5D]" />
                 <input
                   type={showPassword ? "text" : "password"}
-                  placeholder="Contraseña"
+                  placeholder={mode === "register" ? "Contraseña (mínimo 8 caracteres)" : "Contraseña"}
+                  minLength={mode === "register" ? 8 : undefined}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full bg-[#F4EFE4] border border-[#E8E0D0] focus:border-[#98A77C] focus:ring-1 focus:ring-[#98A77C] text-[#2C2C2C] rounded-2xl pl-12 pr-12 py-3 outline-none transition-all placeholder:text-[#5D5D5D]/50"
@@ -187,18 +179,6 @@ export function AuthModal({ isOpen, onClose, initialMode = "login" }: AuthModalP
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-[#5D5D5D] hover:text-[#98A77C] transition-colors"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
-              </div>
-            )}
-
-            {mode === "login" && (
-              <div className="flex justify-end">
-                <button
-                  type="button"
-                  onClick={() => handleModeChange("forgot")}
-                  className="text-sm text-[#5D5D5D] hover:text-[#98A77C] font-medium transition-colors"
-                >
-                  ¿Olvidaste tu contraseña?
                 </button>
               </div>
             )}

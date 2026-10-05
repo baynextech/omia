@@ -30,9 +30,15 @@ export function ReviewModal({ teacher, onClose, onSubmitSuccess }: ReviewModalPr
         body: JSON.stringify({ rating, comment, userName: "Usuario Registrado" })
       });
       
-      if (!res.ok) throw new Error("Error posting review");
-      
-      const updatedTeacher = await res.json();
+      const updatedTeacher = await res.json().catch(() => ({}));
+      if (res.status === 401) {
+        alert("Ingresá a tu cuenta para dejar una reseña.");
+        return;
+      }
+      if (!res.ok) {
+        alert(updatedTeacher.error || "Hubo un error al enviar la reseña.");
+        return;
+      }
       onSubmitSuccess(updatedTeacher);
       onClose();
     } catch (err) {

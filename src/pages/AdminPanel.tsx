@@ -44,7 +44,7 @@ const trCls = "border-b border-[#E5E5E5] last:border-0 hover:bg-[#f4f7f1] transi
 
 // ─── Componente principal ─────────────────────────────────────────────────────
 export function AdminPanel() {
-  const { isAdmin, token, profile } = useAuth();
+  const { isAdmin, isLoading: authLoading, token, profile } = useAuth();
   const navigate = useNavigate();
   const [tab, setTab] = useState<Tab>("dashboard");
   const [dashboard, setDashboard] = useState<any>(null);
@@ -71,9 +71,10 @@ export function AdminPanel() {
   const [searchTransactions, setSearchTransactions] = useState("");
 
   useEffect(() => {
+    if (authLoading) return;
     if (!isAdmin) { navigate("/perfil"); return; }
     loadTab("dashboard");
-  }, [isAdmin]);
+  }, [isAdmin, authLoading]);
 
   useEffect(() => { if (!loaded.has(tab)) loadTab(tab); }, [tab]);
 

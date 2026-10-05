@@ -11,11 +11,10 @@ export function Favorites() {
   const [teacherToRemove, setTeacherToRemove] = useState<Teacher | null>(null);
 
   useEffect(() => {
-    // Fetch all teachers then filter locally, or we could pass IDs to a specialized endpoint
-    apiFetch(`/api/teachers?location=Todos`)
+    apiFetch(`/api/teachers?kind=all`)
       .then(res => res.json())
       .then((data: Teacher[]) => {
-        setTeachers(data.filter(t => favorites.includes(t.id)));
+        setTeachers((Array.isArray(data) ? data : []).filter(t => favorites.includes(t.id)));
       })
       .catch(err => console.error(err));
   }, [favorites]);

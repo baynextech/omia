@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Outlet, Link } from "react-router-dom";
+import { Outlet, Link, useLocation } from "react-router-dom";
 import { AIChat } from "../components/AIChat";
 import { useAuth } from "../contexts/AuthContext";
 import { AuthModal } from "../components/AuthModal";
@@ -11,7 +11,10 @@ export function RootLayout() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState<"login" | "register">("login");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const [isScrolled, setScrolled] = useState(false);
+  // Solo la home tiene un hero oscuro detrás; en el resto el encabezado va siempre sólido.
+  const { pathname } = useLocation();
+  const scrolled = isScrolled || pathname !== "/";
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -42,6 +45,7 @@ export function RootLayout() {
             {[
               { to: "/directorio", label: "Directorio" },
               { to: "/estudios", label: "Estudios" },
+              { to: "/ranking", label: "Ranking" },
               { to: "/tienda", label: "Tienda" },
               { to: "/para-profes", label: "Para Profes" },
             ].map(({ to, label }) => (
@@ -134,6 +138,7 @@ export function RootLayout() {
                 {[
                   { to: "/directorio", label: "Directorio de Profesores", sub: "Buscar" },
                   { to: "/estudios", label: "Estudios e Institutos", sub: "Centros" },
+                  { to: "/ranking", label: "Ranking de Profesionales", sub: "Top" },
                   { to: "/tienda", label: "Tienda Omia", sub: "Productos" },
                   { to: "/para-profes", label: "Membresías para Profes", sub: "Planes" },
                 ].map(({ to, label, sub }) => (
@@ -212,6 +217,7 @@ export function RootLayout() {
                 <span className="text-[#F4EFE4] text-xs font-bold uppercase tracking-widest">Plataforma</span>
                 <Link to="/directorio" className="text-[#9DB085] text-sm hover:text-[#F4EFE4] transition-colors">Directorio</Link>
                 <Link to="/estudios" className="text-[#9DB085] text-sm hover:text-[#F4EFE4] transition-colors">Estudios</Link>
+                <Link to="/ranking" className="text-[#9DB085] text-sm hover:text-[#F4EFE4] transition-colors">Ranking</Link>
                 <Link to="/tienda" className="text-[#9DB085] text-sm hover:text-[#F4EFE4] transition-colors">Tienda</Link>
               </div>
               <div className="flex flex-col gap-3">

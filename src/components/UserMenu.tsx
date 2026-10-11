@@ -42,7 +42,7 @@ export function UserMenu({ scrolled }: { scrolled: boolean }) {
         onClick={() => setOpen((v) => !v)}
         aria-haspopup="menu"
         aria-expanded={open}
-        className={`flex items-center gap-3 pl-2.5 pr-5 py-2 rounded-full border transition-colors cursor-pointer ${
+        className={`flex items-center gap-3.5 pl-4 pr-7 py-2.5 rounded-full border transition-colors cursor-pointer ${
           scrolled ? "bg-white border-[#E8E0D0] hover:bg-[#F4EFE4] text-[#2C2C2C]" : "bg-white/15 border-transparent hover:bg-white/25 text-white backdrop-blur-sm"
         }`}
       >

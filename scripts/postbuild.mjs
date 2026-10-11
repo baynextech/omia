@@ -44,7 +44,8 @@ async function getJson(url) {
 const template = await readFile(path.join(DIST, "index.html"), "utf8");
 
 // Lo que el administrador cambió en Admin → Sitio → «Google y redes» pisa los textos de arriba.
-const content = API ? (await getJson(`${API}/api/content`)) || {} : {};
+const rawContent = API ? await getJson(`${API}/api/content`) : null;
+const content = rawContent && typeof rawContent === "object" && !Array.isArray(rawContent) ? rawContent : {};
 const SEO_KEYS = { "/directorio": "directory", "/estudios": "studios", "/ranking": "ranking", "/tienda": "shop", "/para-profes": "teachers", "/noticias": "news" };
 for (const p of STATIC) {
   const k = SEO_KEYS[p.path];
@@ -99,7 +100,8 @@ if (API) {
   const institutes = await getJson(`${API}/api/institutes`);
   if (!listings && !articles) console.warn(`[postbuild] No se pudo leer ${API}: se omiten fichas y notas.`);
 
-  for (const t of [...(listings || []), ...(institutes || [])]) {
+  const asList = (v) => (Array.isArray(v) ? v : []);
+  for (const t of [...asList(listings), ...asList(institutes)]) {
     const route = `/profesor/${t.id}`;
     const where = t.location ? ` en ${t.location}` : "";
     const title = `${t.name}${t.specialty ? ` — ${t.specialty}` : ""}${where}`;
@@ -108,7 +110,7 @@ if (API) {
     sitemap.push({ loc: `${SITE}${route}` });
     count++;
   }
-  for (const a of articles || []) {
+  for (const a of asList(articles)) {
     const route = `/noticias/${a.slug}`;
     await write(route, page({ route, title: a.title, description: clip(a.excerpt || a.title), image: a.image?.startsWith("http") ? a.image : undefined, type: "article" }));
     sitemap.push({ loc: `${SITE}${route}`, lastmod: String(a.published_at || "").slice(0, 10) });

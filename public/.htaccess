@@ -28,6 +28,17 @@
   ExpiresByType font/woff2 "access plus 1 year"
 </IfModule>
 
+# Las páginas HTML siempre se revalidan: así una actualización del sitio se ve al instante y no queda la versión vieja
+# guardada en el navegador. Los archivos de /assets llevan el hash en el nombre, por eso sí se guardan por mucho tiempo.
+<IfModule mod_headers.c>
+  <FilesMatch "\.(html|xml|txt)$">
+    Header set Cache-Control "no-cache, must-revalidate"
+  </FilesMatch>
+  <FilesMatch "\.(js|css)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+</IfModule>
+
 # Security Headers
 <IfModule mod_headers.c>
   Header set X-Content-Type-Options "nosniff"

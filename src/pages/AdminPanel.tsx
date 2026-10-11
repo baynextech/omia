@@ -599,19 +599,49 @@ export function AdminPanel() {
                 />
               </div>
 
+              {/* Resumen de registros */}
+              {(() => {
+                const week = Date.now() - 7 * 86400000;
+                const stats = [
+                  ["Total de cuentas", users.length],
+                  ["Con Google", users.filter(u => u.signup_method === "google").length],
+                  ["Con mail y contraseña", users.filter(u => u.signup_method !== "google").length],
+                  ["Últimos 7 días", users.filter(u => new Date(u.created_at).getTime() > week).length],
+                ];
+                const exportCsv = () => {
+                  const rows = [["nombre", "email", "rol", "registro", "terminos_aceptados", "fecha_alta"], ...users.map(u => [u.name || "", u.email, u.role, u.signup_method === "google" ? "Google" : "Mail", u.terms_accepted_at ? new Date(u.terms_accepted_at).toLocaleDateString("es-AR") : "", new Date(u.created_at).toLocaleDateString("es-AR")])];
+                  const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
+                  const a = document.createElement("a");
+                  a.href = URL.createObjectURL(new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8" }));
+                  a.download = `omia-usuarios-${new Date().toISOString().slice(0, 10)}.csv`;
+                  a.click();
+                };
+                return (
+                  <div className="flex flex-wrap items-center gap-3">
+                    {stats.map(([l, v]) => (
+                      <div key={l as string} className={`${card} px-5 py-3`}>
+                        <p className="text-[10px] uppercase tracking-widest text-[#98A77C] font-semibold">{l}</p>
+                        <p className="text-2xl font-light text-[#2C2C2C]">{v}</p>
+                      </div>
+                    ))}
+                    <button onClick={exportCsv} className={`${btn.secondary} ml-auto`}>Exportar CSV</button>
+                  </div>
+                );
+              })()}
+
               <div className={`${card} overflow-hidden`}>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="bg-[#f4f7f1] border-b border-[#E5E5E5]">
-                        {["Usuario", "Email", "Rol actual", "Registrado", "Cambiar rol"].map(h => (
+                        {["Usuario", "Email", "Rol actual", "Registro", "Registrado", "Cambiar rol"].map(h => (
                           <th key={h} className={thCls}>{h}</th>
                         ))}
                       </tr>
                     </thead>
                     <tbody>
                       {filteredUsers.length === 0 && (
-                        <tr><td colSpan={5} className="px-5 py-10 text-center text-[#5D5D5D] text-sm">Sin usuarios registrados</td></tr>
+                        <tr><td colSpan={6} className="px-5 py-10 text-center text-[#5D5D5D] text-sm">Sin usuarios registrados</td></tr>
                       )}
                       {filteredUsers.map(u => (
                         <tr key={u.id} className={trCls}>
@@ -627,7 +657,13 @@ export function AdminPanel() {
                           <td className="px-5 py-4">
                             <span className={u.role === "admin" ? badge.red : u.role === "profesor" ? badge.blue : badge.gray}>{u.role}</span>
                           </td>
-                          <td className="px-5 py-4 text-[#5D5D5D] text-xs">{new Date(u.created_at).toLocaleDateString("es-AR")}</td>
+                          <td className="px-5 py-4">
+                            <span className={u.signup_method === "google" ? badge.blue : badge.gray}>{u.signup_method === "google" ? "Google" : "Mail"}</span>
+                          </td>
+                          <td className="px-5 py-4 text-[#5D5D5D] text-xs">
+                            {new Date(u.created_at).toLocaleDateString("es-AR")}
+                            {u.terms_accepted_at && <div className="text-[10px]">Aceptó términos</div>}
+                          </td>
                           <td className="px-5 py-4">
                             <select
                               value={u.role}

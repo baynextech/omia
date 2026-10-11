@@ -1597,7 +1597,9 @@ app.put('/api/admin/config', requireAdmin, h(async (req, res) => {
 
 app.get('/api/admin/users', requireAdmin, h(async (_req, res) => {
   const result = await pool.query(
-    'SELECT id, email, name, avatar_url, bio, role, created_at FROM users ORDER BY created_at DESC'
+    `SELECT id, email, name, avatar_url, bio, role, created_at, terms_accepted_at, email_verified,
+            CASE WHEN google_id IS NOT NULL THEN 'google' ELSE 'email' END AS signup_method
+     FROM users ORDER BY created_at DESC`
   );
   res.json(result.rows);
 }));

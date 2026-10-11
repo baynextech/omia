@@ -46,7 +46,7 @@ const trCls = "border-b border-[#E5E5E5] last:border-0 hover:bg-[#f4f7f1] transi
 
 // ─── Componente principal ─────────────────────────────────────────────────────
 export function AdminPanel() {
-  const { isAdmin, isLoading: authLoading, token, profile } = useAuth();
+  const { isAdmin, isAuthenticated, isLoading: authLoading, token, profile, logout } = useAuth();
   const navigate = useNavigate();
   const [tab, setTab] = useState<Tab>("dashboard");
   const [dashboard, setDashboard] = useState<any>(null);
@@ -74,9 +74,11 @@ export function AdminPanel() {
 
   useEffect(() => {
     if (authLoading) return;
-    if (!isAdmin) { navigate("/perfil"); return; }
+    // Sin sesión: se pide ingresar y se vuelve acá. Con una cuenta que no es admin: se avisa abajo.
+    if (!isAuthenticated) { navigate("/?auth=login&next=/admin", { replace: true }); return; }
+    if (!isAdmin) return;
     loadTab("dashboard");
-  }, [isAdmin, authLoading]);
+  }, [isAdmin, isAuthenticated, authLoading]);
 
   useEffect(() => { if (!loaded.has(tab)) loadTab(tab); }, [tab]);
 
@@ -171,6 +173,21 @@ export function AdminPanel() {
     setReviews(rs => rs.filter(r => r.id !== id));
   };
 
+  if (authLoading) return <div className="min-h-screen flex items-center justify-center text-[#5D5D5D]">Cargando…</div>;
+  if (isAuthenticated && !isAdmin) {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-6">
+        <div className="max-w-md bg-white border border-[#E8E0D0] rounded-3xl p-8 text-center shadow-sm">
+          <h1 className="text-2xl font-medium text-[#2C2C2C] mb-3">Esta cuenta no es de administrador</h1>
+          <p className="text-sm text-[#5D5D5D] mb-6">Ingresaste como <b>{profile?.email}</b>. Para entrar al panel necesitás una cuenta con rol admin.</p>
+          <div className="flex flex-col gap-3">
+            <button onClick={() => { logout(); navigate("/?auth=login&next=/admin", { replace: true }); }} className="bg-[#88976C] hover:bg-[#728156] text-white py-3 rounded-sm font-medium">Ingresar con otra cuenta</button>
+            <button onClick={() => navigate("/perfil")} className="border border-[#E8E0D0] hover:bg-[#F4EFE4] py-3 rounded-sm font-medium text-[#2C2C2C]">Ir a mi perfil</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
   if (!isAdmin) return null;
 
   const tabs: { id: Tab; label: string; icon: any; count?: number }[] = [

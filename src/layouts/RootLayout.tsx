@@ -18,6 +18,7 @@ export function RootLayout() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState<"login" | "register">("login");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [nextPath, setNextPath] = useState<string | null>(null);
   const [isScrolled, setScrolled] = useState(false);
   // Solo la home tiene un hero oscuro detrás; en el resto el encabezado va siempre sólido.
   const { pathname } = useLocation();
@@ -40,12 +41,19 @@ export function RootLayout() {
     if (auth === "login" || auth === "register") {
       setAuthMode(auth);
       setIsAuthModalOpen(true);
+      // Después de ingresar se vuelve a donde se quería ir (solo rutas internas).
+      const next = params.get("next");
+      if (next && /^\/(?!\/)/.test(next)) { setNextPath(next); }
       navigate(pathname, { replace: true });
     } else if (params.get("reset")) {
       setAuthMode("login");
       setIsAuthModalOpen(true);
     }
   }, [search]);
+
+  useEffect(() => {
+    if (nextPath && isAuthenticated) { const to = nextPath; setNextPath(null); setIsAuthModalOpen(false); navigate(to, { replace: true }); }
+  }, [nextPath, isAuthenticated]);
 
   const showAnnouncement = !!announcement && !announcementClosed && !isPanel;
 

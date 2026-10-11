@@ -4,7 +4,7 @@ Plataforma que conecta alumnos con profesores e institutos de yoga y pilates de 
 
 - **Sitio:** https://omia.site (hosting estático de Hostinger)
 - **API:** https://api.omia.site (Node + PostgreSQL en un VPS de Hostinger, Docker)
-- **Documentación:** [`docs/`](docs) · [Deploy](DEPLOY.md) · [Guía del panel](docs/GUIA-ADMIN.md) · [Arquitectura](docs/ARQUITECTURA.md) · [Manual de marca (PDF)](docs/manual-de-marca/Omia-Manual-de-Marca.pdf)
+- **Documentación:** [`docs/`](docs) · [Deploy](DEPLOY.md) · [Guía del panel](docs/GUIA-ADMIN.md) · [Arquitectura](docs/ARQUITECTURA.md) · [Pendientes](docs/PENDIENTES.md) · [Manual de marca (PDF)](docs/manual-de-marca/Omia-Manual-de-Marca.pdf)
 
 ## Stack
 React 19 + Vite + Tailwind (sitio) · Express 4 + `pg` (API) · PostgreSQL 16 · Mercado Pago (suscripciones `PreApproval` y Checkout Pro de la tienda) · Google Identity Services (login) · Resend (mails) · Gemini (asistente y búsqueda inteligente, con respaldo configurable).

@@ -7,7 +7,7 @@ import { Pool, PoolClient, types } from 'pg';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { GoogleGenAI } from '@google/genai';
-import { MercadoPagoConfig, Preference, Payment } from 'mercadopago';
+import { MercadoPagoConfig, Preference, Payment, PreApproval } from 'mercadopago';
 
 dotenv.config();
 
@@ -27,6 +27,12 @@ const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
 const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
 const MP_ACCESS_TOKEN = process.env.MERCADOPAGO_ACCESS_TOKEN || '';
 const MP_WEBHOOK_SECRET = process.env.MERCADOPAGO_WEBHOOK_SECRET || '';
+// Login con Google (ID de cliente de OAuth, tipo "Aplicación web"). Sin esto el botón no se muestra.
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '';
+// Mails transaccionales por Resend. Sin clave, los mails se escriben en el log del servidor.
+const RESEND_API_KEY = process.env.RESEND_API_KEY || '';
+const EMAIL_FROM = process.env.EMAIL_FROM || 'Omia <no-reply@omia.site>';
+const CONTACT_EMAIL = process.env.CONTACT_EMAIL || '';
 
 // En producción no se arranca con valores de relleno.
 if (IS_PROD) {
@@ -45,6 +51,8 @@ const PLANS: Record<string, string> = {
   institucional: 'Plan Institucional',
 };
 const PLAN_DAYS = 30;
+// Días extra que se mantiene el plan cuando un cobro mensual no entra, mientras Mercado Pago reintenta.
+const GRACE_DAYS = 5;
 const PUBLIC_ROLES = ['alumno', 'profesor', 'instituto'];
 const MAX_GALLERY_IMAGES = 8;
 // Mínimo de reseñas "virtuales" con que se pondera el ranking (promedio bayesiano).
@@ -108,6 +116,8 @@ app.use((_req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'DENY');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  if (IS_PROD) res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
   next();
 });
 
@@ -287,6 +297,95 @@ async function getPlanPrices(): Promise<Record<string, number>> {
   return prices;
 }
 
+// Envío: tarifa única configurable desde el admin y gratis a partir de cierto monto.
+async function getShippingCost(subtotal: number): Promise<number> {
+  const rows = (await pool.query(`SELECT key, value FROM admin_config WHERE key IN ('shipping_flat_price', 'free_shipping_from')`)).rows;
+  const cfg = Object.fromEntries(rows.map((r) => [r.key, Number(r.value) || 0]));
+  if (cfg.free_shipping_from > 0 && subtotal >= cfg.free_shipping_from) return 0;
+  return cfg.shipping_flat_price || 0;
+}
+
+// ─── Mails ───────────────────────────────────────────────────────────────────
+
+const escapeHtml = (s: unknown): string =>
+  String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!));
+
+function emailLayout(title: string, bodyHtml: string, cta?: { label: string; url: string }): string {
+  const button = cta
+    ? `<p style="margin:28px 0"><a href="${escapeHtml(cta.url)}" style="background:#98A77C;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600">${escapeHtml(cta.label)}</a></p>`
+    : '';
+  return `<div style="font-family:Arial,Helvetica,sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#2C2C2C">
+<h2 style="font-weight:500;margin:0 0 16px">${escapeHtml(title)}</h2>${bodyHtml}${button}
+<p style="color:#888;font-size:12px;margin-top:32px">Omia · Yoga &amp; Pilates · <a href="${APP_URL}" style="color:#888">${APP_URL.replace(/^https?:\/\//, '')}</a></p></div>`;
+}
+
+// Nunca interrumpe el flujo que lo llama: si el mail falla se registra y se sigue.
+async function sendEmail(to: string, subject: string, html: string): Promise<void> {
+  if (!to) return;
+  if (!RESEND_API_KEY) {
+    console.log(`[mail] (sin RESEND_API_KEY) → ${to}: ${subject}`);
+    // Solo en desarrollo: muestra los enlaces del mail para poder probar los flujos sin casilla real.
+    if (!IS_PROD) for (const m of html.matchAll(/href="([^"]+)"/g)) console.log(`[mail]   enlace: ${m[1].replace(/&amp;/g, '&')}`);
+    return;
+  }
+  try {
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ from: EMAIL_FROM, to: [to], subject, html }),
+    });
+    if (!response.ok) console.error(`[mail] Resend respondió ${response.status} al enviar "${subject}"`);
+  } catch (err) {
+    console.error('[mail] No se pudo enviar:', (err as Error).message);
+  }
+}
+
+const mails = {
+  welcome: (user: Row) => sendEmail(
+    user.email, '¡Bienvenido/a a Omia!',
+    emailLayout(`¡Hola${user.name ? `, ${String(user.name).split(' ')[0]}` : ''}!`,
+      user.role === 'alumno'
+        ? '<p>Tu cuenta está lista. Ya podés buscar profes e institutos de yoga y pilates, guardar tus favoritos y dejar reseñas.</p>'
+        : '<p>Tu cuenta está lista. El siguiente paso es completar tu ficha pública y activar tu plan para aparecer en el directorio.</p>',
+      { label: user.role === 'alumno' ? 'Explorar el directorio' : 'Completar mi ficha', url: `${APP_URL}${user.role === 'alumno' ? '/directorio' : '/perfil'}` })
+  ),
+  passwordReset: (user: Row, link: string) => sendEmail(
+    user.email, 'Recuperá tu contraseña de Omia',
+    emailLayout('Recuperá tu contraseña',
+      '<p>Pediste cambiar tu contraseña. El enlace vale por 1 hora. Si no fuiste vos, ignorá este mensaje: tu cuenta sigue segura.</p>',
+      { label: 'Elegir una contraseña nueva', url: link })
+  ),
+  subscriptionActive: (user: Row, plan: string, amount: number, nextAt: Date | null) => sendEmail(
+    user.email, 'Tu plan de Omia está activo',
+    emailLayout('¡Tu plan está activo!',
+      `<p>Activaste el <b>${escapeHtml(PLANS[plan] || plan)}</b> por ${formatARS(amount)} por mes. Tu ficha ya figura en el directorio.</p>` +
+      (nextAt ? `<p>El próximo cobro es el ${nextAt.toLocaleDateString('es-AR')}. Podés darte de baja cuando quieras desde tu panel.</p>` : ''),
+      { label: 'Ir a mi panel', url: `${APP_URL}/perfil` })
+  ),
+  paymentOk: (user: Row, plan: string, amount: number) => sendEmail(
+    user.email, 'Recibimos tu pago mensual',
+    emailLayout('Pago recibido', `<p>Acreditamos el pago de ${formatARS(amount)} de tu ${escapeHtml(PLANS[plan] || plan)}. ¡Gracias por ser parte de Omia!</p>`)
+  ),
+  paymentFailed: (user: Row, plan: string) => sendEmail(
+    user.email, 'No pudimos cobrar tu plan de Omia',
+    emailLayout('Hubo un problema con tu cobro',
+      `<p>Mercado Pago no pudo procesar el cobro de tu ${escapeHtml(PLANS[plan] || plan)}. Lo va a reintentar automáticamente. Si seguís sin saldo, o cambiaste de tarjeta, actualizá el medio de pago para no perder tu lugar en el directorio (te mantenemos el plan ${GRACE_DAYS} días más).</p>`,
+      { label: 'Revisar mi plan', url: `${APP_URL}/perfil` })
+  ),
+  subscriptionCancelled: (user: Row, plan: string, until: Date | null) => sendEmail(
+    user.email, 'Tu plan de Omia fue dado de baja',
+    emailLayout('Baja confirmada',
+      `<p>Cancelamos el cobro mensual de tu ${escapeHtml(PLANS[plan] || plan)}.` +
+      (until ? ` Tu ficha mantiene los beneficios hasta el ${until.toLocaleDateString('es-AR')}.` : '') +
+      ' Cuando quieras volver, podés reactivar el plan desde tu panel.</p>')
+  ),
+  subscriptionExpired: (user: Row) => sendEmail(
+    user.email, 'Tu plan de Omia venció',
+    emailLayout('Tu plan venció', '<p>Tu ficha sigue publicada, pero ya no tiene los beneficios del plan. Podés reactivarlo cuando quieras.</p>',
+      { label: 'Reactivar mi plan', url: `${APP_URL}/para-profes` })
+  ),
+};
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // ROUTES
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -314,6 +413,10 @@ app.post('/api/auth/register', authLimiter, h(async (req, res) => {
   if (!name) {
     return res.status(400).json({ error: 'Ingresá tu nombre' });
   }
+  // Ley 25.326: el consentimiento tiene que quedar registrado.
+  if (req.body.acceptTerms !== true) {
+    return res.status(400).json({ error: 'Tenés que aceptar los Términos y la Política de privacidad' });
+  }
 
   const exists = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
   if (exists.rows.length > 0) {
@@ -322,10 +425,114 @@ app.post('/api/auth/register', authLimiter, h(async (req, res) => {
 
   const password_hash = await bcrypt.hash(password, 12);
   const result = await pool.query(
-    `INSERT INTO users (email, password_hash, name, role) VALUES ($1, $2, $3, $4) RETURNING *`,
+    `INSERT INTO users (email, password_hash, name, role, terms_accepted_at) VALUES ($1, $2, $3, $4, NOW()) RETURNING *`,
     [email, password_hash, name, role]
   );
+  void mails.welcome(result.rows[0]);
   res.status(201).json(await sessionPayload(result.rows[0]));
+}));
+
+// Configuración pública que necesita el sitio para saber qué mostrar.
+app.get('/api/config', (_req, res) => {
+  res.json({ googleClientId: GOOGLE_CLIENT_ID || null, paymentsEnabled: !!mp || SIMULATED_PAYMENTS });
+});
+
+// Login / registro con Google. El navegador manda el ID token de Google Identity Services;
+// se valida contra Google y que sea para esta aplicación antes de confiar en nada.
+app.post('/api/auth/google', authLimiter, h(async (req, res) => {
+  if (!GOOGLE_CLIENT_ID) return res.status(503).json({ error: 'El ingreso con Google no está disponible' });
+  const credential = String(req.body.credential || '');
+  if (!credential) return res.status(400).json({ error: 'Falta la credencial de Google' });
+
+  const verify = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(credential)}`);
+  if (!verify.ok) return res.status(401).json({ error: 'No pudimos validar tu cuenta de Google' });
+  const info = (await verify.json()) as Row;
+  const emailVerified = info.email_verified === true || info.email_verified === 'true';
+  if (info.aud !== GOOGLE_CLIENT_ID || !info.sub || !info.email || !emailVerified) {
+    return res.status(401).json({ error: 'No pudimos validar tu cuenta de Google' });
+  }
+
+  const email = String(info.email).toLowerCase();
+  let user = (await pool.query('SELECT * FROM users WHERE google_id = $1 OR email = $2', [info.sub, email])).rows[0];
+  if (user) {
+    // Si ya existía con ese email, se vincula la cuenta de Google (Google verificó el email).
+    user = (await pool.query(
+      `UPDATE users SET google_id = COALESCE(google_id, $2), email_verified = true,
+         avatar_url = COALESCE(avatar_url, $3), name = COALESCE(NULLIF(name, ''), $4)
+       WHERE id = $1 RETURNING *`,
+      [user.id, info.sub, info.picture || null, info.name || null]
+    )).rows[0];
+  } else {
+    const role = PUBLIC_ROLES.includes(req.body.role) ? req.body.role : 'alumno';
+    if (req.body.acceptTerms !== true) {
+      return res.status(400).json({ error: 'Tenés que aceptar los Términos y la Política de privacidad', needsTerms: true });
+    }
+    // Hash de una clave aleatoria que nadie conoce: la cuenta solo entra por Google o por "olvidé mi contraseña".
+    const unusable = await bcrypt.hash(crypto.randomBytes(32).toString('hex'), 10);
+    user = (await pool.query(
+      `INSERT INTO users (email, password_hash, name, role, google_id, email_verified, avatar_url, terms_accepted_at)
+       VALUES ($1, $2, $3, $4, $5, true, $6, NOW()) RETURNING *`,
+      [email, unusable, info.name || email.split('@')[0], role, info.sub, info.picture || null]
+    )).rows[0];
+    void mails.welcome(user);
+  }
+  res.json(await sessionPayload(user));
+}));
+
+// ─── Recuperar contraseña ─────────────────────────────────────────────────────
+
+const hashToken = (token: string): string => crypto.createHash('sha256').update(token).digest('hex');
+const resetLimiter = rateLimit(5, 15 * 60 * 1000);
+
+// Siempre responde lo mismo, exista o no el email, para no revelar quién tiene cuenta.
+app.post('/api/auth/forgot-password', resetLimiter, h(async (req, res) => {
+  const email = String(req.body.email || '').trim().toLowerCase();
+  if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    const user = (await pool.query('SELECT * FROM users WHERE email = $1', [email])).rows[0];
+    if (user) {
+      const token = crypto.randomBytes(32).toString('hex');
+      await pool.query(
+        `INSERT INTO password_resets (user_id, token_hash, expires_at) VALUES ($1, $2, NOW() + INTERVAL '1 hour')`,
+        [user.id, hashToken(token)]
+      );
+      void mails.passwordReset(user, `${APP_URL}/?reset=${token}`);
+    }
+  }
+  res.json({ success: true });
+}));
+
+app.post('/api/auth/reset-password', resetLimiter, h(async (req, res) => {
+  const token = String(req.body.token || '');
+  const password = String(req.body.password || '');
+  if (password.length < 8) return res.status(400).json({ error: 'La contraseña debe tener al menos 8 caracteres' });
+  if (!/^[0-9a-f]{64}$/.test(token)) return res.status(400).json({ error: 'El enlace no es válido o venció' });
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    // Se marca como usado en la misma sentencia que lo lee: un enlace solo sirve una vez.
+    const used = await client.query(
+      `UPDATE password_resets SET used_at = NOW()
+       WHERE token_hash = $1 AND used_at IS NULL AND expires_at > NOW() RETURNING user_id`,
+      [hashToken(token)]
+    );
+    if (!used.rows[0]) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'El enlace no es válido o venció' });
+    }
+    const user = (await client.query(
+      'UPDATE users SET password_hash = $2, email_verified = true WHERE id = $1 RETURNING *',
+      [used.rows[0].user_id, await bcrypt.hash(password, 12)]
+    )).rows[0];
+    await client.query('UPDATE password_resets SET used_at = NOW() WHERE user_id = $1 AND used_at IS NULL', [user.id]);
+    await client.query('COMMIT');
+    res.json(await sessionPayload(user));
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
 }));
 
 app.post('/api/auth/login', authLimiter, h(async (req, res) => {
@@ -609,7 +816,7 @@ function bookingDTO(b: Row): Row {
     studentEmail: b.student_email || '',
     price: formatARS(b.price),
     amount: Number(b.price) || 0,
-    paymentStatus: b.payment_status === 'aprobado' ? 'Pagado' : 'Pendiente',
+    paymentStatus: 'A coordinar con el profesional',
   };
 }
 
@@ -757,16 +964,13 @@ app.post('/api/teachers/create-or-update', auth(), h(async (req, res) => {
 }));
 
 app.get('/api/user/teacher-stats', auth(), h(async (req, res) => {
-  const empty = { impressions: 0, visitors: [], bookings: 0, earned: 0, pendingPayout: 0, rating: 0, reviews: 0 };
+  const empty = { impressions: 0, visitors: [], bookings: 0, rating: 0, reviews: 0 };
   const teacher = await getTeacherByUser(req.user!.id);
   if (!teacher) return res.json(empty);
 
   const [bookings, visitors] = await Promise.all([
     pool.query(
-      `SELECT COUNT(*) AS total,
-              COALESCE(SUM(price) FILTER (WHERE payment_status = 'aprobado'), 0) AS earned,
-              COALESCE(SUM(price) FILTER (WHERE payment_status <> 'aprobado' AND status <> 'cancelada'), 0) AS pending
-       FROM bookings WHERE teacher_id = $1`,
+      `SELECT COUNT(*) AS total FROM bookings WHERE teacher_id = $1 AND status <> 'cancelada'`,
       [teacher.id]
     ),
     pool.query(
@@ -780,8 +984,6 @@ app.get('/api/user/teacher-stats', auth(), h(async (req, res) => {
     impressions: teacher.impressions || 0,
     visitors: visitors.rows,
     bookings: bookings.rows[0].total,
-    earned: Number(bookings.rows[0].earned) || 0,
-    pendingPayout: Number(bookings.rows[0].pending) || 0,
     rating: Number(teacher.rating) || 0,
     reviews: Number(teacher.review_count) || 0,
     status: teacher.status,
@@ -809,13 +1011,27 @@ app.post('/api/bookings', auth(), h(async (req, res) => {
   if (!teacher) return res.status(404).json({ error: 'Profesor no encontrado' });
   if (teacher.user_id === req.user!.id) return res.status(400).json({ error: 'No podés reservar tu propia clase' });
 
-  // El precio sale de la ficha del profesor, nunca de lo que manda el navegador.
+  // Omia no procesa el pago de las clases: se acuerda y se paga directo con el profesional.
+  // La solicitud queda registrada y el profesional recibe un aviso por mail.
   const result = await pool.query(
     `INSERT INTO bookings (student_id, teacher_id, teacher_name, date, time, price, status, payment_status)
-     VALUES ($1, $2, $3, $4, $5, $6, 'confirmada', 'pendiente') RETURNING *`,
+     VALUES ($1, $2, $3, $4, $5, $6, 'solicitada', 'directo') RETURNING *`,
     [req.user!.id, teacherId, teacher.name, date, time, priceToNumber(teacher.price)]
   );
-  res.status(201).json({ success: true, booking: bookingDTO(result.rows[0]) });
+  const contactEmail = teacher.email || (teacher.user_id ? (await pool.query('SELECT email FROM users WHERE id = $1', [teacher.user_id])).rows[0]?.email : null);
+  if (contactEmail) {
+    void sendEmail(contactEmail, 'Tenés una nueva solicitud de clase en Omia',
+      emailLayout('Nueva solicitud de clase',
+        `<p><b>${escapeHtml(req.profile!.name || 'Un alumno')}</b> quiere reservar una clase el <b>${escapeHtml(date)}</b> a las <b>${escapeHtml(time)}</b>.</p>
+         <p>Contacto: ${escapeHtml(req.profile!.email)}. Escribile para confirmar y acordar el pago: el 100% va directo a vos.</p>`,
+        { label: 'Ver mis solicitudes', url: `${APP_URL}/perfil` }));
+  }
+  res.status(201).json({
+    success: true,
+    booking: bookingDTO(result.rows[0]),
+    // El alumno recibe cómo contactar al profesional para cerrar la reserva.
+    contact: { name: teacher.name, phone: teacher.phone || null, email: teacher.email || null, instagram: teacher.instagram || null },
+  });
 }));
 
 // ─── Payments ─────────────────────────────────────────────────────────────────
@@ -836,33 +1052,39 @@ async function applyApprovedTransaction(txId: string, mpPaymentId: string | null
       return false;
     }
 
-    if (tx.type === 'subscription') {
-      // Suma 30 días desde el vencimiento vigente (o desde hoy) y publica la ficha si estaba pendiente.
-      await client.query(
-        `UPDATE teachers SET
-           plan = $1, plan_active = true,
-           plan_expires_at = GREATEST(COALESCE(plan_expires_at, NOW()), NOW()) + ($2 || ' days')::interval,
-           status = CASE WHEN status = 'pendiente' THEN 'activo' ELSE status END
-         WHERE user_id = $3`,
-        [tx.item_id, String(PLAN_DAYS), tx.user_id]
-      );
-    } else if (tx.type === 'booking') {
-      await client.query(
-        `UPDATE bookings SET payment_status = 'aprobado', mp_payment_id = $1 WHERE id = $2`,
-        [mpPaymentId, tx.item_id]
-      );
-    } else if (tx.type === 'product') {
+    if (tx.type === 'product') {
       for (const item of (tx.items || []) as { id: string; quantity: number }[]) {
         await client.query('UPDATE products SET stock = GREATEST(stock - $1, 0) WHERE id = $2', [item.quantity, item.id]);
       }
     }
     await client.query('COMMIT');
+    if (tx.type === 'product') void notifyOrder(tx);
     return true;
   } catch (err) {
     await client.query('ROLLBACK');
     throw err;
   } finally {
     client.release();
+  }
+}
+
+async function notifyOrder(tx: Row): Promise<void> {
+  try {
+    const user = (await pool.query('SELECT email, name FROM users WHERE id = $1', [tx.user_id])).rows[0];
+    const items = (tx.items || []) as { name: string; quantity: number; unit_price: number }[];
+    const lines = items.map((i) => `<li>${i.quantity} × ${escapeHtml(i.name)} — ${formatARS(i.unit_price * i.quantity)}</li>`).join('');
+    const ship = tx.shipping || {};
+    const where = ship.method === 'retiro' ? 'Retiro por el punto acordado (te escribimos para coordinar).' : `Envío a ${escapeHtml(ship.address)}, ${escapeHtml(ship.city)} (${escapeHtml(ship.zip)}).`;
+    if (user) {
+      void sendEmail(user.email, 'Recibimos tu pedido en Omia',
+        emailLayout('¡Gracias por tu compra!', `<ul>${lines}</ul><p><b>Total: ${formatARS(tx.amount)}</b></p><p>${where}</p><p>Te avisamos por mail cuando lo despachemos.</p>`));
+    }
+    if (CONTACT_EMAIL) {
+      void sendEmail(CONTACT_EMAIL, `Nuevo pedido ${String(tx.id).slice(0, 8)} — ${formatARS(tx.amount)}`,
+        emailLayout('Nuevo pedido pago', `<ul>${lines}</ul><p>Total ${formatARS(tx.amount)}</p><p>${escapeHtml(ship.name)} · ${escapeHtml(ship.phone)} · ${user ? escapeHtml(user.email) : ''}</p><p>${where}</p>`));
+    }
+  } catch (err) {
+    console.error('[pedido] No se pudo avisar:', (err as Error).message);
   }
 }
 
@@ -898,31 +1120,16 @@ async function verifyMercadoPagoPayment(paymentId: string, expectedTxId?: string
 app.post('/api/payments/mercadopago', auth(), h(async (req, res) => {
   const userId = req.user!.id;
   const type = req.body.type === 'shop_order' ? 'product' : String(req.body.type || '');
-  const itemId = String(req.body.itemId || '');
 
   // El monto y el título se calculan siempre acá; lo que mande el navegador se ignora.
   let amount = 0;
   let title = '';
   let itemRef: string | null = null;
   let orderItems: { id: string; name: string; quantity: number; unit_price: number }[] | null = null;
+  let shipping: Row | null = null;
+  let shippingCost = 0;
 
-  if (type === 'subscription') {
-    if (!PLANS[itemId]) return res.status(400).json({ error: 'Plan inexistente' });
-    if (!(await getTeacherByUser(userId))) {
-      return res.status(409).json({ error: 'Primero completá y guardá tu perfil público. Después podés activar el plan.' });
-    }
-    amount = (await getPlanPrices())[itemId] || 0;
-    title = `Membresía Omia - ${PLANS[itemId]} (${PLAN_DAYS} días)`;
-    itemRef = itemId;
-  } else if (type === 'booking') {
-    if (!isUuid(itemId)) return res.status(404).json({ error: 'Reserva no encontrada' });
-    const booking = (await pool.query('SELECT * FROM bookings WHERE id = $1 AND student_id = $2', [itemId, userId])).rows[0];
-    if (!booking) return res.status(404).json({ error: 'Reserva no encontrada' });
-    if (booking.payment_status === 'aprobado') return res.status(409).json({ error: 'Esta reserva ya está paga' });
-    amount = Number(booking.price) || 0;
-    title = `Clase con ${booking.teacher_name} - ${booking.date} ${booking.time}`;
-    itemRef = booking.id;
-  } else if (type === 'product') {
+  if (type === 'product') {
     const requested: { id: string; quantity: number }[] = (Array.isArray(req.body.items) ? req.body.items : [])
       .map((i: Row) => ({ id: String(i.id), quantity: Math.floor(Number(i.quantity)) }))
       .filter((i: { id: string; quantity: number }) => isUuid(i.id) && i.quantity > 0 && i.quantity <= 99);
@@ -938,7 +1145,22 @@ app.post('/api/payments/mercadopago', auth(), h(async (req, res) => {
       if (Number(product.stock) < item.quantity) return res.status(409).json({ error: `No hay stock suficiente de "${product.name}"` });
       orderItems.push({ id: product.id, name: product.name, quantity: item.quantity, unit_price: Number(product.price) });
     }
-    amount = orderItems.reduce((sum, i) => sum + i.unit_price * i.quantity, 0);
+    const ship = req.body.shipping || {};
+    shipping = {
+      name: String(ship.name || '').trim().slice(0, 120),
+      phone: String(ship.phone || '').trim().slice(0, 40),
+      address: String(ship.address || '').trim().slice(0, 200),
+      city: String(ship.city || '').trim().slice(0, 100),
+      province: String(ship.province || '').trim().slice(0, 100),
+      zip: String(ship.zip || '').trim().slice(0, 12),
+      method: ship.method === 'retiro' ? 'retiro' : 'envio',
+    };
+    if (!shipping.name || !shipping.phone || (shipping.method === 'envio' && (!shipping.address || !shipping.city || !shipping.zip))) {
+      return res.status(400).json({ error: 'Completá tus datos de contacto y de entrega' });
+    }
+    const subtotal = orderItems.reduce((sum, i) => sum + i.unit_price * i.quantity, 0);
+    shippingCost = shipping.method === 'retiro' ? 0 : await getShippingCost(subtotal);
+    amount = subtotal + shippingCost;
     title = `Compra Omia Shop (${orderItems.length} ${orderItems.length === 1 ? 'producto' : 'productos'})`;
   } else {
     return res.status(400).json({ error: 'Tipo de pago inválido' });
@@ -950,9 +1172,10 @@ app.post('/api/payments/mercadopago', auth(), h(async (req, res) => {
   }
 
   const tx = (await pool.query(
-    `INSERT INTO transactions (user_id, user_name, type, amount, description, item_id, items, status)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, 'pendiente') RETURNING id`,
-    [userId, req.profile!.name || '', type, amount, title, itemRef, orderItems ? JSON.stringify(orderItems) : null]
+    `INSERT INTO transactions (user_id, user_name, type, amount, description, item_id, items, shipping, status)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'pendiente') RETURNING id`,
+    [userId, req.profile!.name || '', type, amount, title, itemRef, orderItems ? JSON.stringify(orderItems) : null,
+     shipping ? JSON.stringify({ ...shipping, cost: shippingCost }) : null]
   )).rows[0];
 
   const backUrl = (status: string) =>
@@ -964,9 +1187,10 @@ app.post('/api/payments/mercadopago', auth(), h(async (req, res) => {
   }
 
   try {
-    const mpItems = orderItems
-      ? orderItems.map((i) => ({ id: i.id, title: i.name, quantity: i.quantity, unit_price: i.unit_price, currency_id: 'ARS' }))
-      : [{ id: itemRef || type, title, quantity: 1, unit_price: amount, currency_id: 'ARS' }];
+    const mpItems = [
+      ...(orderItems || []).map((i) => ({ id: i.id, title: i.name, quantity: i.quantity, unit_price: i.unit_price, currency_id: 'ARS' })),
+      ...(shippingCost > 0 ? [{ id: 'envio', title: 'Envío', quantity: 1, unit_price: shippingCost, currency_id: 'ARS' }] : []),
+    ];
 
     const preference = await new Preference(mp).create({
       body: {
@@ -1013,6 +1237,225 @@ app.post('/api/payments/confirm', auth(), h(async (req, res) => {
   res.status(202).json({ success: false, status: result.status, error: 'El pago todavía no figura como aprobado' });
 }));
 
+// ─── Suscripciones mensuales (Mercado Pago PreApproval) ──────────────────────
+
+const MP_STATUS: Record<string, string> = { authorized: 'activa', pending: 'pendiente', paused: 'pausada', cancelled: 'cancelada' };
+
+async function mpApi(pathname: string): Promise<Row> {
+  const response = await fetch(`https://api.mercadopago.com${pathname}`, { headers: { Authorization: `Bearer ${MP_ACCESS_TOKEN}` } });
+  if (!response.ok) throw new Error(`Mercado Pago respondió ${response.status} en ${pathname}`);
+  return (await response.json()) as Row;
+}
+
+// Trae el estado real de la suscripción desde Mercado Pago y lo refleja en la ficha del profesional.
+// Es idempotente: se puede llamar por cada aviso, por la vuelta del checkout o por el proceso diario.
+async function syncSubscription(subId: string, simulate = false): Promise<Row | null> {
+  const sub = (await pool.query('SELECT * FROM subscriptions WHERE id = $1', [subId])).rows[0];
+  if (!sub) return null;
+
+  let status = sub.status as string;
+  let nextAt: Date | null = sub.next_payment_at;
+  let lastAt: Date | null = sub.last_payment_at;
+
+  if (simulate && !mp) {
+    status = 'activa';
+    nextAt = new Date(Date.now() + PLAN_DAYS * 86400000);
+    lastAt = new Date();
+  } else if (mp && sub.mp_preapproval_id) {
+    const remote = await new PreApproval(mp).get({ id: sub.mp_preapproval_id });
+    status = MP_STATUS[remote.status || ''] || status;
+    nextAt = remote.next_payment_date ? new Date(remote.next_payment_date) : nextAt;
+    lastAt = remote.summarized?.last_charged_date ? new Date(remote.summarized.last_charged_date) : lastAt;
+  } else {
+    return sub;
+  }
+
+  const updated = (await pool.query(
+    `UPDATE subscriptions SET status = $2, next_payment_at = $3, last_payment_at = $4, updated_at = NOW(),
+       cancelled_at = CASE WHEN $2 = 'cancelada' THEN COALESCE(cancelled_at, NOW()) ELSE cancelled_at END
+     WHERE id = $1 RETURNING *`,
+    [sub.id, status, nextAt, lastAt]
+  )).rows[0];
+
+  const user = (await pool.query('SELECT * FROM users WHERE id = $1', [sub.user_id])).rows[0];
+  if (status === 'activa') {
+    // Mientras Mercado Pago siga cobrando, el plan se renueva solo. Si un cobro falla se da unos días de gracia.
+    const until = new Date((nextAt ? nextAt.getTime() : Date.now() + PLAN_DAYS * 86400000) + GRACE_DAYS * 86400000);
+    await pool.query(
+      `UPDATE teachers SET plan = $1, plan_active = true, plan_expires_at = $2,
+         status = CASE WHEN status = 'pendiente' THEN 'activo' ELSE status END
+       WHERE id = $3`,
+      [sub.plan, until, sub.teacher_id]
+    );
+    if (sub.status !== 'activa' && user) void mails.subscriptionActive(user, sub.plan, Number(sub.amount), nextAt);
+  } else if (status === 'cancelada') {
+    // Lo ya pagado se respeta: el plan sigue hasta el fin del período, sin renovarse.
+    if (sub.teacher_id) {
+      await pool.query(
+        `UPDATE teachers SET plan_expires_at = LEAST(COALESCE(plan_expires_at, NOW()), GREATEST($2::timestamptz, NOW()))
+         WHERE id = $1`,
+        [sub.teacher_id, nextAt]
+      );
+    }
+    if (sub.status !== 'cancelada' && user) void mails.subscriptionCancelled(user, sub.plan, nextAt);
+  }
+  return updated;
+}
+
+// Registra un cobro mensual de la suscripción (una sola vez por pago) y avisa por mail.
+async function recordSubscriptionPayment(sub: Row, paymentId: string, approved: boolean): Promise<void> {
+  if (approved) {
+    const inserted = await pool.query(
+      `INSERT INTO transactions (user_id, user_name, type, amount, description, item_id, mp_payment_id, status, subscription_id)
+       SELECT $1, u.name, 'subscription', $2, $3, $4, $5, 'aprobado', $6 FROM users u WHERE u.id = $1
+       ON CONFLICT DO NOTHING RETURNING id`,
+      [sub.user_id, sub.amount, `Membresía Omia - ${PLANS[sub.plan]} (mensual)`, sub.plan, paymentId, sub.id]
+    );
+    if (inserted.rows[0]) {
+      const user = (await pool.query('SELECT * FROM users WHERE id = $1', [sub.user_id])).rows[0];
+      if (user) void mails.paymentOk(user, sub.plan, Number(sub.amount));
+    }
+    return;
+  }
+  // Un rechazo avisa una sola vez por pago.
+  const first = await pool.query(`INSERT INTO webhook_events (id, topic) VALUES ($1, 'pago_rechazado') ON CONFLICT DO NOTHING RETURNING id`, [`rej:${paymentId}`]);
+  if (first.rows[0]) {
+    const user = (await pool.query('SELECT * FROM users WHERE id = $1', [sub.user_id])).rows[0];
+    if (user) void mails.paymentFailed(user, sub.plan);
+  }
+}
+
+app.post('/api/subscriptions/checkout', auth(), h(async (req, res) => {
+  const plan = String(req.body.plan || '');
+  if (!PLANS[plan]) return res.status(400).json({ error: 'Plan inexistente' });
+  const teacher = await getTeacherByUser(req.user!.id);
+  if (!teacher) {
+    return res.status(409).json({ error: 'Primero completá y guardá tu perfil público. Después podés activar el plan.' });
+  }
+  if (plan === 'institucional' && teacher.kind !== 'instituto') {
+    return res.status(400).json({ error: 'El Plan Institucional es solo para institutos y estudios' });
+  }
+  if (!mp && !SIMULATED_PAYMENTS) {
+    return res.status(503).json({ error: 'Los pagos no están disponibles en este momento. Probá más tarde.' });
+  }
+  const current = (await pool.query(`SELECT * FROM subscriptions WHERE user_id = $1 AND status IN ('activa', 'pausada') LIMIT 1`, [req.user!.id])).rows[0];
+  if (current) return res.status(409).json({ error: 'Ya tenés una suscripción. Podés cambiar de plan o darte de baja desde tu panel.' });
+
+  const amount = (await getPlanPrices())[plan] || 0;
+  if (!(amount > 0)) return res.status(400).json({ error: 'No se pudo calcular el importe' });
+
+  // Los intentos sin completar quedan descartados para no acumular suscripciones pendientes.
+  await pool.query(`UPDATE subscriptions SET status = 'cancelada', cancelled_at = NOW() WHERE user_id = $1 AND status = 'pendiente'`, [req.user!.id]);
+  const sub = (await pool.query(
+    `INSERT INTO subscriptions (user_id, teacher_id, plan, amount) VALUES ($1, $2, $3, $4) RETURNING *`,
+    [req.user!.id, teacher.id, plan, amount]
+  )).rows[0];
+
+  if (!mp) {
+    const params = new URLSearchParams({ type: 'subscription', itemId: plan, title: `Membresía Omia - ${PLANS[plan]} (mensual)`, price: String(amount), sub: sub.id });
+    return res.json({ success: true, checkoutUrl: `${APP_URL}/checkout-simulator?${params}`, subscriptionId: sub.id, isMock: true });
+  }
+
+  try {
+    const preapproval = await new PreApproval(mp).create({
+      body: {
+        reason: `Membresía Omia - ${PLANS[plan]}`,
+        external_reference: sub.id,
+        payer_email: req.profile!.email,
+        auto_recurring: { frequency: 1, frequency_type: 'months', transaction_amount: amount, currency_id: 'ARS' },
+        // Mercado Pago solo acepta back_url con https.
+        ...(APP_URL.startsWith('https://') ? { back_url: `${APP_URL}/perfil?subscription=${sub.id}` } : {}),
+        status: 'pending',
+      },
+    });
+    await pool.query('UPDATE subscriptions SET mp_preapproval_id = $1 WHERE id = $2', [preapproval.id, sub.id]);
+    res.json({ success: true, checkoutUrl: preapproval.init_point, subscriptionId: sub.id, isMock: false });
+  } catch (err) {
+    console.error('[MP preapproval create error]', err);
+    await pool.query(`UPDATE subscriptions SET status = 'cancelada', cancelled_at = NOW() WHERE id = $1`, [sub.id]);
+    res.status(502).json({ error: 'No pudimos iniciar la suscripción con Mercado Pago. Probá de nuevo en unos minutos.' });
+  }
+}));
+
+// Estado de la suscripción y sus cobros, para el panel del profesional.
+app.get('/api/subscriptions/me', auth(), h(async (req, res) => {
+  const subscription = (await pool.query(
+    `SELECT * FROM subscriptions WHERE user_id = $1 AND status <> 'cancelada' OR (user_id = $1 AND cancelled_at > NOW() - INTERVAL '90 days')
+     ORDER BY (status IN ('activa', 'pausada')) DESC, created_at DESC LIMIT 1`,
+    [req.user!.id]
+  )).rows[0] || null;
+  const payments = (await pool.query(
+    `SELECT id, amount, description, status, created_at FROM transactions
+     WHERE user_id = $1 AND type = 'subscription' AND status = 'aprobado' ORDER BY created_at DESC LIMIT 24`,
+    [req.user!.id]
+  )).rows;
+  res.json({ subscription, payments });
+}));
+
+// Al volver del checkout el sitio pide refrescar el estado. Nunca se confía en lo que diga el navegador:
+// el estado sale de Mercado Pago (o, en desarrollo sin credenciales, del simulador).
+app.post('/api/subscriptions/sync', auth(), h(async (req, res) => {
+  const subId = req.body.subscriptionId;
+  const sub = isUuid(subId)
+    ? (await pool.query('SELECT * FROM subscriptions WHERE id = $1 AND user_id = $2', [subId, req.user!.id])).rows[0]
+    : (await pool.query('SELECT * FROM subscriptions WHERE user_id = $1 ORDER BY created_at DESC LIMIT 1', [req.user!.id])).rows[0];
+  if (!sub) return res.status(404).json({ error: 'No encontramos tu suscripción' });
+  const synced = await syncSubscription(sub.id, SIMULATED_PAYMENTS);
+  res.json({ success: true, subscription: synced, pending: synced?.status === 'pendiente' });
+}));
+
+app.post('/api/subscriptions/cancel', auth(), h(async (req, res) => {
+  const sub = (await pool.query(`SELECT * FROM subscriptions WHERE user_id = $1 AND status IN ('activa', 'pausada', 'pendiente') ORDER BY created_at DESC LIMIT 1`, [req.user!.id])).rows[0];
+  if (!sub) return res.status(404).json({ error: 'No tenés una suscripción para dar de baja' });
+  if (mp && sub.mp_preapproval_id) {
+    try {
+      await new PreApproval(mp).update({ id: sub.mp_preapproval_id, body: { status: 'cancelled' } });
+    } catch (err) {
+      console.error('[MP preapproval cancel error]', err);
+      return res.status(502).json({ error: 'No pudimos procesar la baja con Mercado Pago. Probá de nuevo en unos minutos.' });
+    }
+  }
+  const updated = (await pool.query(
+    `UPDATE subscriptions SET status = 'cancelada', cancelled_at = NOW(), updated_at = NOW() WHERE id = $1 RETURNING *`, [sub.id]
+  )).rows[0];
+  if (sub.teacher_id) {
+    await pool.query(
+      `UPDATE teachers SET plan_expires_at = LEAST(COALESCE(plan_expires_at, NOW()), GREATEST($2::timestamptz, NOW())) WHERE id = $1`,
+      [sub.teacher_id, sub.next_payment_at]
+    );
+  }
+  if (sub.status !== 'pendiente') void mails.subscriptionCancelled(req.profile!, sub.plan, sub.next_payment_at);
+  res.json({ success: true, subscription: updated });
+}));
+
+// Cambio de plan: el nuevo importe rige desde el próximo cobro; los beneficios, desde ya.
+app.post('/api/subscriptions/change', auth(), h(async (req, res) => {
+  const plan = String(req.body.plan || '');
+  if (!PLANS[plan]) return res.status(400).json({ error: 'Plan inexistente' });
+  const sub = (await pool.query(`SELECT * FROM subscriptions WHERE user_id = $1 AND status = 'activa' LIMIT 1`, [req.user!.id])).rows[0];
+  if (!sub) return res.status(404).json({ error: 'No tenés una suscripción activa' });
+  if (sub.plan === plan) return res.status(400).json({ error: 'Ya estás en ese plan' });
+  const teacher = await getTeacherByUser(req.user!.id);
+  if (plan === 'institucional' && teacher?.kind !== 'instituto') {
+    return res.status(400).json({ error: 'El Plan Institucional es solo para institutos y estudios' });
+  }
+  const amount = (await getPlanPrices())[plan] || 0;
+  if (!(amount > 0)) return res.status(400).json({ error: 'No se pudo calcular el importe' });
+  if (mp && sub.mp_preapproval_id) {
+    try {
+      await new PreApproval(mp).update({ id: sub.mp_preapproval_id, body: { auto_recurring: { transaction_amount: amount, currency_id: 'ARS' } } });
+    } catch (err) {
+      console.error('[MP preapproval update error]', err);
+      return res.status(502).json({ error: 'No pudimos cambiar el plan con Mercado Pago. Probá de nuevo en unos minutos.' });
+    }
+  }
+  const updated = (await pool.query(
+    `UPDATE subscriptions SET plan = $2, amount = $3, updated_at = NOW() WHERE id = $1 RETURNING *`, [sub.id, plan, amount]
+  )).rows[0];
+  if (sub.teacher_id) await pool.query('UPDATE teachers SET plan = $1 WHERE id = $2', [plan, sub.teacher_id]);
+  res.json({ success: true, subscription: updated });
+}));
+
 // Valida la firma que manda Mercado Pago (cabecera x-signature) cuando hay clave configurada.
 function validWebhookSignature(req: Request, dataId: string): boolean {
   if (!MP_WEBHOOK_SECRET) return true;
@@ -1027,14 +1470,39 @@ function validWebhookSignature(req: Request, dataId: string): boolean {
 
 // Aviso de Mercado Pago. El cuerpo solo trae un id: el estado real se consulta siempre en su API.
 app.post('/api/webhooks/mercadopago', h(async (req, res) => {
-  const topic = req.body?.type || req.query.type || req.query.topic;
+  const topic = String(req.body?.type || req.query.type || req.query.topic || '');
   const dataId = String(req.body?.data?.id || req.query['data.id'] || req.query.id || '');
-  if (topic !== 'payment' || !/^\d+$/.test(dataId)) return res.sendStatus(200);
+  const known = ['payment', 'subscription_preapproval', 'subscription_authorized_payment'];
+  if (!known.includes(topic) || !dataId || !/^[\w-]+$/.test(dataId)) return res.sendStatus(200);
   if (!validWebhookSignature(req, dataId)) return res.sendStatus(401);
+  if (!mp) return res.sendStatus(200);
 
   try {
-    const result = await verifyMercadoPagoPayment(dataId);
-    console.log(`[MP webhook] pago ${dataId}: ${result.status}`);
+    if (topic === 'payment') {
+      if (/^\d+$/.test(dataId)) {
+        const result = await verifyMercadoPagoPayment(dataId);
+        console.log(`[MP webhook] pago ${dataId}: ${result.status}`);
+      }
+    } else if (topic === 'subscription_preapproval') {
+      const sub = (await pool.query('SELECT id FROM subscriptions WHERE mp_preapproval_id = $1', [dataId])).rows[0];
+      if (sub) await syncSubscription(sub.id);
+      console.log(`[MP webhook] suscripción ${dataId}: ${sub ? 'sincronizada' : 'desconocida'}`);
+    } else {
+      // subscription_authorized_payment: un cobro mensual (aprobado o rechazado) de una suscripción.
+      const authorized = await mpApi(`/authorized_payments/${encodeURIComponent(dataId)}`);
+      const sub = (await pool.query('SELECT * FROM subscriptions WHERE mp_preapproval_id = $1', [String(authorized.preapproval_id || '')])).rows[0];
+      if (sub) {
+        const paymentId = String(authorized.payment?.id || dataId);
+        const paymentStatus = String(authorized.payment?.status || authorized.status || '');
+        if (paymentStatus === 'approved' || authorized.status === 'processed') {
+          await recordSubscriptionPayment(sub, paymentId, true);
+        } else if (paymentStatus === 'rejected' || authorized.status === 'cancelled') {
+          await recordSubscriptionPayment(sub, paymentId, false);
+        }
+        await syncSubscription(sub.id);
+      }
+      console.log(`[MP webhook] cobro de suscripción ${dataId}: ${sub ? authorized.status : 'suscripción desconocida'}`);
+    }
   } catch (err) {
     console.error('[MP webhook]', err);
     return res.sendStatus(500); // Mercado Pago reintenta
@@ -1250,6 +1718,155 @@ app.delete('/api/admin/reviews/:id', requireAdmin, h(async (req, res) => {
   res.json({ success: true });
 }));
 
+// ─── Contacto, arrepentimiento y bajas (público) ─────────────────────────────
+
+const contactLimiter = rateLimit(5, 60 * 60 * 1000);
+
+app.post('/api/contact', contactLimiter, h(async (req, res) => {
+  const kind = ['consulta', 'arrepentimiento', 'baja'].includes(req.body.kind) ? req.body.kind : 'consulta';
+  const email = String(req.body.email || '').trim().toLowerCase().slice(0, 200);
+  const name = String(req.body.name || '').trim().slice(0, 120);
+  const message = String(req.body.message || '').trim().slice(0, 3000);
+  const reference = String(req.body.reference || '').trim().slice(0, 120);
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return res.status(400).json({ error: 'Ingresá un email válido' });
+  if (message.length < 5 && kind === 'consulta') return res.status(400).json({ error: 'Escribinos tu consulta' });
+  if (kind === 'arrepentimiento' && !reference) return res.status(400).json({ error: 'Indicá el número de pedido o el producto' });
+
+  await pool.query(
+    'INSERT INTO contact_messages (kind, name, email, message, reference) VALUES ($1, $2, $3, $4, $5)',
+    [kind, name || null, email, message || '(sin mensaje)', reference || null]
+  );
+  const label = { consulta: 'Consulta', arrepentimiento: 'Botón de arrepentimiento', baja: 'Pedido de baja' }[kind as 'consulta'];
+  if (CONTACT_EMAIL) {
+    void sendEmail(CONTACT_EMAIL, `[Omia] ${label} de ${name || email}`,
+      emailLayout(label, `<p><b>${escapeHtml(name)}</b> &lt;${escapeHtml(email)}&gt;</p>${reference ? `<p>Referencia: ${escapeHtml(reference)}</p>` : ''}<p>${escapeHtml(message).replace(/\n/g, '<br>')}</p>`));
+  }
+  // Acuse de recibo: en arrepentimiento y baja es una obligación, no una cortesía.
+  void sendEmail(email, `Recibimos tu ${kind === 'consulta' ? 'consulta' : kind === 'baja' ? 'pedido de baja' : 'pedido de arrepentimiento'}`,
+    emailLayout('Recibimos tu mensaje', '<p>Lo vamos a responder dentro de las próximas 48 horas hábiles. Guardá este mail como constancia.</p>'));
+  res.status(201).json({ success: true });
+}));
+
+// ─── Noticias (público) ──────────────────────────────────────────────────────
+
+app.get('/api/articles', h(async (req, res) => {
+  const limit = Math.min(Math.max(parseInt(String(req.query.limit || '20'), 10) || 20, 1), 50);
+  const result = await pool.query(
+    `SELECT id, slug, title, excerpt, image, category, author, published_at FROM articles
+     WHERE status = 'publicado' AND published_at <= NOW() ORDER BY published_at DESC LIMIT $1`, [limit]);
+  res.json(result.rows);
+}));
+
+app.get('/api/articles/:slug', h(async (req, res) => {
+  const article = (await pool.query(`SELECT * FROM articles WHERE slug = $1 AND status = 'publicado' AND published_at <= NOW()`, [req.params.slug])).rows[0];
+  if (!article) return res.status(404).json({ error: 'Nota no encontrada' });
+  res.json(article);
+}));
+
+// ─── Sitemap (se arma con lo que hay publicado) ──────────────────────────────
+
+app.get('/sitemap.xml', h(async (_req, res) => {
+  const site = (process.env.SITE_URL || APP_URL).replace(/\/$/, '');
+  const [listings, articles] = await Promise.all([
+    pool.query(`SELECT id, created_at FROM teachers WHERE status = 'activo'`),
+    pool.query(`SELECT slug, COALESCE(updated_at, published_at) AS d FROM articles WHERE status = 'publicado' AND published_at <= NOW()`),
+  ]);
+  const fixed = ['', '/directorio', '/estudios', '/ranking', '/tienda', '/para-profes', '/noticias', '/nosotros', '/contacto', '/terminos', '/privacidad'];
+  const url = (loc: string, extra = '') => `<url><loc>${escapeHtml(site + loc)}</loc>${extra}</url>`;
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
+    fixed.map((p) => url(p)).join('\n') + '\n' +
+    listings.rows.map((r) => url(`/profesor/${r.id}`, `<lastmod>${new Date(r.created_at).toISOString().slice(0, 10)}</lastmod>`)).join('\n') + '\n' +
+    articles.rows.map((r) => url(`/noticias/${r.slug}`, `<lastmod>${new Date(r.d).toISOString().slice(0, 10)}</lastmod>`)).join('\n') +
+    '\n</urlset>\n';
+  res.type('application/xml').send(xml);
+}));
+
+// ─── Admin: suscripciones, pedidos, noticias, mensajes ──────────────────────
+
+app.get('/api/admin/subscriptions', requireAdmin, h(async (_req, res) => {
+  res.json((await pool.query(
+    `SELECT s.*, u.email, u.name AS user_name FROM subscriptions s LEFT JOIN users u ON u.id = s.user_id ORDER BY s.created_at DESC LIMIT 300`
+  )).rows);
+}));
+
+app.get('/api/admin/orders', requireAdmin, h(async (_req, res) => {
+  res.json((await pool.query(
+    `SELECT t.*, u.email FROM transactions t LEFT JOIN users u ON u.id = t.user_id
+     WHERE t.type = 'product' AND t.status = 'aprobado' ORDER BY t.created_at DESC LIMIT 300`
+  )).rows);
+}));
+
+app.put('/api/admin/orders/:id', requireAdmin, h(async (req, res) => {
+  const fulfillment = String(req.body.fulfillment || '');
+  if (!['pendiente', 'preparando', 'despachado', 'entregado', 'cancelado'].includes(fulfillment)) {
+    return res.status(400).json({ error: 'Estado inválido' });
+  }
+  const tracking = req.body.tracking ? String(req.body.tracking).slice(0, 200) : null;
+  const order = (await pool.query(
+    `UPDATE transactions SET fulfillment = $2, tracking = COALESCE($3, tracking), updated_at = NOW()
+     WHERE id = $1 AND type = 'product' RETURNING *`, [req.params.id, fulfillment, tracking]
+  )).rows[0];
+  if (!order) return res.status(404).json({ error: 'Pedido no encontrado' });
+  if (fulfillment === 'despachado') {
+    const user = (await pool.query('SELECT email FROM users WHERE id = $1', [order.user_id])).rows[0];
+    if (user) {
+      void sendEmail(user.email, 'Tu pedido de Omia fue despachado',
+        emailLayout('¡Tu pedido está en camino!', `<p>Despachamos tu compra.${order.tracking ? ` Código de seguimiento: <b>${escapeHtml(order.tracking)}</b>.` : ''}</p>`));
+    }
+  }
+  res.json(order);
+}));
+
+app.get('/api/admin/articles', requireAdmin, h(async (_req, res) => {
+  res.json((await pool.query('SELECT * FROM articles ORDER BY created_at DESC')).rows);
+}));
+
+const slugify = (t: string): string =>
+  t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 80);
+
+app.post('/api/admin/articles', requireAdmin, h(async (req, res) => {
+  const title = String(req.body.title || '').trim();
+  const body = String(req.body.body || '').trim();
+  if (!title || !body) return res.status(400).json({ error: 'Título y contenido son obligatorios' });
+  const status = req.body.status === 'publicado' ? 'publicado' : 'borrador';
+  let slug = slugify(req.body.slug || title) || 'nota';
+  if ((await pool.query('SELECT 1 FROM articles WHERE slug = $1', [slug])).rows[0]) slug = `${slug}-${Date.now().toString(36)}`;
+  const article = (await pool.query(
+    `INSERT INTO articles (slug, title, excerpt, body, image, category, author, status, published_at)
+     VALUES ($1, $2, $3, $4, $5, COALESCE($6, 'General'), COALESCE($7, 'Equipo Omia'), $8, CASE WHEN $8 = 'publicado' THEN NOW() END) RETURNING *`,
+    [slug, title, req.body.excerpt || null, body, req.body.image || null, req.body.category || null, req.body.author || null, status]
+  )).rows[0];
+  res.status(201).json(article);
+}));
+
+app.put('/api/admin/articles/:id', requireAdmin, h(async (req, res) => {
+  const current = (await pool.query('SELECT * FROM articles WHERE id = $1', [req.params.id])).rows[0];
+  if (!current) return res.status(404).json({ error: 'Nota no encontrada' });
+  const status = req.body.status === 'publicado' ? 'publicado' : req.body.status === 'borrador' ? 'borrador' : current.status;
+  const article = (await pool.query(
+    `UPDATE articles SET title = COALESCE($2, title), excerpt = COALESCE($3, excerpt), body = COALESCE($4, body),
+       image = COALESCE($5, image), category = COALESCE($6, category), author = COALESCE($7, author),
+       status = $8, published_at = CASE WHEN $8 = 'publicado' THEN COALESCE(published_at, NOW()) ELSE published_at END,
+       updated_at = NOW() WHERE id = $1 RETURNING *`,
+    [req.params.id, req.body.title || null, req.body.excerpt ?? null, req.body.body || null, req.body.image ?? null, req.body.category || null, req.body.author || null, status]
+  )).rows[0];
+  res.json(article);
+}));
+
+app.delete('/api/admin/articles/:id', requireAdmin, h(async (req, res) => {
+  await pool.query('DELETE FROM articles WHERE id = $1', [req.params.id]);
+  res.json({ success: true });
+}));
+
+app.get('/api/admin/messages', requireAdmin, h(async (_req, res) => {
+  res.json((await pool.query('SELECT * FROM contact_messages ORDER BY handled ASC, created_at DESC LIMIT 300')).rows);
+}));
+
+app.put('/api/admin/messages/:id', requireAdmin, h(async (req, res) => {
+  await pool.query('UPDATE contact_messages SET handled = $2 WHERE id = $1', [req.params.id, req.body.handled !== false]);
+  res.json({ success: true });
+}));
+
 // ─── AI: Smart Search ─────────────────────────────────────────────────────────
 
 app.post('/api/smart-search', aiLimiter, h(async (req, res) => {
@@ -1390,14 +2007,32 @@ async function seedAdmin(): Promise<void> {
 }
 
 // Da de baja los planes vencidos. La ficha sigue publicada, pero pierde el destaque.
+// Antes de vencer, se vuelve a consultar a Mercado Pago por si el aviso de un cobro se perdió.
 async function expirePlans(): Promise<void> {
   try {
+    if (mp) {
+      const stale = await pool.query(
+        `SELECT s.id FROM subscriptions s JOIN teachers t ON t.id = s.teacher_id
+         WHERE s.status IN ('activa', 'pausada') AND s.mp_preapproval_id IS NOT NULL
+           AND t.plan_active = true AND t.plan_expires_at < NOW() + INTERVAL '1 day'`
+      );
+      for (const row of stale.rows) {
+        try { await syncSubscription(row.id); } catch (err) { console.error('[planes] No se pudo sincronizar', row.id, (err as Error).message); }
+      }
+    }
     const result = await pool.query(
       `UPDATE teachers SET plan_active = false
        WHERE plan_active = true AND plan_expires_at IS NOT NULL AND plan_expires_at < NOW()
-       RETURNING id`
+       RETURNING id, user_id`
     );
-    if (result.rows.length) console.log(`[planes] ${result.rows.length} plan(es) vencido(s) dado(s) de baja`);
+    if (result.rows.length) {
+      console.log(`[planes] ${result.rows.length} plan(es) vencido(s) dado(s) de baja`);
+      for (const row of result.rows) {
+        await pool.query(`UPDATE subscriptions SET status = 'vencida', updated_at = NOW() WHERE teacher_id = $1 AND status IN ('activa', 'pausada')`, [row.id]);
+        const user = row.user_id ? (await pool.query('SELECT * FROM users WHERE id = $1', [row.user_id])).rows[0] : null;
+        if (user) void mails.subscriptionExpired(user);
+      }
+    }
   } catch (err) {
     console.error('[planes] Error al revisar vencimientos:', (err as Error).message);
   }

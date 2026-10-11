@@ -2102,7 +2102,7 @@ async function askLLM(system: string, turns: ChatTurn[]): Promise<string> {
         const response = await genai.models.generateContent({
           model,
           contents: turns.map((t) => ({ role: t.role, parts: [{ text: t.text }] })),
-          config: { systemInstruction: system, temperature: 0.7, maxOutputTokens: 700 },
+          config: { systemInstruction: system, temperature: 0.7, maxOutputTokens: 2500 },
         });
         const text = (response.text || '').trim();
         if (text) return text;
@@ -2117,7 +2117,7 @@ async function askLLM(system: string, turns: ChatTurn[]): Promise<string> {
         method: 'POST',
         headers: { Authorization: `Bearer ${LLM_FALLBACK_KEY}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: LLM_FALLBACK_MODEL, temperature: 0.7, max_tokens: 700,
+          model: LLM_FALLBACK_MODEL, temperature: 0.7, max_tokens: 1200,
           messages: [{ role: 'system', content: system }, ...turns.map((t) => ({ role: t.role === 'model' ? 'assistant' : 'user', content: t.text }))],
         }),
       });

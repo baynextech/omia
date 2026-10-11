@@ -95,4 +95,10 @@ ALTER TABLE transactions ADD CONSTRAINT transactions_fulfillment_check
   CHECK (fulfillment IN ('pendiente', 'preparando', 'despachado', 'entregado', 'cancelado'));
 ALTER TABLE transactions ADD COLUMN IF NOT EXISTS tracking TEXT;
 
+-- Costos de envío editables desde Admin → Configuración (0 = sin costo).
+INSERT INTO admin_config (key, value, label) VALUES
+  ('shipping_flat_price', '0', 'Costo de envío fijo (ARS)'),
+  ('free_shipping_from',  '0', 'Envío gratis desde (ARS, 0 = nunca)')
+ON CONFLICT (key) DO NOTHING;
+
 COMMIT;

@@ -20,7 +20,7 @@ interface AuthContextType {
   token: string | null;
   login: (email: string, password: string) => Promise<{ error?: string }>;
   register: (email: string, password: string, name: string, role?: string, acceptTerms?: boolean) => Promise<{ error?: string }>;
-  loginWithGoogle: (credential: string, role?: string, acceptTerms?: boolean) => Promise<{ error?: string; needsTerms?: boolean }>;
+  loginWithGoogle: (token: string, role?: string, acceptTerms?: boolean, isAccessToken?: boolean) => Promise<{ error?: string; needsTerms?: boolean }>;
   startSessionFrom: (data: any) => boolean;
   logout: () => void;
   isAuthenticated: boolean;
@@ -87,12 +87,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const loginWithGoogle = async (credential: string, role = "alumno", acceptTerms = false) => {
+  const loginWithGoogle = async (token: string, role = "alumno", acceptTerms = false, isAccessToken = false) => {
     try {
       const res = await apiFetch("/api/auth/google", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ credential, role, acceptTerms })
+        body: JSON.stringify({ ...(isAccessToken ? { accessToken: token } : { credential: token }), role, acceptTerms })
       });
       const data = await res.json();
       if (!res.ok) return { error: data.error || "No pudimos ingresar con Google", needsTerms: !!data.needsTerms };

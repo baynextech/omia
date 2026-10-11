@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { X, Mail, Lock, User, AlertCircle, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
@@ -37,9 +37,6 @@ export function AuthModal({ isOpen, onClose, initialMode = "login" }: AuthModalP
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [resetToken, setResetToken] = useState("");
   const [googleClientId, setGoogleClientId] = useState<string | null>(null);
-  const googleBtn = useRef<HTMLDivElement>(null);
-  const stateRef = useRef({ role, acceptTerms, mode });
-  stateRef.current = { role, acceptTerms, mode };
   const { login, register, loginWithGoogle, startSessionFrom } = useAuth();
 
   useEffect(() => { loadConfig().then((c) => setGoogleClientId(c.googleClientId)); }, []);
@@ -52,30 +49,41 @@ export function AuthModal({ isOpen, onClose, initialMode = "login" }: AuthModalP
     }
   }, [isOpen, initialMode]);
 
-  // Botón de Google: se dibuja solo si el servidor tiene configurado el ID de cliente.
-  useEffect(() => {
-    if (!isOpen || !googleClientId || (mode !== "login" && mode !== "register")) return;
-    let cancelled = false;
-    loadGoogleScript().then(() => {
-      const g = (window as any).google?.accounts?.id;
-      if (cancelled || !g || !googleBtn.current) return;
-      g.initialize({
-        client_id: googleClientId,
-        callback: async (resp: { credential: string }) => {
-          const { role: r, acceptTerms: a, mode: m } = stateRef.current;
-          const result = await loginWithGoogle(resp.credential, r, a);
-          if (result.needsTerms && m === "login") {
-            setMode("register");
-            setError("Para crear tu cuenta con Google, elegí cómo te registrás y aceptá los términos.");
-          } else if (result.error) setError(result.error);
-          else onClose();
-        },
-      });
-      googleBtn.current.innerHTML = "";
-      g.renderButton(googleBtn.current, { theme: "outline", size: "large", text: "continue_with", shape: "pill", width: 320, locale: "es" });
-    }).catch(() => {});
-    return () => { cancelled = true; };
-  }, [isOpen, googleClientId, mode]);
+  // Botón propio «Continuar con Google»: abre la ventana de Google y vuelve con un token que el servidor valida.
+  // (El botón que dibuja Google puede quedar invisible con bloqueadores de anuncios o de seguimiento.)
+  const startGoogle = async () => {
+    setError("");
+    if (mode === "register" && !acceptTerms) {
+      setError("Aceptá los Términos y la Política de privacidad para registrarte con Google");
+      return;
+    }
+    try {
+      await loadGoogleScript();
+    } catch {
+      setError("No pudimos conectar con Google. Revisá tu conexión o desactivá el bloqueador de anuncios.");
+      return;
+    }
+    const oauth = (window as any).google?.accounts?.oauth2;
+    if (!oauth || !googleClientId) { setError("El ingreso con Google no está disponible ahora."); return; }
+    const client = oauth.initTokenClient({
+      client_id: googleClientId,
+      scope: "openid email profile",
+      callback: async (resp: { access_token?: string; error?: string }) => {
+        if (!resp.access_token) {
+          if (resp.error && resp.error !== "popup_closed") setError("No pudimos ingresar con Google. Probá de nuevo.");
+          return;
+        }
+        const result = await loginWithGoogle(resp.access_token, role, acceptTerms, true);
+        if (result.needsTerms && mode === "login") {
+          setMode("register");
+          setError("Para crear tu cuenta con Google, elegí cómo te registrás y aceptá los términos.");
+        } else if (result.error) setError(result.error);
+        else onClose();
+      },
+      error_callback: () => setError("Se cerró la ventana de Google antes de terminar."),
+    });
+    client.requestAccessToken({ prompt: "select_account" });
+  };
 
   // Enlace del mail de recuperación: /?reset=<token>
   useEffect(() => {
@@ -304,7 +312,11 @@ export function AuthModal({ isOpen, onClose, initialMode = "login" }: AuthModalP
             {mode === "register" && !acceptTerms && (
               <p className="text-[11px] text-[#5D5D5D] text-center">Aceptá los términos de arriba para registrarte con Google.</p>
             )}
-            <div ref={googleBtn} />
+            <button type="button" onClick={startGoogle}
+              className="w-full max-w-[320px] flex items-center justify-center gap-3 bg-white border border-[#DADCE0] hover:bg-[#F8F9FA] text-[#3C4043] rounded-full py-2.5 text-sm font-medium transition-colors shadow-sm">
+              <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+              Continuar con Google
+            </button>
           </div>
         )}
 

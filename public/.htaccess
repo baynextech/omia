@@ -34,8 +34,9 @@
   <FilesMatch "\.(html|xml|txt)$">
     Header set Cache-Control "no-cache, must-revalidate"
   </FilesMatch>
+  # Los archivos de /assets tienen nombre fijo: se revalidan siempre (304 si no cambiaron).
   <FilesMatch "\.(js|css)$">
-    Header set Cache-Control "public, max-age=31536000, immutable"
+    Header set Cache-Control "no-cache, must-revalidate"
   </FilesMatch>
 </IfModule>
 

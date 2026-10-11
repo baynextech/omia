@@ -457,11 +457,26 @@ app.get('/api/config', (_req, res) => {
 app.post('/api/auth/google', authLimiter, h(async (req, res) => {
   if (!GOOGLE_CLIENT_ID) return res.status(503).json({ error: 'El ingreso con Google no está disponible' });
   const credential = String(req.body.credential || '');
-  if (!credential) return res.status(400).json({ error: 'Falta la credencial de Google' });
+  const accessToken = String(req.body.accessToken || '');
+  if (!credential && !accessToken) return res.status(400).json({ error: 'Falta la credencial de Google' });
 
-  const verify = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(credential)}`);
-  if (!verify.ok) return res.status(401).json({ error: 'No pudimos validar tu cuenta de Google' });
-  const info = (await verify.json()) as Row;
+  let info: Row;
+  if (credential) {
+    const verify = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(credential)}`);
+    if (!verify.ok) return res.status(401).json({ error: 'No pudimos validar tu cuenta de Google' });
+    info = (await verify.json()) as Row;
+  } else {
+    // Botón propio de Omia: Google entrega un token de acceso. Se comprueba que sea de ESTA aplicación
+    // (tokeninfo) y recién después se leen los datos de la cuenta (userinfo).
+    const check = await fetch(`https://oauth2.googleapis.com/tokeninfo?access_token=${encodeURIComponent(accessToken)}`);
+    const meta = check.ok ? ((await check.json()) as Row) : null;
+    if (!meta || (meta.aud !== GOOGLE_CLIENT_ID && meta.azp !== GOOGLE_CLIENT_ID)) {
+      return res.status(401).json({ error: 'No pudimos validar tu cuenta de Google' });
+    }
+    const profile = await fetch('https://openidconnect.googleapis.com/v1/userinfo', { headers: { Authorization: `Bearer ${accessToken}` } });
+    if (!profile.ok) return res.status(401).json({ error: 'No pudimos validar tu cuenta de Google' });
+    info = { ...(await profile.json() as Row), aud: GOOGLE_CLIENT_ID };
+  }
   const emailVerified = info.email_verified === true || info.email_verified === 'true';
   if (info.aud !== GOOGLE_CLIENT_ID || !info.sub || !info.email || !emailVerified) {
     return res.status(401).json({ error: 'No pudimos validar tu cuenta de Google' });

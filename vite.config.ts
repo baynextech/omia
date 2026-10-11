@@ -6,6 +6,11 @@ import {defineConfig} from 'vite';
 export default defineConfig(() => {
   return {
     plugins: [react(), tailwindcss()],
+    build: {
+      // Nombres fijos: las páginas prerenderizadas no dependen de un hash y un cambio de código se publica
+      // subiendo solo estos dos archivos. El hosting los revalida en cada visita (ver public/.htaccess).
+      rollupOptions: { output: { entryFileNames: 'assets/app.js', chunkFileNames: 'assets/[name].js', assetFileNames: 'assets/[name][extname]' } },
+    },
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),

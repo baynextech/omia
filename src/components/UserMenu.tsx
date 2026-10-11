@@ -11,7 +11,7 @@ export function UserAvatar({ size = 36 }: { size?: number }) {
   const src = (profile as any)?.avatar_url || (profile as any)?.avatar || "";
   const style = { width: size, height: size, fontSize: size * 0.4 };
   if (src && !broken) {
-    return <img src={src} alt="" referrerPolicy="no-referrer" onError={() => setBroken(true)} style={style} className="rounded-full object-cover border border-white/60 shrink-0" />;
+    return <img src={src} alt="" referrerPolicy="no-referrer" onError={() => setBroken(true)} style={style} className="rounded-full object-cover shrink-0" />;
   }
   return (
     <span style={style} className="rounded-full bg-[#98A77C] text-white flex items-center justify-center font-semibold shrink-0 uppercase">
@@ -43,7 +43,7 @@ export function UserMenu({ scrolled }: { scrolled: boolean }) {
         aria-haspopup="menu"
         aria-expanded={open}
         className={`flex items-center gap-3 pl-2.5 pr-5 py-2 rounded-full border transition-colors cursor-pointer ${
-          scrolled ? "bg-white border-[#E8E0D0] hover:bg-[#F4EFE4] text-[#2C2C2C]" : "bg-white/15 border-white/30 hover:bg-white/25 text-white"
+          scrolled ? "bg-white border-[#E8E0D0] hover:bg-[#F4EFE4] text-[#2C2C2C]" : "bg-white/15 border-transparent hover:bg-white/25 text-white backdrop-blur-sm"
         }`}
       >
         <UserAvatar />

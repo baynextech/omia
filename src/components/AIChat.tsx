@@ -1,23 +1,25 @@
 import { useState, useRef, useEffect } from "react";
 import { MessageSquare, X, Send, Leaf, Sparkles } from "lucide-react";
 import Markdown from "react-markdown";
+import { Link } from "react-router-dom";
 import { apiFetch } from "../lib/api";
+import { useContent } from "../contexts/ContentContext";
 
 export function AIChat() {
+  const { t, pairs } = useContent();
+  const name = t("assistant.name") || "Omi";
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<{ role: "user" | "ai"; text: string }[]>([
-    { role: "ai", text: "Namaste 🙏. Soy tu guía inteligente de Omia Yoga. ¿Cómo te puedo ayudar hoy? Podés buscar estilos, consultarme sobre posturas, o pedirme recomendaciones de profes en Buenos Aires." }
-  ]);
+  const [messages, setMessages] = useState<{ role: "user" | "ai"; text: string }[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const suggestionChips = [
-    { label: "🧘‍♀️ Yoga suave", query: "Busco clases suaves de yoga" },
-    { label: "📍 Profes en Palermo", query: "Recomendame profesores de yoga en Palermo" },
-    { label: "💫 ¿Qué es Ashtanga?", query: "¿En qué consiste el estilo Ashtanga?" },
-    { label: "📅 Clases los Sábados", query: "¿Qué profesores tienen clases disponibles los Sábados?" }
-  ];
+  // El primer mensaje sale del panel (Admin → Sitio → Asistente); se arma al abrir para tomar lo último.
+  useEffect(() => {
+    if (isOpen && messages.length === 0) setMessages([{ role: "ai", text: t("assistant.greeting") }]);
+  }, [isOpen]);
+
+  const suggestionChips = pairs("assistant.chips").map((p) => ({ label: p.a, query: p.b }));
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -40,7 +42,11 @@ export function AIChat() {
       const response = await apiFetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: userMessage }), 
+        body: JSON.stringify({
+          message: userMessage,
+          // Los últimos mensajes, para que siga la conversación sin repetir preguntas.
+          history: messages.slice(-8).map((m) => ({ role: m.role === "user" ? "user" : "model", content: m.text })),
+        }),
       });
 
       if (!response.ok) throw new Error("Failed to chat");
@@ -49,7 +55,7 @@ export function AIChat() {
       setMessages((prev) => [...prev, { role: "ai", text: data.text }]);
     } catch (error) {
       console.error(error);
-      setMessages((prev) => [...prev, { role: "ai", text: "Disculpá, estoy teniendo problemas para conectarme ahora. Respirá profundo y volvé a intentarlo más tarde." }]);
+      setMessages((prev) => [...prev, { role: "ai", text: "Uf, no me está andando la conexión. Probá de nuevo en un ratito o escribinos desde Contacto 🙂" }]);
     } finally {
       setIsLoading(false);
     }
@@ -62,13 +68,13 @@ export function AIChat() {
         {!isOpen && (
           <div className="bg-[#2C2C2C] text-white text-xs px-3 py-2 rounded-2xl shadow-lg border border-white/10 flex items-center gap-1.5 animate-bounce font-medium whitespace-nowrap">
             <Sparkles className="w-3 h-3 text-[#98A77C]" />
-            <span>¿Buscás profesor? ¡Preguntame!</span>
+            <span>{t("assistant.bubble")}</span>
           </div>
         )}
         <button
           onClick={() => setIsOpen(true)}
           className={`bg-[#98A77C] hover:bg-[#88976C] text-white p-4 rounded-full shadow-2xl transition-all duration-300 pointer-events-auto ${isOpen ? 'scale-0' : 'scale-100 hover:scale-110'}`}
-          title="Omia AI Guide"
+          title={`Chateá con ${name}`}
         >
           <MessageSquare className="w-6 h-6" />
         </button>
@@ -84,10 +90,10 @@ export function AIChat() {
               </div>
               <div>
                 <h3 className="font-medium text-[#2C2C2C] flex items-center gap-1.5">
-                  <span>Omia Guide</span>
+                  <span>{name}</span>
                   <span className="text-[10px] bg-[#98A77C]/15 text-[#98A77C] font-bold px-1.5 py-0.5 rounded-sm uppercase tracking-wider">IA</span>
                 </h3>
-                <p className="text-xs text-[#98A77C]">Asistente de Bienestar</p>
+                <p className="text-xs text-[#98A77C]">Asistente virtual de Omia</p>
               </div>
             </div>
             <button 
@@ -113,7 +119,7 @@ export function AIChat() {
                   }`}
                 >
                   <div className={`prose prose-sm ${msg.role === "user" ? "prose-invert text-white" : "text-[#2C2C2C]"} max-w-none`}>
-                    <Markdown>{msg.text}</Markdown>
+                    <Markdown components={{ a: ({ href, children }) => (href && href.startsWith("/") ? <Link to={href} onClick={() => setIsOpen(false)} className="text-[#6f8656] underline font-medium">{children}</Link> : <a href={href} target="_blank" rel="noopener noreferrer" className="text-[#6f8656] underline">{children}</a>) }}>{msg.text}</Markdown>
                   </div>
                 </div>
               </div>
@@ -144,12 +150,16 @@ export function AIChat() {
             ))}
           </div>
 
+          <div className="px-4 pb-1 pt-2 bg-white text-center shrink-0">
+            <Link to="/contacto" onClick={() => setIsOpen(false)} className="text-[11px] text-[#5D5D5D] hover:text-[#98A77C] underline">¿Preferís hablar con una persona? Escribinos</Link>
+          </div>
+
           {/* Chat Input */}
           <div className="p-4 bg-white border-t border-[#E8E0D0] shrink-0">
             <div className="relative flex items-center">
               <input
                 type="text"
-                placeholder="Preguntá por estilos, profes o posturas..."
+                placeholder="Escribime lo que necesitás..."
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSend()}

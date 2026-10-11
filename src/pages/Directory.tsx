@@ -69,7 +69,7 @@ export function Directory() {
   };
 
   return (
-    <div className="py-12 px-6 max-w-7xl mx-auto">
+    <div className="pt-32 pb-12 px-6 max-w-7xl mx-auto">
       <SEOMeta title={t("seo.directory.title")} description={t("seo.directory.description")} ogImage={img("seo.image")} keywords="directorio profesores yoga, instructores de pilates, pilates reformer, pilates mat, yoga buenos aires, profesores ashtanga, pilates postural" />
       <div className="mb-12">
         <h1 className="text-4xl font-light tracking-tight mb-4 text-[#2C2C2C]">

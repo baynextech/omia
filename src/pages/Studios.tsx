@@ -51,7 +51,7 @@ export function Studios() {
   });
 
   return (
-    <div className="py-12 px-6 max-w-7xl mx-auto min-h-screen">
+    <div className="pt-32 pb-12 px-6 max-w-7xl mx-auto min-h-screen">
       <SEOMeta title={t("seo.studios.title")} description={t("seo.studios.description")} ogImage={img("seo.image")} keywords="estudios de yoga, institutos de pilates, pilates reformer buenos aires, centros de yoga, escuelas de yoga buenos aires" />
       {/* Title block */}
       <div className="mb-12">

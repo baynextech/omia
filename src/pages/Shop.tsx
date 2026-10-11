@@ -127,7 +127,7 @@ export function Shop() {
   };
 
   return (
-    <div className="py-12 px-6 max-w-7xl mx-auto min-h-screen">
+    <div className="pt-32 pb-12 px-6 max-w-7xl mx-auto min-h-screen">
       <SEOMeta 
         title={t("seo.shop.title")}
         description={t("seo.shop.description")}

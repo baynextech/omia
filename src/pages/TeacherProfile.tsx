@@ -97,7 +97,7 @@ export function TeacherProfile() {
   };
 
   return (
-    <div className="py-12 px-6 max-w-5xl mx-auto">
+    <div className="pt-28 pb-12 px-6 max-w-5xl mx-auto">
       <SEOMeta 
         title={`Clases de ${teacher.specialty} con ${teacher.name} en ${teacher.location}`}
         description={`Clases de ${teacher.discipline || "Yoga"} estilo ${teacher.specialty} dictadas por ${teacher.name} en ${teacher.location}. Tarifa: ${teacher.price}. Reservá tu sesión y consultá directamente.`}

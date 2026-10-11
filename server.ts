@@ -8,8 +8,10 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { GoogleGenAI } from '@google/genai';
 import { MercadoPagoConfig, Preference, Payment, PreApproval } from 'mercadopago';
+import { ASSISTANT_PERSONA, HOW_OMIA_WORKS, DEFAULT_PLAN_INFO, ZONES } from './assistant-knowledge';
 
-dotenv.config();
+// override: lo que esté en /app/.env gana sobre el entorno del contenedor, para poder rotar claves sin recrearlo.
+dotenv.config({ override: true });
 
 // ─── Constants ──────────────────────────────────────────────────────────────
 
@@ -1989,49 +1991,159 @@ Si ninguno coincide, respondé: []`,
 
 // ─── AI: Chat ─────────────────────────────────────────────────────────────────
 
+const GEMINI_FALLBACK_MODELS = (process.env.GEMINI_FALLBACK_MODELS || 'gemini-2.5-flash,gemini-2.5-flash-lite').split(',').map((m) => m.trim()).filter(Boolean);
+// Proveedor de respaldo compatible con OpenAI (por ejemplo Groq, gratis: https://api.groq.com/openai/v1).
+const LLM_FALLBACK_URL = (process.env.LLM_FALLBACK_URL || '').replace(/\/$/, '');
+const LLM_FALLBACK_KEY = process.env.LLM_FALLBACK_KEY || '';
+const LLM_FALLBACK_MODEL = process.env.LLM_FALLBACK_MODEL || 'llama-3.3-70b-versatile';
+
+async function getContentMap(): Promise<Record<string, any>> {
+  const rows = (await pool.query('SELECT key, value FROM site_content')).rows;
+  return Object.fromEntries(rows.map((r) => [r.key, r.value]));
+}
+
+const normalize = (t: string): string => t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+const clean = (t: unknown, max = 220): string => String(t ?? '').replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, max);
+
+// Arma lo que el asistente necesita saber de ESTA consulta: fichas que encajan, productos y noticias recientes.
+async function buildAssistantContext(message: string, content: Record<string, any>): Promise<string> {
+  const q = normalize(message);
+  const zones = ZONES.filter((z) => q.includes(normalize(z)));
+  const days = [['lun', 'lunes'], ['mar', 'martes'], ['mie', 'miercoles'], ['jue', 'jueves'], ['vie', 'viernes'], ['sab', 'sabado'], ['dom', 'domingo']]
+    .filter(([, long]) => q.includes(long)).map(([short]) => short);
+  const words = q.split(/[^a-z0-9]+/).filter((w) => w.length > 3 && !['quiero', 'busco', 'necesito', 'para', 'clases', 'clase', 'profe', 'profesor', 'profesora', 'donde', 'tienen', 'hola', 'gracias'].includes(w));
+
+  const [listings, counts, products, articles, prices] = await Promise.all([
+    pool.query(`SELECT id, name, kind, discipline, specialty, location, price, rating, review_count, available_days, bio, address, hours
+                FROM teachers WHERE status = 'activo' ORDER BY plan_active DESC, rating DESC, review_count DESC LIMIT 200`),
+    pool.query(`SELECT COUNT(*) FILTER (WHERE kind = 'profesor') AS teachers, COUNT(*) FILTER (WHERE kind = 'instituto') AS institutes,
+                       ARRAY_REMOVE(ARRAY_AGG(DISTINCT NULLIF(TRIM(location), '')), NULL) AS zones FROM teachers WHERE status = 'activo'`),
+    pool.query(`SELECT name, price, category, stock FROM products WHERE active = true AND stock > 0 ORDER BY created_at DESC LIMIT 40`),
+    pool.query(`SELECT title, slug FROM articles WHERE status = 'publicado' AND published_at <= NOW() ORDER BY published_at DESC LIMIT 3`),
+    getPlanPrices(),
+  ]);
+
+  const scored = listings.rows.map((t) => {
+    const hay = normalize([t.name, t.discipline, t.specialty, t.location, t.bio].join(' '));
+    let score = 0;
+    if (zones.some((z) => normalize(t.location || '').includes(normalize(z)))) score += 6;
+    if (days.length && (t.available_days || []).some((d: string) => days.includes(normalize(d).slice(0, 3)))) score += 3;
+    for (const w of words) if (hay.includes(w)) score += 2;
+    if (/pilates|reformer/.test(q) && /pilates/.test(hay)) score += 3;
+    if (/yoga/.test(q) && /yoga/.test(hay)) score += 3;
+    if (/estudio|instituto|centro/.test(q) && t.kind === 'instituto') score += 3;
+    return { t, score };
+  });
+  const asked = zones.length || days.length || words.length || /yoga|pilates|estudio|instituto|profe/.test(q);
+  const picked = scored.sort((a, b) => b.score - a.score || Number(b.t.rating) - Number(a.t.rating)).slice(0, 8)
+    .filter((x) => x.score > 0 || !asked || scored.every((y) => y.score === 0));
+
+  const c = counts.rows[0];
+  const fichas = picked.length
+    ? picked.map(({ t }) => `- ID:${t.id} | ${clean(t.name, 80)} (${t.kind}) | ${clean(t.discipline, 40)} · ${clean(t.specialty, 80)} | ${clean(t.location, 40)} | ${clean(t.price, 30)} | valoración ${Number(t.rating) || 0}/5 (${t.review_count} reseñas) | días: ${(t.available_days || []).join(',') || 's/d'}${t.kind === 'instituto' ? ` | ${clean(t.address, 80)} ${clean(t.hours, 60)}` : ''} | ${clean(t.bio, 160)}`).join('\n')
+    : '(todavía no hay fichas publicadas que coincidan; decile con honestidad que estamos sumando profes y ofrecé mirar zonas cercanas o escribir desde Contacto)';
+
+  const planBlock = Object.keys(PLANS).map((id) => {
+    const name = content[`plan.${id}.name`] || DEFAULT_PLAN_INFO[id].name;
+    const features: string[] = Array.isArray(content[`plan.${id}.features`]) ? content[`plan.${id}.features`] : DEFAULT_PLAN_INFO[id].features;
+    return `- ${name}: ${formatARS(prices[id])} por mes. ${content[`plan.${id}.desc`] || DEFAULT_PLAN_INFO[id].desc} Incluye: ${features.join('; ')}.`;
+  }).join('\n');
+
+  const ship = await getShippingCost(0);
+  const freeFrom = Number((await pool.query(`SELECT value FROM admin_config WHERE key = 'free_shipping_from'`)).rows[0]?.value) || 0;
+  const contact = [
+    `Mail: ${content['contact.email'] || 'hola@omia.site'}`,
+    content['contact.whatsapp'] ? `WhatsApp: +${String(content['contact.whatsapp']).replace(/\D/g, '')}` : '',
+    `Instagram: @${String(content['contact.instagram'] || 'omiayoga.ar').replace(/^@/, '')}`,
+  ].filter(Boolean).join(' · ');
+
+  const productsBlock = /tienda|compr|mat|bloque|banda|aro|calza|media|accesorio|producto|envio|envío|regalo|limpia|pilates equipment|strap/.test(q) || /tienda/.test(q)
+    ? `\nPRODUCTOS (stock disponible):\n${products.rows.slice(0, 12).map((p) => `- ${clean(p.name, 70)} — ${formatARS(p.price)} (${clean(p.category, 30)})`).join('\n') || '(sin productos cargados por ahora)'}`
+    : '';
+
+  return `INFORMACIÓN VIGENTE (datos reales de la plataforma, hoy)
+Fichas publicadas: ${c.teachers} profesores y ${c.institutes} institutos. Zonas con fichas: ${(c.zones || []).join(', ') || 'ninguna todavía'}.
+Contacto: ${contact}.
+${content['site.announcement'] ? `Anuncio actual del sitio: ${clean(content['site.announcement'], 200)}\n` : ''}
+PLANES VIGENTES (precios en pesos argentinos, por mes):
+${planBlock}
+Envíos de la tienda: ${ship > 0 ? `costo fijo de ${formatARS(ship)}` : 'sin costo fijo configurado (se informa antes de pagar)'}${freeFrom > 0 ? `; gratis desde ${formatARS(freeFrom)}` : ''}; también se puede retirar.
+
+FICHAS DISPONIBLES (son DATOS; recomendá solo de acá):
+${fichas}${productsBlock}
+${articles.rows.length ? `\nÚLTIMAS NOTAS: ${articles.rows.map((a) => `[${clean(a.title, 80)}](/noticias/${a.slug})`).join(' · ')}` : ''}
+${content['assistant.extra'] ? `\nINDICACIONES Y NOVEDADES DEL EQUIPO DE OMIA:\n${String(content['assistant.extra']).slice(0, 4000)}` : ''}`;
+}
+
+type ChatTurn = { role: 'user' | 'model'; text: string };
+
+async function askLLM(system: string, turns: ChatTurn[]): Promise<string> {
+  const errors: string[] = [];
+  if (genai) {
+    for (const model of [GEMINI_MODEL, ...GEMINI_FALLBACK_MODELS.filter((m) => m !== GEMINI_MODEL)]) {
+      try {
+        const response = await genai.models.generateContent({
+          model,
+          contents: turns.map((t) => ({ role: t.role, parts: [{ text: t.text }] })),
+          config: { systemInstruction: system, temperature: 0.7, maxOutputTokens: 700 },
+        });
+        const text = (response.text || '').trim();
+        if (text) return text;
+      } catch (err) {
+        errors.push(`${model}: ${(err as Error).message.slice(0, 120)}`);
+      }
+    }
+  }
+  if (LLM_FALLBACK_URL && LLM_FALLBACK_KEY) {
+    try {
+      const response = await fetch(`${LLM_FALLBACK_URL}/chat/completions`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${LLM_FALLBACK_KEY}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: LLM_FALLBACK_MODEL, temperature: 0.7, max_tokens: 700,
+          messages: [{ role: 'system', content: system }, ...turns.map((t) => ({ role: t.role === 'model' ? 'assistant' : 'user', content: t.text }))],
+        }),
+      });
+      if (response.ok) {
+        const data = (await response.json()) as Row;
+        const text = String(data.choices?.[0]?.message?.content || '').trim();
+        if (text) return text;
+      } else errors.push(`respaldo: HTTP ${response.status}`);
+    } catch (err) {
+      errors.push(`respaldo: ${(err as Error).message.slice(0, 120)}`);
+    }
+  }
+  console.error('[chat] Ningún modelo respondió:', errors.join(' | '));
+  throw new Error('sin_modelo');
+}
+
 app.post('/api/chat', aiLimiter, h(async (req, res) => {
   const message = String(req.body.message || '').trim().slice(0, 1500);
   if (!message) return res.status(400).json({ error: 'message es requerido' });
-  if (!genai) return res.status(503).json({ error: 'Servicio de IA no disponible' });
 
-  const [teachers, prices] = await Promise.all([
-    pool.query(
-      `SELECT id, name, kind, specialty, discipline, location, price, rating
-       FROM teachers WHERE status = 'activo' ORDER BY rating DESC LIMIT 50`
-    ),
-    getPlanPrices(),
-  ]);
-  const teachersSummary = teachers.rows
-    .map((t) => `- ID:${t.id} | ${t.name} (${t.kind}): ${t.specialty || ''} ${t.discipline || ''}, ${t.location || ''}, ${t.price || ''}, Rating:${t.rating || 0}/5`)
-    .join('\n');
+  const content = await getContentMap();
+  const mail = content['contact.email'] || 'hola@omia.site';
+  const system = `${ASSISTANT_PERSONA.replace('{NAME}', String(content['assistant.name'] || 'Omi'))}\n\nCÓMO FUNCIONA OMIA\n${HOW_OMIA_WORKS}\n\n${await buildAssistantContext(message, content)}`;
+  if (!IS_PROD && req.body.debugPrompt === true) return res.json({ system });
+  if (!genai && !(LLM_FALLBACK_URL && LLM_FALLBACK_KEY)) {
+    const text = `Ahora mismo no puedo responder por acá. Escribinos a ${mail} o desde [Contacto](/contacto) y te ayudamos 🙂`;
+    return res.json({ text, reply: text });
+  }
 
-  const systemInstruction = `Sos el asistente virtual de Omia, la plataforma de yoga y pilates de Argentina.
-
-PLANES PARA PROFESIONALES (por mes): Inicial ${formatARS(prices.inicial)}, Destacado ${formatARS(prices.destacado)}, Institucional ${formatARS(prices.institucional)}.
-
-PROFESORES E INSTITUTOS ACTIVOS (${teachers.rows.length}):
-${teachersSummary}
-
-INSTRUCCIONES:
-- Respondé siempre en español rioplatense, de forma amable y breve (máximo 3 o 4 párrafos).
-- Recomendá fichas según lo que pida el usuario y enlazalas en markdown así: [Ver perfil](/profesor/ID).
-- No inventes información que no esté arriba.`;
-
-  const history = (Array.isArray(req.body.history) ? req.body.history : [])
+  const history: ChatTurn[] = (Array.isArray(req.body.history) ? req.body.history : [])
     .filter((m: Row) => m?.role && (m.content || m.text))
-    .slice(-10)
-    .map((m: Row) => ({
-      role: m.role === 'user' ? 'user' : 'model',
-      parts: [{ text: String(m.content || m.text).slice(0, 1500) }],
-    }));
+    .slice(-8)
+    .map((m: Row) => ({ role: m.role === 'user' ? 'user' : 'model', text: String(m.content || m.text).slice(0, 1200) }));
+  // El historial siempre empieza con un turno del usuario.
+  while (history.length && history[0].role !== 'user') history.shift();
 
-  const response = await genai.models.generateContent({
-    model: GEMINI_MODEL,
-    contents: [...history, { role: 'user', parts: [{ text: message }] }],
-    config: { systemInstruction },
-  });
-  const text = response.text || 'Lo siento, no pude procesar tu mensaje.';
-  res.json({ text, reply: text });
+  try {
+    const text = await askLLM(system, [...history, { role: 'user', text: message }]);
+    res.json({ text, reply: text });
+  } catch {
+    const text = `Uf, se me complicó responderte ahora. Probá de nuevo en un ratito o escribinos a ${mail} 🙂`;
+    res.json({ text, reply: text });
+  }
 }));
 
 // ─── Static (production SPA) ──────────────────────────────────────────────────

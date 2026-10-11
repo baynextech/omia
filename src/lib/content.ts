@@ -180,6 +180,27 @@ export const GROUPS: Group[] = [
     ],
   },
   {
+    id: "assistant",
+    title: "Asistente virtual (chat)",
+    description: "El chat de la esquina del sitio. Ya conoce cómo funciona toda la plataforma, las fichas, los planes y la tienda. Acá se cambia cómo se presenta y se le pueden sumar novedades o reglas.",
+    path: "/",
+    fields: [
+      { key: "assistant.name", label: "Nombre del asistente", type: "text", def: "Omi" },
+      { key: "assistant.bubble", label: "Cartelito del botón flotante", type: "text", def: "¿Buscás profe? ¡Preguntame!" },
+      { key: "assistant.greeting", label: "Primer mensaje", type: "textarea", def: "¡Hola! Soy Omi, el asistente de Omia 🙂 Te ayudo a encontrar profe o estudio, y te cuento cómo funciona todo. ¿Qué estás buscando?" },
+      {
+        key: "assistant.chips", label: "Sugerencias rápidas", type: "pairs", pairLabels: ["Texto del botón", "Lo que pregunta"],
+        def: [
+          { a: "📍 Profes en mi barrio", b: "Busco un profe de yoga o pilates cerca mío, ¿me ayudás?" },
+          { a: "🧘 Soy principiante", b: "Nunca hice yoga ni pilates, ¿por dónde empiezo?" },
+          { a: "💳 ¿Cómo publico mi ficha?", b: "Soy profe, ¿cómo publico mi ficha y cuánto cuesta?" },
+          { a: "🛍️ Tienda y envíos", b: "¿Cómo funcionan la tienda y los envíos?" },
+        ] as Pair[],
+      },
+      { key: "assistant.extra", label: "Novedades, promociones y reglas para el asistente", type: "markdown", def: "", help: "Todo lo que escribas acá lo sabe el asistente al responder. Ej: «Hasta el 31/10 el primer mes del Plan Destacado es gratis», «Los feriados no hay atención», «Si preguntan por factura, derivar a Contacto». Vacío = nada extra." },
+    ],
+  },
+  {
     id: "seo",
     title: "Google y redes (SEO)",
     description: "Título y descripción con que cada página aparece en Google y al compartirla por WhatsApp o Instagram. Los cambios se ven en el sitio al instante; en las vistas previas de redes, tras el próximo deploy.",

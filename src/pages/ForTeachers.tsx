@@ -24,7 +24,7 @@ export function ForTeachers() {
   };
 
   return (
-    <div className="py-12 px-6 max-w-7xl mx-auto min-h-screen">
+    <div className="pt-32 pb-12 px-6 max-w-7xl mx-auto min-h-screen">
       <SEOMeta title={t("seo.teachers.title")} description={t("seo.teachers.description")} ogImage={img("seo.image")} keywords="publicar clases de yoga, marketing para profesores de yoga, membresias para instructores, landing page para profesores de yoga" />
       {/* Hero section */}
       <div className="text-center mb-16 max-w-3xl mx-auto">

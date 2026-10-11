@@ -130,3 +130,10 @@ El «Terminal» de hPanel abre la consola del **servidor** (`root@srv1885334`), 
 4. **Sitio** — compilar con `VITE_API_URL=https://api.omia.site npm run build` y subir el contenido de `dist/` (sin `server.cjs*`) a `public_html` de omia.site desde el administrador de archivos de hPanel.
 
 Variables del proyecto que conviene corregir cuando haya acceso: `MERCADOPAGO_ACCESS_TOKEN` (vencido), `ADMIN_PASSWORD` (clave compartida) y `GEMINI_API_KEY`. Además, el modelo `gemini-2.0-flash` ya no existe (el código nuevo usa `gemini-3.8-flash`).
+
+## Publicar un cambio del sitio: subir SIEMPRE los dos archivos
+Tras `VITE_API_URL=https://api.omia.site npm run build`, subir **`assets/app.js` y `assets/index.css`** juntos. Los estilos nuevos (por ejemplo una medida de espaciado que antes no se usaba) solo existen en `index.css`: si se sube solo `app.js`, el cambio de diseño no se ve. Después comparar lo publicado con lo compilado:
+```bash
+cmp <(curl -s https://omia.site/assets/app.js) dist/assets/app.js && cmp <(curl -s https://omia.site/assets/index.css) dist/assets/index.css && echo OK
+```
+Si cambió el SEO, las páginas o `.htaccess`, subir también `index.html`, `robots.txt`, `sitemap.xml` y el `index.html` de cada carpeta de página.

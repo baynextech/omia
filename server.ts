@@ -27,7 +27,7 @@ const JWT_SECRET = process.env.JWT_SECRET || (IS_PROD ? '' : 'omia_solo_desarrol
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@omia.site';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '';
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
-const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-3.8-flash';
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
 const MP_ACCESS_TOKEN = process.env.MERCADOPAGO_ACCESS_TOKEN || '';
 const MP_WEBHOOK_SECRET = process.env.MERCADOPAGO_WEBHOOK_SECRET || '';
 // Login con Google (ID de cliente de OAuth, tipo "Aplicación web"). Sin esto el botón no se muestra.
@@ -2008,7 +2008,7 @@ Si ninguno coincide, respondé: []`,
 
 // ─── AI: Chat ─────────────────────────────────────────────────────────────────
 
-const GEMINI_FALLBACK_MODELS = (process.env.GEMINI_FALLBACK_MODELS || 'gemini-2.5-flash,gemini-2.5-flash-lite').split(',').map((m) => m.trim()).filter(Boolean);
+const GEMINI_FALLBACK_MODELS = (process.env.GEMINI_FALLBACK_MODELS || 'gemini-3.8-flash,gemini-2.5-flash-lite').split(',').map((m) => m.trim()).filter(Boolean);
 // Proveedor de respaldo compatible con OpenAI (por ejemplo Groq, gratis: https://api.groq.com/openai/v1).
 const LLM_FALLBACK_URL = (process.env.LLM_FALLBACK_URL || '').replace(/\/$/, '');
 const LLM_FALLBACK_KEY = process.env.LLM_FALLBACK_KEY || '';
@@ -2097,17 +2097,25 @@ type ChatTurn = { role: 'user' | 'model'; text: string };
 async function askLLM(system: string, turns: ChatTurn[]): Promise<string> {
   const errors: string[] = [];
   if (genai) {
+    const withTimeout = <T,>(p: Promise<T>, ms: number): Promise<T> =>
+      Promise.race([p, new Promise<T>((_, reject) => setTimeout(() => reject(new Error('timeout')), ms))]);
     for (const model of [GEMINI_MODEL, ...GEMINI_FALLBACK_MODELS.filter((m) => m !== GEMINI_MODEL)]) {
-      try {
-        const response = await genai.models.generateContent({
-          model,
-          contents: turns.map((t) => ({ role: t.role, parts: [{ text: t.text }] })),
-          config: { systemInstruction: system, temperature: 0.7, maxOutputTokens: 2500 },
-        });
-        const text = (response.text || '').trim();
-        if (text) return text;
-      } catch (err) {
-        errors.push(`${model}: ${(err as Error).message.slice(0, 120)}`);
+      // Primero sin «razonamiento» (responde en pocos segundos); si el modelo no lo admite, se reintenta normal.
+      for (const fast of [true, false]) {
+        try {
+          const response = await withTimeout(genai.models.generateContent({
+            model,
+            contents: turns.map((t) => ({ role: t.role, parts: [{ text: t.text }] })),
+            config: { systemInstruction: system, temperature: 0.7, maxOutputTokens: 2500, ...(fast ? { thinkingConfig: { thinkingBudget: 0 } } : {}) },
+          }), 20000);
+          const text = (response.text || '').trim();
+          if (text) return text;
+          break;
+        } catch (err) {
+          const msg = (err as Error).message;
+          errors.push(`${model}${fast ? '' : ' (normal)'}: ${msg.slice(0, 120)}`);
+          if (!(fast && /thinking/i.test(msg))) break;
+        }
       }
     }
   }

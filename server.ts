@@ -25,7 +25,7 @@ const JWT_SECRET = process.env.JWT_SECRET || (IS_PROD ? '' : 'omia_solo_desarrol
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@omia.site';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '';
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
-const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-3.8-flash';
 const MP_ACCESS_TOKEN = process.env.MERCADOPAGO_ACCESS_TOKEN || '';
 const MP_WEBHOOK_SECRET = process.env.MERCADOPAGO_WEBHOOK_SECRET || '';
 // Login con Google (ID de cliente de OAuth, tipo "Aplicación web"). Sin esto el botón no se muestra.

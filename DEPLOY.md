@@ -124,4 +124,4 @@ La API corre en el VPS `srv1885334` como proyecto Docker **`omia`** (hPanel → 
 3. **Reiniciar** `omia-api` desde el Docker manager y verificar `https://api.omia.site/api/plans` (debe devolver los tres planes).
 4. **Sitio** — compilar con `VITE_API_URL=https://api.omia.site npm run build` y subir el contenido de `dist/` (sin `server.cjs*`) a `public_html` de omia.site desde el administrador de archivos de hPanel.
 
-Variables del proyecto que conviene corregir cuando haya acceso: `MERCADOPAGO_ACCESS_TOKEN` (vencido), `ADMIN_PASSWORD` (clave compartida) y `GEMINI_API_KEY`. Además, el modelo `gemini-2.0-flash` ya no existe: definir `GEMINI_MODEL`.
+Variables del proyecto que conviene corregir cuando haya acceso: `MERCADOPAGO_ACCESS_TOKEN` (vencido), `ADMIN_PASSWORD` (clave compartida) y `GEMINI_API_KEY`. Además, el modelo `gemini-2.0-flash` ya no existe (el código nuevo usa `gemini-3.8-flash`).

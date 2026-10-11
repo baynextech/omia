@@ -3,10 +3,10 @@
 # (desde el Terminal del servidor: docker exec omia-api sh -c ...).
 #
 # Antes: respaldo de la base (ver DEPLOY.md, "Respaldo").
-# Uso:   sh deploy-api.sh [rama]        (por defecto feat/lanzamiento; después de mergear, main)
+# Uso:   sh deploy-api.sh [rama]        (por defecto main)
 set -eu
 
-BRANCH="${1:-feat/lanzamiento}"
+BRANCH="${1:-main}"
 SRC=/tmp/omia-src
 STAMP="$(date +%Y%m%d-%H%M)"
 

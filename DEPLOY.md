@@ -121,7 +121,7 @@ El «Terminal» de hPanel abre la consola del **servidor** (`root@srv1885334`), 
    ```
 2. **Deploy**:
    ```sh
-   docker exec omia-api sh -c 'wget -qO /tmp/deploy-api.sh https://raw.githubusercontent.com/baynextech/omia/feat/lanzamiento/scripts/deploy-api.sh && sh /tmp/deploy-api.sh'
+   docker exec omia-api sh -c 'wget -qO /tmp/deploy-api.sh https://raw.githubusercontent.com/baynextech/omia/main/scripts/deploy-api.sh && sh /tmp/deploy-api.sh'
    ```
 3. **Reiniciar** y verificar `https://api.omia.site/api/plans` (debe devolver los tres planes):
    ```sh

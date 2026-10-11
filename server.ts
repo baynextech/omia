@@ -66,7 +66,8 @@ types.setTypeParser(1082, (v) => v); // DATE → 'YYYY-MM-DD'
 
 const pool = new Pool({
   connectionString: DATABASE_URL,
-  ssl: IS_PROD ? { rejectUnauthorized: false } : false,
+  // SSL solo si se pide (base externa). La base del contenedor en la misma red no lo soporta.
+  ssl: process.env.DATABASE_SSL === 'true' ? { rejectUnauthorized: false } : false,
   max: 10,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 5000,

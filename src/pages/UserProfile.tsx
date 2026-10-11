@@ -6,6 +6,7 @@ import { TeacherCard, Teacher } from "../components/TeacherCard";
 import { useFavorites } from "../hooks/useFavorites";
 import { Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { UserAvatar } from "../components/UserMenu";
 
 const convertToWebP = (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
@@ -477,9 +478,7 @@ export function UserProfile() {
         {/* User info */}
         <div className="px-6 py-5 border-b border-[#E5E5E5]">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-sm bg-[#1a2a1a] flex items-center justify-center text-sm font-semibold text-white overflow-hidden shrink-0">
-              {profile.avatar ? <img src={profile.avatar} referrerPolicy="no-referrer" className="w-full h-full object-cover" /> : (profile.name?.[0] || profile.email?.[0] || "U").toUpperCase()}
-            </div>
+            <UserAvatar size={40} />
             <div className="min-w-0">
               <p className="text-sm font-medium text-[#2C2C2C] truncate">{profile.name || "Usuario"}</p>
               <p className="text-xs text-[#98A77C]/70 truncate">{authProfile?.role || "alumno"}</p>
@@ -586,11 +585,11 @@ export function UserProfile() {
                       <img 
                         src={editForm.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(editForm.name)}&background=8CAE99&color=fff`} 
                         alt="Avatar preview" 
-                        className="w-full h-full rounded-sm object-cover border border-[#E8E0D0]"
+                        className="w-full h-full rounded-full object-cover border border-[#E8E0D0]" referrerPolicy="no-referrer"
                       />
                       <button 
                         onClick={() => fileInputRef.current?.click()}
-                        className="absolute inset-0 bg-black/40 rounded-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                       >
                         <Camera className="w-6 h-6 text-white" />
                       </button>

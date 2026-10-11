@@ -4,6 +4,7 @@ import { AIChat } from "../components/AIChat";
 import { useAuth } from "../contexts/AuthContext";
 import { AuthModal } from "../components/AuthModal";
 import { Analytics } from "../components/Analytics";
+import { UserMenu, UserAvatar } from "../components/UserMenu";
 import { useContent } from "../contexts/ContentContext";
 import { safeHref } from "../lib/content";
 import { Menu, X } from "lucide-react";
@@ -120,23 +121,7 @@ export function RootLayout() {
           {/* Desktop Auth */}
           <div className="hidden md:flex items-center gap-4">
             {isAuthenticated ? (
-              <>
-                {isAdmin && (
-                  <Link to="/admin" className="flex items-center gap-1.5 bg-[#1C3829] hover:bg-[#152e1f] text-white px-4 py-2 rounded-sm text-xs font-bold transition-colors">
-                    Admin
-                  </Link>
-                )}
-                <Link to="/perfil" className={`flex items-center gap-2 px-5 py-2.5 rounded-sm text-sm font-medium transition-colors ${
-                  scrolled
-                    ? "bg-white hover:bg-[#E8E0D0] text-[#2C2C2C] border border-[#E8E0D0]"
-                    : "bg-white/15 border border-white/30 text-white hover:bg-white/25"
-                }`}>
-                  Mi Perfil
-                </Link>
-                <button onClick={logout} className={`text-sm font-medium hover:opacity-70 transition-opacity cursor-pointer ${scrolled ? "text-[#2C2C2C]" : "text-white"}`}>
-                  Salir
-                </button>
-              </>
+              <UserMenu scrolled={scrolled} />
             ) : (
               <>
                 <button onClick={() => openAuth("login")} className={`text-sm font-medium hover:opacity-70 transition-opacity cursor-pointer ${scrolled ? "text-[#2C2C2C]" : "text-white/90"}`}>
@@ -159,11 +144,7 @@ export function RootLayout() {
           {/* Mobile */}
           <div className="flex md:hidden items-center gap-3">
             {isAuthenticated && (
-              <Link to="/perfil" className={`px-3.5 py-2 rounded-sm text-xs font-semibold border transition-colors ${
-                scrolled ? "bg-white text-[#2C2C2C] border-[#E8E0D0]" : "bg-white/15 text-white border-white/30"
-              }`}>
-                Mi Perfil
-              </Link>
+              <Link to="/perfil" aria-label="Mi perfil" className="flex items-center"><UserAvatar size={36} /></Link>
             )}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}

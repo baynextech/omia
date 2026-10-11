@@ -478,7 +478,7 @@ export function UserProfile() {
         <div className="px-6 py-5 border-b border-[#E5E5E5]">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-sm bg-[#1a2a1a] flex items-center justify-center text-sm font-semibold text-white overflow-hidden shrink-0">
-              {profile.avatar ? <img src={profile.avatar} className="w-full h-full object-cover" /> : (profile.name?.[0] || profile.email?.[0] || "U").toUpperCase()}
+              {profile.avatar ? <img src={profile.avatar} referrerPolicy="no-referrer" className="w-full h-full object-cover" /> : (profile.name?.[0] || profile.email?.[0] || "U").toUpperCase()}
             </div>
             <div className="min-w-0">
               <p className="text-sm font-medium text-[#2C2C2C] truncate">{profile.name || "Usuario"}</p>

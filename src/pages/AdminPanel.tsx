@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { apiFetch } from "../lib/api";
 import { AdminNews, AdminOrders, AdminSubscriptions, AdminMessages } from "./AdminExtras";
 import { AdminContent } from "./AdminContent";
+import { UserAvatar } from "../components/UserMenu";
 import {
   Users, BookOpen, DollarSign, Package, Settings,
   Edit2, Trash2, Plus, Save, X, Check, Calendar,
@@ -257,9 +258,7 @@ export function AdminPanel() {
         {/* User info */}
         <div className="px-5 py-4 border-b border-[#E5E5E5]">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-sm bg-[#1a2a1a] flex items-center justify-center text-white font-semibold text-sm shrink-0">
-              {initials(profile?.name, profile?.email)}
-            </div>
+            <UserAvatar size={36} />
             <div className="min-w-0">
               <p className="text-[#2C2C2C] text-sm font-medium truncate">{profile?.name || "Admin"}</p>
               <p className="text-[#98A77C] text-[11px]">Administrador</p>

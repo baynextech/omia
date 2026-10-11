@@ -11,9 +11,10 @@
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit",
     "dev:web": "vite",
-    "db:migrate": "for f in migrations/*.sql; do psql \"$DATABASE_URL\" -v ON_ERROR_STOP=1 -f \"$f\" || exit 1; done",
+    "db:migrate": "node scripts/migrate.mjs",
     "postbuild": "node scripts/postbuild.mjs",
-    "test:api": "node --test scripts/test-api.mjs"
+    "test:api": "node --test scripts/test-api.mjs",
+    "build:api": "esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",

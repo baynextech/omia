@@ -17,7 +17,8 @@ const NODE_ENV = process.env.NODE_ENV || 'development';
 const IS_PROD = NODE_ENV === 'production';
 const PORT = parseInt(process.env.PORT || '4000', 10);
 // APP_URL: dónde vive el sitio (a donde vuelve Mercado Pago). API_URL: dónde vive esta API (webhook).
-const APP_URL = (process.env.APP_URL || 'http://localhost:4000').replace(/\/$/, '');
+// SITE_URL tiene prioridad: en el VPS APP_URL quedó apuntando a la API, y acá se necesita la dirección del sitio.
+const APP_URL = (process.env.SITE_URL || process.env.APP_URL || 'http://localhost:4000').replace(/\/$/, '');
 const API_URL = (process.env.API_URL || '').replace(/\/$/, '');
 const DATABASE_URL = process.env.DATABASE_URL || '';
 const JWT_SECRET = process.env.JWT_SECRET || (IS_PROD ? '' : 'omia_solo_desarrollo_no_usar_en_produccion');

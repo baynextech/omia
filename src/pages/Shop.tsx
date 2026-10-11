@@ -1,7 +1,7 @@
+import { useContent, Rich } from "../contexts/ContentContext";
 import { useState, useEffect } from "react";
 import { apiFetch } from "../lib/api";
 import { startCheckout } from "../hooks/usePlans";
-import { SITE } from "../lib/site";
 import { 
   ShoppingBag, Search, Filter, Star, Check, Plus, Minus, X, Trash2, 
   Sparkles, ShieldCheck, Truck, ArrowRight, PhoneCall, CreditCard, Heart, ShoppingCart 
@@ -28,6 +28,7 @@ export interface CartItem {
 }
 
 export function Shop() {
+  const { t, pairs, img } = useContent();
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>("Todos");
 
@@ -122,14 +123,15 @@ export function Shop() {
     const itemsText = cart.map(i => `• ${i.quantity}x ${i.product.name} ($${(i.product.price * i.quantity).toLocaleString("es-AR")})`).join("\n");
     const fullMessage = `¡Hola Omia Shop! Quisiera encargar el siguiente pedido:\n\n${itemsText}\n\n*Total:* $${cartTotal.toLocaleString("es-AR")}\n\n¿Tienen disponibilidad y envíos? Gracias!`;
     const encoded = encodeURIComponent(fullMessage);
-    window.open(`https://wa.me/${SITE.whatsapp}?text=${encoded}`, "_blank");
+    window.open(`https://wa.me/${t("contact.whatsapp").replace(/\D/g, "")}?text=${encoded}`, "_blank");
   };
 
   return (
     <div className="py-12 px-6 max-w-7xl mx-auto min-h-screen">
       <SEOMeta 
-        title="Tienda de Yoga & Pilates | Equipamiento, Mats y Accesorios - Omia"
-        description="Comprá el mejor equipamiento para tu práctica de Yoga y Pilates: Mats ecológicos, colchonetas para Reformer, aros Magic Circle, bloques de corcho, indumentaria y aromaterapia."
+        title={t("seo.shop.title")}
+        description={t("seo.shop.description")}
+        ogImage={img("seo.image")}
         keywords="tienda de yoga, productos pilates, mats de yoga, reformer mats, aro de pilates, bloques de corcho, tienda omia"
         jsonLd={{
           "@context": "https://schema.org",
@@ -175,13 +177,13 @@ export function Shop() {
         <div className="max-w-2xl relative z-10">
           <span className="text-xs font-bold tracking-widest text-[#98A77C] uppercase mb-3 block flex items-center gap-1.5">
             <Sparkles className="w-4 h-4" />
-            Tienda Oficial Omia
+            {t("shop.eyebrow")}
           </span>
           <h1 className="text-4xl md:text-5xl font-light tracking-tight text-[#2C2C2C] mb-4">
-            Equipamiento para <span className="italic font-serif">Yoga & Pilates</span>
+            <Rich text={t("shop.title")} em="italic font-serif" />
           </h1>
           <p className="text-[#5D5D5D] text-base md:text-lg leading-relaxed">
-            Mats profesionales, accesorios ergonómicos para Reformer y Mat, bloques sustentables de corcho e indumentaria de compresión diseñados para acompañar tu transformación.
+            {t("shop.subtitle")}
           </p>
         </div>
 
@@ -204,27 +206,18 @@ export function Shop() {
 
       {/* Guarantees Strip */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
-        <div className="bg-[#F4EFE4] border border-[#E8E0D0] p-4 rounded-2xl flex items-center gap-3">
-          <Truck className="w-6 h-6 text-[#98A77C] shrink-0" />
-          <div>
-            <h4 className="text-sm font-semibold text-[#2C2C2C]">Envíos a todo el país</h4>
-            <p className="text-xs text-[#5D5D5D]">Despacho en 24hs con código de seguimiento.</p>
-          </div>
-        </div>
-        <div className="bg-[#F4EFE4] border border-[#E8E0D0] p-4 rounded-2xl flex items-center gap-3">
-          <ShieldCheck className="w-6 h-6 text-[#98A77C] shrink-0" />
-          <div>
-            <h4 className="text-sm font-semibold text-[#2C2C2C]">Garantía Omia 30 Días</h4>
-            <p className="text-xs text-[#5D5D5D]">Calidad asegurada y cambios sin complicaciones.</p>
-          </div>
-        </div>
-        <div className="bg-[#F4EFE4] border border-[#E8E0D0] p-4 rounded-2xl flex items-center gap-3">
-          <CreditCard className="w-6 h-6 text-[#98A77C] shrink-0" />
-          <div>
-            <h4 className="text-sm font-semibold text-[#2C2C2C]">3 Cuotas Sin Interés</h4>
-            <p className="text-xs text-[#5D5D5D]">Con Mercado Pago o tarjeta de crédito.</p>
-          </div>
-        </div>
+        {pairs("shop.badges").map(({ a: title, b: desc }, i) => {
+          const Icon = [Truck, ShieldCheck, CreditCard][i % 3];
+          return (
+            <div key={i} className="bg-[#F4EFE4] border border-[#E8E0D0] p-4 rounded-2xl flex items-center gap-3">
+              <Icon className="w-6 h-6 text-[#98A77C] shrink-0" />
+              <div>
+                <h4 className="text-sm font-semibold text-[#2C2C2C]">{title}</h4>
+                <p className="text-xs text-[#5D5D5D]">{desc}</p>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       {/* Filters & Search */}
@@ -567,7 +560,7 @@ export function Shop() {
                       <span>{isProcessingPayment ? "Procesando..." : "Comprar con Mercado Pago"}</span>
                     </button>
 
-                    {SITE.whatsapp && <button
+                    {t("contact.whatsapp").replace(/\D/g, "") && <button
                       onClick={handleWhatsAppCheckout}
                       className="w-full bg-[#25D366] hover:bg-[#20bd5a] text-white py-3.5 rounded-sm font-bold text-sm transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
                     >

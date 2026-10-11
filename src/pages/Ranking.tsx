@@ -1,3 +1,4 @@
+import { useContent } from "../contexts/ContentContext";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Star, MapPin, Trophy } from "lucide-react";
@@ -15,6 +16,7 @@ const KINDS = [
 const DISCIPLINES = ["Todas", "Yoga", "Pilates"];
 
 export function Ranking() {
+  const { t, img } = useContent();
   const [ranking, setRanking] = useState<RankedTeacher[]>([]);
   const [kind, setKind] = useState("");
   const [discipline, setDiscipline] = useState("Todas");
@@ -36,17 +38,13 @@ export function Ranking() {
 
   return (
     <div className="pt-28 pb-16 px-6 max-w-4xl mx-auto min-h-screen">
-      <SEOMeta
-        title="Ranking de Profesores e Institutos de Yoga y Pilates | Omia"
-        description="Los profesores e institutos de Yoga y Pilates mejor puntuados por sus alumnos en Omia. Leé las reseñas y dejá la tuya."
-        keywords="mejores profesores de yoga, mejores institutos de pilates, ranking yoga buenos aires, reseñas profesores pilates"
-      />
+      <SEOMeta title={t("seo.ranking.title")} description={t("seo.ranking.description")} ogImage={img("seo.image")} keywords="mejores profesores de yoga, mejores institutos de pilates, ranking yoga buenos aires, reseñas profesores pilates" />
 
       <div className="text-center mb-10">
         <Trophy className="w-10 h-10 text-[#98A77C] mx-auto mb-4" />
-        <h1 className="text-4xl font-light tracking-tight text-[#2C2C2C] mb-3">Ranking de profesionales</h1>
+        <h1 className="text-4xl font-light tracking-tight text-[#2C2C2C] mb-3">{t("ranking.title")}</h1>
         <p className="text-[#5D5D5D] max-w-xl mx-auto">
-          Los mejor puntuados por quienes tomaron sus clases. El orden combina el puntaje con la cantidad de reseñas.
+          {t("ranking.subtitle")}
         </p>
       </div>
 

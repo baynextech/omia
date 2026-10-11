@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation, Link } from "react-router-dom";
-import { SITE } from "../lib/site";
+import { useContent } from "../contexts/ContentContext";
 
 const KEY = "omia_cookies";
 type Choice = "accepted" | "rejected" | null;
@@ -19,21 +19,21 @@ function loadScript(src: string, id: string) {
 }
 
 // Carga Google Analytics y Meta Pixel solo si el visitante aceptó las cookies y los IDs están configurados.
-function startTracking() {
+function startTracking(gaId: string, metaPixelId: string) {
   const w = window as any;
-  if (SITE.gaId && !w.gtag) {
+  if (gaId && !w.gtag) {
     w.dataLayer = w.dataLayer || [];
     w.gtag = function () { w.dataLayer.push(arguments); };
     w.gtag("js", new Date());
-    w.gtag("config", SITE.gaId, { send_page_view: false });
-    loadScript(`https://www.googletagmanager.com/gtag/js?id=${SITE.gaId}`, "ga-script");
+    w.gtag("config", gaId, { send_page_view: false });
+    loadScript(`https://www.googletagmanager.com/gtag/js?id=${gaId}`, "ga-script");
   }
-  if (SITE.metaPixelId && !w.fbq) {
+  if (metaPixelId && !w.fbq) {
     const fbq: any = function (...args: unknown[]) { (fbq.queue = fbq.queue || []).push(args); };
     fbq.queue = [];
     w.fbq = fbq;
     loadScript("https://connect.facebook.net/en_US/fbevents.js", "fb-pixel");
-    w.fbq("init", SITE.metaPixelId);
+    w.fbq("init", metaPixelId);
   }
 }
 
@@ -47,9 +47,12 @@ export function trackEvent(name: string, params?: Record<string, unknown>) {
 export function Analytics() {
   const [choice, setChoice] = useState<Choice>(read);
   const { pathname } = useLocation();
-  const tracked = !!(SITE.gaId || SITE.metaPixelId);
+  const { t } = useContent();
+  const gaId = t("analytics.ga_id").trim();
+  const metaPixelId = t("analytics.meta_pixel").trim();
+  const tracked = !!(gaId || metaPixelId);
 
-  useEffect(() => { if (choice === "accepted") startTracking(); }, [choice]);
+  useEffect(() => { if (choice === "accepted") startTracking(gaId, metaPixelId); }, [choice, gaId, metaPixelId]);
 
   // Una vista de página por cada cambio de ruta (el sitio es de una sola página).
   useEffect(() => {

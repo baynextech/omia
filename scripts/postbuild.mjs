@@ -8,7 +8,7 @@ import path from "node:path";
 const DIST = path.resolve("dist");
 const SITE = (process.env.SITE_URL || process.env.VITE_SITE_URL || "https://omia.site").replace(/\/$/, "");
 const API = (process.env.VITE_API_URL || "").replace(/\/$/, "");
-const DEFAULT_IMG = `${SITE}/images/yoga_hero_1779994397642.png`;
+let DEFAULT_IMG = `${SITE}/images/yoga_hero_1779994397642.png`;
 
 if (!existsSync(path.join(DIST, "index.html"))) {
   console.log("[postbuild] No hay dist/index.html; nada que hacer.");
@@ -43,6 +43,18 @@ async function getJson(url) {
 
 const template = await readFile(path.join(DIST, "index.html"), "utf8");
 
+// Lo que el administrador cambió en Admin → Sitio → «Google y redes» pisa los textos de arriba.
+const content = API ? (await getJson(`${API}/api/content`)) || {} : {};
+const SEO_KEYS = { "/directorio": "directory", "/estudios": "studios", "/ranking": "ranking", "/tienda": "shop", "/para-profes": "teachers", "/noticias": "news" };
+for (const p of STATIC) {
+  const k = SEO_KEYS[p.path];
+  if (!k) continue;
+  if (typeof content[`seo.${k}.title`] === "string" && content[`seo.${k}.title`].trim()) p.title = content[`seo.${k}.title`];
+  if (typeof content[`seo.${k}.description`] === "string" && content[`seo.${k}.description`].trim()) p.description = content[`seo.${k}.description`];
+}
+const seoImage = typeof content["seo.image"] === "string" && content["seo.image"] ? (content["seo.image"].startsWith("/api/media/") ? `${API}${content["seo.image"]}` : content["seo.image"]) : "";
+if (seoImage) DEFAULT_IMG = seoImage;
+
 function page({ route, title, description, image, type = "website", noindex = false }) {
   const fullTitle = `${title} | Omia Yoga & Pilates`;
   const url = `${SITE}${route}`;
@@ -70,6 +82,11 @@ async function write(route, html) {
 }
 
 let count = 0;
+// La portada también lleva sus etiquetas (la vista previa de omia.site al compartirlo).
+if (content["seo.home.title"] || content["seo.home.description"]) {
+  const home = page({ route: "/", title: content["seo.home.title"] || "Omia - Profesores, Institutos y Tienda de Yoga & Pilates", description: content["seo.home.description"] || "Encontrá profesores e institutos de yoga y pilates en Buenos Aires." });
+  await writeFile(path.join(DIST, "index.html"), home.replace(/<title>[\s\S]*?<\/title>/, `<title>${esc(content["seo.home.title"] || "Omia - Profesores, Institutos y Tienda de Yoga & Pilates")}</title>`));
+}
 for (const p of STATIC) {
   await write(p.path, page({ route: p.path, ...p }));
   count++;

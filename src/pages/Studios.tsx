@@ -1,3 +1,4 @@
+import { useContent } from "../contexts/ContentContext";
 import { Photo } from "../components/Photo";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
@@ -23,6 +24,7 @@ interface Studio {
 }
 
 export function Studios() {
+  const { t, img } = useContent();
   const [searchQuery, setSearchQuery] = useState("");
   const [locationFilter, setLocationFilter] = useState("Todos");
   const [disciplineFilter, setDisciplineFilter] = useState("Todos");
@@ -50,19 +52,15 @@ export function Studios() {
 
   return (
     <div className="py-12 px-6 max-w-7xl mx-auto min-h-screen">
-      <SEOMeta 
-        title="Estudios e Institutos de Yoga y Pilates en Buenos Aires | Omia"
-        description="Explorá los mejores estudios, institutos y centros de Yoga y Pilates Reformer en Palermo, Recoleta, Belgrano y San Telmo. Equipados con camas reformer, mats y ambiente consciente."
-        keywords="estudios de yoga, institutos de pilates, pilates reformer buenos aires, centros de yoga, escuelas de yoga buenos aires"
-      />
+      <SEOMeta title={t("seo.studios.title")} description={t("seo.studios.description")} ogImage={img("seo.image")} keywords="estudios de yoga, institutos de pilates, pilates reformer buenos aires, centros de yoga, escuelas de yoga buenos aires" />
       {/* Title block */}
       <div className="mb-12">
-        <span className="text-xs font-bold tracking-widest text-[#98A77C] uppercase mb-3 block">Estudios e Institutos Afiliados</span>
+        <span className="text-xs font-bold tracking-widest text-[#98A77C] uppercase mb-3 block">{t("studios.eyebrow")}</span>
         <h1 className="text-4xl font-light tracking-tight text-[#2C2C2C] mb-4">
-          Estudios e Institutos de Yoga & Pilates
+          {t("studios.title")}
         </h1>
         <p className="text-[#5D5D5D] max-w-2xl text-lg">
-          Descubrí los espacios de práctica más hermosos, cálidos y mejor equipados de Buenos Aires. Espacios verificados con camas Reformer, mats de cortesía y atención personalizada.
+          {t("studios.subtitle")}
         </p>
       </div>
 

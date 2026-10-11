@@ -1,3 +1,4 @@
+import { useContent, Rich } from "../contexts/ContentContext";
 import { useState } from "react";
 import { Search, ChevronDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -11,6 +12,7 @@ const ZONES = [
 const DISCIPLINES = ["Yoga", "Pilates", "Institutos"];
 
 export function MapZones() {
+  const { t } = useContent();
   const [discipline, setDiscipline] = useState("");
   const [zone, setZone] = useState("");
   const navigate = useNavigate();
@@ -32,9 +34,9 @@ export function MapZones() {
       <div className="absolute inset-0 bg-gradient-to-b from-[#0d1f14]/60 via-[#1C3829]/40 to-[#0d1f14]/80" />
 
       <div className="relative z-10 h-full flex flex-col items-center justify-center px-4">
-        <p className="text-xs font-bold tracking-widest text-[#98A77C] uppercase mb-4">Encontrá tu zona</p>
+        <p className="text-xs font-bold tracking-widest text-[#98A77C] uppercase mb-4">{t("home.map.eyebrow")}</p>
         <h2 className="text-4xl md:text-6xl font-serif font-light text-white text-center leading-tight mb-10">
-          Profesores <span className="italic text-[#C8D8B0]">cerca tuyo</span>
+          <Rich text={t("home.map.title")} em="italic text-[#C8D8B0]" />
         </h2>
 
         {/* Barra estilo Airbnb */}

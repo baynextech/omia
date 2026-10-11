@@ -5,6 +5,7 @@ import { SEOMeta } from "../components/SEOMeta";
 import { apiFetch } from "../lib/api";
 import { SITE, absoluteUrl } from "../lib/site";
 import { NotFound } from "./Legal";
+import { useContent } from "../contexts/ContentContext";
 
 interface ArticleSummary {
   id: string;
@@ -20,6 +21,7 @@ interface ArticleSummary {
 const formatDate = (iso: string) => new Date(iso).toLocaleDateString("es-AR", { day: "numeric", month: "long", year: "numeric" });
 
 export function News() {
+  const { t, img } = useContent();
   const [articles, setArticles] = useState<ArticleSummary[] | null>(null);
 
   useEffect(() => {
@@ -32,8 +34,9 @@ export function News() {
   return (
     <div className="pt-32 pb-24 px-6 max-w-6xl mx-auto">
       <SEOMeta
-        title="Noticias de yoga y pilates"
-        description="Novedades, consejos y notas sobre yoga, pilates y bienestar en Argentina, escritas por el equipo de Omia."
+        title={t("seo.news.title")}
+        description={t("seo.news.description")}
+        ogImage={img("seo.image")}
         keywords="noticias de yoga, blog de pilates, bienestar, consejos de yoga"
         canonicalUrl="/noticias"
       />

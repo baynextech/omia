@@ -10,6 +10,9 @@ import { SEOMeta } from "../components/SEOMeta";
 import { TeacherCard, Teacher } from "../components/TeacherCard";
 import { useAuth } from "../contexts/AuthContext";
 import { AuthModal } from "../components/AuthModal";
+import { useContent, Rich } from "../contexts/ContentContext";
+import { organizationJsonLd } from "../components/SEOMeta";
+import type { PlanId } from "../hooks/usePlans";
 import { motion } from "motion/react";
 
 
@@ -24,6 +27,7 @@ const stagger = {
 };
 
 export function Home() {
+  const { t, list, pairs, img } = useContent();
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [locationFilter, setLocationFilter] = useState("Todos");
   const { isAuthenticated } = useAuth();
@@ -53,17 +57,11 @@ export function Home() {
   return (
     <>
       <SEOMeta
-        title="Omia - Profesores, Institutos y Tienda de Yoga & Pilates"
-        description="Encontrá los mejores profesores, instructores e institutos de Yoga y Pilates (Reformer, Mat, Barre) en Buenos Aires. Leé opiniones reales, reservá clases y equipate en nuestra tienda oficial."
+        title={t("seo.home.title")}
+        description={t("seo.home.description")}
         keywords="clases de yoga, profesores de yoga, instructores de pilates, pilates reformer, institutos de pilates, yoga buenos aires, yoga palermo, recoleta, belgrano, san telmo, tienda de yoga, mats de yoga"
-        ogImage="/images/yoga_hero_1779994397642.png"
-        jsonLd={{
-          "@context": "https://schema.org",
-          "@graph": [
-            { "@type": "WebSite", "@id": "https://omia.site/#website", "url": "https://omia.site/", "name": "Omia Yoga & Pilates", "description": "La plataforma líder para conectar con profesores e institutos de Yoga & Pilates en Argentina.", "inLanguage": "es-AR" },
-            { "@type": "Organization", "@id": "https://omia.site/#organization", "name": "Omia Bienestar", "url": "https://omia.site/", "logo": "https://omia.site/images/yoga_hero_1779994397642.png", "sameAs": ["https://instagram.com/omiayoga.ar"] }
-          ]
-        }}
+        ogImage={img("seo.image")}
+        jsonLd={organizationJsonLd}
       />
 
       <Hero />
@@ -71,11 +69,7 @@ export function Home() {
       {/* Intro strip — editorial break */}
       <section className="bg-[#F4EFE4] py-20 px-6 border-b border-[#E0D8CC]">
         <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-12">
-          {[
-            { title: "Perfiles reales", desc: "Cada profe y cada instituto tiene su propia ficha, con reseñas de alumnos que tomaron clases." },
-            { title: "Reservá sin comisiones", desc: "Contactá directamente con el profe. El 100% del pago va al instructor, sin intermediarios." },
-            { title: "Encontrá tu zona", desc: "Buscá por barrio en Buenos Aires. Palermo, Belgrano, Recoleta y 11 zonas más." },
-          ].map(({ title, desc }) => (
+          {pairs("home.intro").map(({ a: title, b: desc }) => (
             <motion.div
               key={title}
               className="flex flex-col gap-3"
@@ -107,14 +101,14 @@ export function Home() {
           viewport={{ once: true, margin: "-80px" }}
         >
           <div>
-            <p className="text-xs font-bold tracking-widest text-[#98A77C] uppercase mb-3">Directorio</p>
+            <p className="text-xs font-bold tracking-widest text-[#98A77C] uppercase mb-3">{t("home.teachers.eyebrow")}</p>
             <h2 className="text-4xl md:text-5xl font-serif font-light text-[#1C3829] leading-tight">
-              Profesionales <span className="italic">destacados</span>
+              <Rich text={t("home.teachers.title")} />
             </h2>
           </div>
           <div className="flex items-center gap-6">
             <p className="text-[#5D5D5D] text-sm max-w-xs leading-relaxed hidden md:block">
-              Descubrí profes en tu zona. Leé reseñas y reservá tu próxima sesión.
+              {t("home.teachers.desc")}
             </p>
             <a href="/directorio" className="shrink-0 inline-flex items-center gap-2 text-sm font-semibold text-[#1C3829] hover:text-[#98A77C] transition-colors whitespace-nowrap">
               Ver todos <ArrowRight className="w-4 h-4" />
@@ -220,14 +214,12 @@ export function Home() {
             whileInView="visible"
             viewport={{ once: true, margin: "-80px" }}
           >
-            <p className="text-xs font-bold tracking-widest text-[#98A77C] uppercase mb-4">Membresías</p>
+            <p className="text-xs font-bold tracking-widest text-[#98A77C] uppercase mb-4">{t("home.plans.eyebrow")}</p>
             <h2 className="text-4xl md:text-5xl font-serif font-light text-[#F4EFE4] mb-5 leading-tight">
-              Para Profesores<br />
-              <span className="italic text-[#C8D8B0]">e Institutos</span>
+              <Rich text={t("home.plans.title")} em="italic text-[#C8D8B0]" />
             </h2>
             <p className="text-[#9DB085] max-w-2xl mx-auto text-sm leading-relaxed">
-              Cobrá el 100% del valor de tus clases directamente a tus alumnos sin comisiones.
-              Solamente pagás la pauta mensual para figurar en la plataforma.
+              {t("home.plans.desc")}
             </p>
           </motion.div>
 
@@ -241,19 +233,14 @@ export function Home() {
             {/* Plan Inicial */}
             <motion.div variants={fadeUp} className="bg-[#243d2d] border border-[#2a4d38] rounded-sm p-8 flex flex-col justify-between hover:-translate-y-1 transition-all duration-200">
               <div>
-                <h3 className="text-lg font-serif font-medium text-[#F4EFE4] mb-2">Plan Inicial</h3>
-                <p className="text-[#9DB085] text-xs mb-6 leading-relaxed">Para profesores independientes que recién comienzan.</p>
+                <h3 className="text-lg font-serif font-medium text-[#F4EFE4] mb-2">{t("plan.inicial.name")}</h3>
+                <p className="text-[#9DB085] text-xs mb-6 leading-relaxed">{t("plan.inicial.desc")}</p>
                 <div className="flex items-baseline mb-8">
                   <span className="text-4xl font-light text-[#C8D8B0] font-mono">{formatPrice("inicial")}</span>
                   <span className="text-[#9DB085] ml-2 text-xs">/ mes</span>
                 </div>
                 <ul className="space-y-3 mb-8">
-                  {[
-                    "Landing page con URL propia",
-                    "Aparecer en búsquedas de zona",
-                    "1 foto de perfil",
-                    "Cobros 100% directos",
-                  ].map(f => (
+                  {list("plan.inicial.features").map(f => (
                     <li key={f} className="flex items-start gap-2.5 text-sm text-[#9DB085]">
                       <Check className="w-4 h-4 text-[#98A77C] shrink-0 mt-0.5" />
                       <span>{f}</span>
@@ -265,30 +252,24 @@ export function Home() {
                 onClick={() => handleSubscribe("inicial")}
                 className="w-full bg-transparent hover:bg-[#98A77C] active:scale-[0.97] text-[#9DB085] hover:text-white border border-[#3a6048] hover:border-[#98A77C] py-3 rounded-sm font-medium transition-all text-sm"
               >
-                Elegir Inicial
+                {t("plan.inicial.cta")}
               </button>
             </motion.div>
 
             {/* Plan Destacado */}
             <motion.div variants={fadeUp} className="bg-[#98A77C] border border-[#88976C] rounded-sm p-8 flex flex-col justify-between hover:-translate-y-1 transition-all duration-200 relative shadow-lg">
-              <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#F4EFE4] text-[#1C3829] px-4 py-1 rounded-sm text-[10px] font-bold tracking-widest uppercase">
-                Más popular
-              </span>
+              {t("plan.destacado.badge") && <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#F4EFE4] text-[#1C3829] px-4 py-1 rounded-sm text-[10px] font-bold tracking-widest uppercase">
+                {t("plan.destacado.badge")}
+              </span>}
               <div>
-                <h3 className="text-lg font-serif font-medium text-white mb-2">Plan Destacado</h3>
-                <p className="text-white/70 text-xs mb-6 leading-relaxed">Para instructores que buscan prioridad y estadísticas.</p>
+                <h3 className="text-lg font-serif font-medium text-white mb-2">{t("plan.destacado.name")}</h3>
+                <p className="text-white/70 text-xs mb-6 leading-relaxed">{t("plan.destacado.desc")}</p>
                 <div className="flex items-baseline mb-8">
                   <span className="text-4xl font-light text-white font-mono">{formatPrice("destacado")}</span>
                   <span className="text-white/60 ml-2 text-xs">/ mes</span>
                 </div>
                 <ul className="space-y-3 mb-8">
-                  {[
-                    "Todo lo del Plan Inicial",
-                    "Insignia Pro dorada",
-                    "Prioridad en IA (Chatbot)",
-                    "Dashboard con estadísticas",
-                    "Hasta 5 fotos en galería",
-                  ].map(f => (
+                  {list("plan.destacado.features").map(f => (
                     <li key={f} className="flex items-start gap-2.5 text-sm text-white/90">
                       <Check className="w-4 h-4 text-white shrink-0 mt-0.5" />
                       <span>{f}</span>
@@ -300,27 +281,21 @@ export function Home() {
                 onClick={() => handleSubscribe("destacado")}
                 className="w-full bg-white hover:bg-[#F4EFE4] active:scale-[0.97] text-[#1C3829] py-3 rounded-sm font-semibold transition-all text-sm"
               >
-                Suscribirme Pro
+                {t("plan.destacado.cta")}
               </button>
             </motion.div>
 
             {/* Plan Institutos */}
             <motion.div variants={fadeUp} className="bg-[#243d2d] border border-[#2a4d38] rounded-sm p-8 flex flex-col justify-between hover:-translate-y-1 transition-all duration-200">
               <div>
-                <h3 className="text-lg font-serif font-medium text-[#F4EFE4] mb-2">Plan Institutos</h3>
-                <p className="text-[#9DB085] text-xs mb-6 leading-relaxed">Para centros, estudios de yoga y escuelas.</p>
+                <h3 className="text-lg font-serif font-medium text-[#F4EFE4] mb-2">{t("plan.institucional.name")}</h3>
+                <p className="text-[#9DB085] text-xs mb-6 leading-relaxed">{t("plan.institucional.desc")}</p>
                 <div className="flex items-baseline mb-8">
                   <span className="text-4xl font-light text-[#C8D8B0] font-mono">{formatPrice("institucional")}</span>
                   <span className="text-[#9DB085] ml-2 text-xs">/ mes</span>
                 </div>
                 <ul className="space-y-3 mb-8">
-                  {[
-                    "Todo lo del Plan Destacado",
-                    "Múltiples profes asociados",
-                    "Sección destacada en mapa",
-                    "IA entrenada con tus horarios",
-                    "Soporte WhatsApp 24/7",
-                  ].map(f => (
+                  {list("plan.institucional.features").map(f => (
                     <li key={f} className="flex items-start gap-2.5 text-sm text-[#9DB085]">
                       <Check className="w-4 h-4 text-[#98A77C] shrink-0 mt-0.5" />
                       <span>{f}</span>
@@ -332,7 +307,7 @@ export function Home() {
                 onClick={() => handleSubscribe("institucional")}
                 className="w-full bg-transparent hover:bg-[#98A77C] active:scale-[0.97] text-[#9DB085] hover:text-white border border-[#3a6048] hover:border-[#98A77C] py-3 rounded-sm font-medium transition-all text-sm"
               >
-                Elegir Institutos
+                {t("plan.institucional.cta")}
               </button>
             </motion.div>
           </motion.div>
@@ -348,20 +323,18 @@ export function Home() {
           viewport={{ once: true, margin: "-80px" }}
           className="max-w-3xl mx-auto"
         >
-          <p className="text-xs font-bold tracking-widest text-[#98A77C] uppercase mb-5">Unite</p>
+          <p className="text-xs font-bold tracking-widest text-[#98A77C] uppercase mb-5">{t("home.cta.eyebrow")}</p>
           <h2 className="text-4xl md:text-6xl font-serif font-light text-[#1C3829] leading-tight mb-6">
-            ¿Sos profe de yoga<br />
-            <span className="italic">o tenés un estudio?</span>
+            <Rich text={t("home.cta.title")} />
           </h2>
           <p className="text-[#5D5D5D] max-w-lg mx-auto mb-10 text-sm leading-relaxed">
-            Sumate a Omia y creá tu landing page profesional hoy mismo.
-            Conectá directamente con alumnos sin intermediarios.
+            {t("home.cta.desc")}
           </p>
           <button
             onClick={() => { setAuthMode("register"); setIsAuthOpen(true); }}
             className="inline-flex items-center gap-3 bg-[#1C3829] hover:bg-[#152e1f] active:scale-[0.97] text-white px-8 py-4 rounded-sm font-semibold transition-all text-sm"
           >
-            Crear mi Perfil
+            {t("home.cta.button")}
             <ArrowRight className="w-4 h-4" />
           </button>
         </motion.div>

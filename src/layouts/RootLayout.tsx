@@ -4,12 +4,17 @@ import { AIChat } from "../components/AIChat";
 import { useAuth } from "../contexts/AuthContext";
 import { AuthModal } from "../components/AuthModal";
 import { Analytics } from "../components/Analytics";
-import { SITE } from "../lib/site";
+import { useContent } from "../contexts/ContentContext";
+import { safeHref } from "../lib/content";
 import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
 export function RootLayout() {
   const { isAuthenticated, logout, profile, isAdmin } = useAuth();
+  const { t } = useContent();
+  const announcement = t("site.announcement").trim();
+  const announcementHref = safeHref(t("site.announcement_link"));
+  const [announcementClosed, setAnnouncementClosed] = useState(() => { try { return sessionStorage.getItem("omia_announcement") === t("site.announcement"); } catch { return false; } });
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState<"login" | "register">("login");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -42,6 +47,8 @@ export function RootLayout() {
     }
   }, [search]);
 
+  const showAnnouncement = !!announcement && !announcementClosed && !isPanel;
+
   const openAuth = (mode: "login" | "register") => {
     setAuthMode(mode);
     setIsAuthModalOpen(true);
@@ -49,8 +56,25 @@ export function RootLayout() {
 
   return (
     <div className="min-h-screen bg-[#F4EFE4] font-sans text-[#2C2C2C]">
+      {showAnnouncement && (
+        <div className="fixed top-0 left-0 right-0 z-50 h-9 bg-[#1C3829] text-[#F4EFE4] text-xs sm:text-sm flex items-center justify-center px-10 text-center">
+          {announcementHref ? (
+            <a href={announcementHref} className="hover:underline truncate">{announcement}</a>
+          ) : (
+            <span className="truncate">{announcement}</span>
+          )}
+          <button
+            aria-label="Cerrar anuncio"
+            onClick={() => { setAnnouncementClosed(true); try { sessionStorage.setItem("omia_announcement", announcement); } catch {} }}
+            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 opacity-70 hover:opacity-100"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
       {/* Navigation */}
-      <nav className={`${isPanel ? "hidden " : ""}fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
+      <nav className={`${isPanel ? "hidden " : ""}fixed ${showAnnouncement ? "top-9" : "top-0"} left-0 right-0 z-40 transition-all duration-300 ${
         scrolled
           ? "bg-[#F4EFE4]/95 backdrop-blur-md shadow-sm border-b border-[#E0D8CC]"
           : "bg-transparent"
@@ -220,7 +244,7 @@ export function RootLayout() {
         </AnimatePresence>
       </nav>
 
-      <main>
+      <main className={showAnnouncement ? "pt-9" : undefined}>
         <Outlet />
       </main>
 
@@ -230,7 +254,7 @@ export function RootLayout() {
             <div>
               <span className="text-3xl font-serif italic text-[#F4EFE4]">Omia</span>
               <p className="text-[#9DB085] text-sm mt-3 max-w-xs leading-relaxed">
-                La plataforma para encontrar profesores e institutos de Yoga & Pilates en Argentina.
+                {t("footer.tagline")}
               </p>
             </div>
             <div className="flex flex-wrap gap-12">
@@ -259,11 +283,11 @@ export function RootLayout() {
             </div>
           </div>
           <div className="border-t border-[#2a4d38] pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-[#6B8C78] text-sm">© {new Date().getFullYear()} Omia Bienestar. Todos los derechos reservados.</p>
+            <p className="text-[#6B8C78] text-sm">© {new Date().getFullYear()} {t("legal.name")}. Todos los derechos reservados.</p>
             <p className="text-[#6B8C78] text-xs flex items-center gap-4">
-              <a href={`https://instagram.com/${SITE.instagram}`} target="_blank" rel="noopener noreferrer" className="hover:text-[#F4EFE4]">Instagram</a>
-              {SITE.whatsapp && <a href={`https://wa.me/${SITE.whatsapp}`} target="_blank" rel="noopener noreferrer" className="hover:text-[#F4EFE4]">WhatsApp</a>}
-              <span>Yoga · Pilates · Buenos Aires</span>
+              {t("contact.instagram") && <a href={`https://instagram.com/${t("contact.instagram").replace(/^@/, "")}`} target="_blank" rel="noopener noreferrer" className="hover:text-[#F4EFE4]">Instagram</a>}
+              {t("contact.whatsapp") && <a href={`https://wa.me/${t("contact.whatsapp").replace(/\D/g, "")}`} target="_blank" rel="noopener noreferrer" className="hover:text-[#F4EFE4]">WhatsApp</a>}
+              <span>{t("footer.bottom")}</span>
             </p>
           </div>
         </div>

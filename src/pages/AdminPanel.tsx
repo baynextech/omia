@@ -3,6 +3,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { apiFetch } from "../lib/api";
 import { AdminNews, AdminOrders, AdminSubscriptions, AdminMessages } from "./AdminExtras";
+import { AdminContent } from "./AdminContent";
 import {
   Users, BookOpen, DollarSign, Package, Settings,
   Edit2, Trash2, Plus, Save, X, Check, Calendar,
@@ -18,7 +19,7 @@ const API = (token: string) => ({
   del: (url: string) => apiFetch(url, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }).then(r => r.json()),
 });
 
-type Tab = "dashboard" | "teachers" | "products" | "users" | "bookings" | "reviews" | "transactions" | "subscriptions" | "orders" | "news" | "messages" | "config";
+type Tab = "dashboard" | "teachers" | "products" | "users" | "bookings" | "reviews" | "transactions" | "subscriptions" | "orders" | "news" | "messages" | "content" | "config";
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
 const btn = {
@@ -174,6 +175,7 @@ export function AdminPanel() {
 
   const tabs: { id: Tab; label: string; icon: any; count?: number }[] = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { id: "content", label: "Sitio (textos e imágenes)", icon: Edit2 },
     { id: "teachers", label: "Profesores", icon: BookOpen, count: teachers.length || undefined },
     { id: "products", label: "Productos", icon: Package, count: products.length || undefined },
     { id: "users", label: "Usuarios", icon: Users, count: users.length || undefined },
@@ -216,6 +218,7 @@ export function AdminPanel() {
     subscriptions: "Suscripciones",
     orders: "Pedidos de la tienda",
     news: "Noticias",
+    content: "Contenido del sitio",
     messages: "Mensajes y bajas",
     reviews: "Reseñas",
     transactions: "Transacciones",
@@ -730,6 +733,7 @@ export function AdminPanel() {
           {tab === "subscriptions" && <AdminSubscriptions token={token!} />}
           {tab === "orders" && <AdminOrders token={token!} />}
           {tab === "news" && <AdminNews token={token!} />}
+          {tab === "content" && <AdminContent token={token!} />}
           {tab === "messages" && <AdminMessages token={token!} />}
 
           {tab === "transactions" && (

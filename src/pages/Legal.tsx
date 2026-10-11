@@ -2,33 +2,40 @@ import { ReactNode, useState } from "react";
 import { Link } from "react-router-dom";
 import { SEOMeta } from "../components/SEOMeta";
 import { apiJson } from "../lib/api";
-import { SITE, absoluteUrl } from "../lib/site";
+import { absoluteUrl } from "../lib/site";
+import { useContent } from "../contexts/ContentContext";
+import ReactMarkdown from "react-markdown";
 
 // Marco de las páginas de texto largo (términos, privacidad, nosotros).
-function LegalPage({ title, description, path, children, updated = true }: { title: string; description: string; path: string; children: ReactNode; updated?: boolean }) {
+function LegalPage({ title, description, path, children, updated = true, override }: { title: string; description: string; path: string; children: ReactNode; updated?: boolean; override?: string }) {
+  const { t } = useContent();
   return (
     <div className="pt-32 pb-24 px-6 max-w-3xl mx-auto text-[#2C2C2C]">
       <SEOMeta title={title} description={description} canonicalUrl={absoluteUrl(path)} />
       <h1 className="text-4xl font-serif font-light text-[#1C3829] mb-3">{title}</h1>
-      {updated && <p className="text-xs text-[#5D5D5D] mb-10">Última actualización: {SITE.lastLegalUpdate}</p>}
+      {updated && <p className="text-xs text-[#5D5D5D] mb-10">Última actualización: {t("legal.updated")}</p>}
       <div className="space-y-5 text-[15px] leading-relaxed text-[#3d3d3d] [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:text-[#1C3829] [&_h2]:mt-10 [&_h2]:mb-2 [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:space-y-1.5 [&_a]:text-[#6f8656] [&_a]:underline">
-        {children}
+        {override && override.trim() ? <ReactMarkdown>{override}</ReactMarkdown> : children}
       </div>
     </div>
   );
 }
 
-const Titular = () => (
-  <p>
-    <b>{SITE.legalName}</b>{SITE.cuit ? <> (CUIT {SITE.cuit})</> : null}, con domicilio legal en {SITE.address} (en adelante, “Omia”). Omia es un <b>servicio digital</b>: la atención se presta a distancia, por el mail{" "}
-    <a href={`mailto:${SITE.email}`}>{SITE.email}</a> y el <Link to="/contacto">formulario de contacto</Link>, que constituyen su domicilio electrónico.
-  </p>
-);
+const Titular = () => {
+  const { t } = useContent();
+  return (
+    <p>
+      <b>{t("legal.name")}</b>{t("legal.cuit") ? <> (CUIT {t("legal.cuit")})</> : null}, con domicilio legal en {t("legal.address")} (en adelante, “Omia”). Omia es un <b>servicio digital</b>: la atención se presta a distancia, por el mail{" "}
+      <a href={`mailto:${t("contact.email")}`}>{t("contact.email")}</a> y el <Link to="/contacto">formulario de contacto</Link>, que constituyen su domicilio electrónico.
+    </p>
+  );
+};
 
 export function Terms() {
+  const { t } = useContent();
   return (
-    <LegalPage title="Términos y condiciones" path="/terminos" description="Condiciones de uso de Omia: directorio de profesores e institutos de yoga y pilates, planes para profesionales y tienda.">
-      <p>Estos términos regulan el uso del sitio <b>{SITE.url.replace(/^https?:\/\//, "")}</b> y de los servicios de Omia. Al crear una cuenta o usar el sitio, aceptás estas condiciones.</p>
+    <LegalPage override={t("legal.terms.body")} title="Términos y condiciones" path="/terminos" description="Condiciones de uso de Omia: directorio de profesores e institutos de yoga y pilates, planes para profesionales y tienda.">
+      <p>Estos términos regulan el uso del sitio <b>omia.site</b> y de los servicios de Omia. Al crear una cuenta o usar el sitio, aceptás estas condiciones.</p>
 
       <h2>1. Quiénes somos</h2>
       <Titular />
@@ -73,7 +80,7 @@ export function Terms() {
       <p>Hacemos lo posible para que el sitio funcione sin interrupciones, pero no garantizamos disponibilidad permanente. Omia no responde por lesiones, daños o perjuicios derivados de la práctica de yoga o pilates, que es responsabilidad de quien la dicta y de quien la realiza (consultá siempre con un profesional de la salud si tenés dudas sobre tu condición física). Nada de lo dispuesto limita los derechos que la Ley de Defensa del Consumidor te reconoce.</p>
 
       <h2>10. Propiedad intelectual</h2>
-      <p>La marca Omia, el diseño y el software del sitio son de {SITE.legalName}. No podés copiarlos ni usarlos sin autorización.</p>
+      <p>La marca Omia, el diseño y el software del sitio son de {t("legal.name")}. No podés copiarlos ni usarlos sin autorización.</p>
 
       <h2>11. Servicio digital, comunicaciones y domicilio electrónico</h2>
       <ul>
@@ -91,8 +98,9 @@ export function Terms() {
 }
 
 export function Privacy() {
+  const { t } = useContent();
   return (
-    <LegalPage title="Política de privacidad" path="/privacidad" description="Cómo Omia trata tus datos personales: qué guardamos, para qué, con quién los compartimos y cómo ejercer tus derechos.">
+    <LegalPage override={t("legal.privacy.body")} title="Política de privacidad" path="/privacidad" description="Cómo Omia trata tus datos personales: qué guardamos, para qué, con quién los compartimos y cómo ejercer tus derechos.">
       <p>En Omia cuidamos tus datos personales conforme a la <b>Ley 25.326 de Protección de Datos Personales</b>. Esta política explica qué recopilamos y por qué.</p>
 
       <h2>1. Responsable</h2>
@@ -123,7 +131,7 @@ export function Privacy() {
       <p>Usamos almacenamiento del navegador para mantener tu sesión y tus favoritos, y, si las aceptás, cookies de analítica y publicidad (Google Analytics, Meta). Podés rechazarlas desde el aviso de cookies del sitio o desde la configuración de tu navegador.</p>
 
       <h2>6. Tus derechos</h2>
-      <p>Podés acceder, rectificar, actualizar o suprimir tus datos, y retirar tu consentimiento, cuando quieras. El acceso es gratuito a intervalos no inferiores a seis meses (art. 14, Ley 25.326). Escribinos desde el <Link to="/contacto?tipo=baja">formulario de baja</Link> o a <a href={`mailto:${SITE.email}`}>{SITE.email}</a> y respondemos dentro de los 10 días corridos.</p>
+      <p>Podés acceder, rectificar, actualizar o suprimir tus datos, y retirar tu consentimiento, cuando quieras. El acceso es gratuito a intervalos no inferiores a seis meses (art. 14, Ley 25.326). Escribinos desde el <Link to="/contacto?tipo=baja">formulario de baja</Link> o a <a href={`mailto:${t("contact.email")}`}>{t("contact.email")}</a> y respondemos dentro de los 10 días corridos.</p>
       <p>La Agencia de Acceso a la Información Pública, en su carácter de órgano de control de la Ley 25.326, tiene la atribución de atender las denuncias y reclamos que se interpongan con relación al incumplimiento de las normas sobre protección de datos personales.</p>
 
       <h2>7. Conservación y seguridad</h2>
@@ -136,8 +144,9 @@ export function Privacy() {
 }
 
 export function About() {
+  const { t } = useContent();
   return (
-    <LegalPage title="Nosotros" path="/nosotros" updated={false} description="Omia conecta a alumnos con profesores e institutos de yoga y pilates en Argentina, sin comisiones por clase.">
+    <LegalPage override={t("about.body")} title="Nosotros" path="/nosotros" updated={false} description="Omia conecta a alumnos con profesores e institutos de yoga y pilates en Argentina, sin comisiones por clase.">
       <p className="text-lg text-[#1C3829]">Creamos Omia para que encontrar tu profe de yoga o pilates sea simple, y para que los profesionales vivan de lo que hacen sin pagar comisiones por cada clase.</p>
       <h2>Cómo funciona</h2>
       <ul>
@@ -147,7 +156,7 @@ export function About() {
       </ul>
       <h2>Quiénes somos</h2>
       <Titular />
-      <p>Seguinos en <a href={`https://instagram.com/${SITE.instagram}`} target="_blank" rel="noopener noreferrer">Instagram @{SITE.instagram}</a>.</p>
+      <p>Seguinos en <a href={`https://instagram.com/${t("contact.instagram")}`} target="_blank" rel="noopener noreferrer">Instagram @{t("contact.instagram")}</a>.</p>
     </LegalPage>
   );
 }
@@ -206,11 +215,12 @@ function ContactForm({ kind: initialKind, lockKind = false }: { kind: Kind; lock
 }
 
 export function Contact() {
+  const { t } = useContent();
   const initial = new URLSearchParams(window.location.search).get("tipo");
   const kind: Kind = initial === "baja" || initial === "arrepentimiento" ? initial : "consulta";
   return (
     <LegalPage title="Contacto" path="/contacto" updated={false} description="Escribinos para consultas, para darte de baja o ejercer tus derechos sobre tus datos.">
-      <p>Respondemos dentro de las próximas 48 horas hábiles. También podés escribirnos a <a href={`mailto:${SITE.email}`}>{SITE.email}</a>{SITE.whatsapp ? <> o por <a href={`https://wa.me/${SITE.whatsapp}`} target="_blank" rel="noopener noreferrer">WhatsApp</a></> : null}.</p>
+      <p>Respondemos dentro de las próximas 48 horas hábiles. También podés escribirnos a <a href={`mailto:${t("contact.email")}`}>{t("contact.email")}</a>{t("contact.whatsapp") ? <> o por <a href={`https://wa.me/${t("contact.whatsapp").replace(/\D/g, "")}`} target="_blank" rel="noopener noreferrer">WhatsApp</a></> : null}.</p>
       <ContactForm kind={kind} />
     </LegalPage>
   );

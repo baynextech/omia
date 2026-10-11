@@ -44,7 +44,9 @@ npm run db:migrate     # corre migrations/*.sql en orden (001 y 002)
 ```
 
 Las migraciones solo agregan columnas, tablas e índices. Se pueden correr más de una vez.
-La 002 suma suscripciones, recuperación de contraseña, login con Google, noticias, mensajes de contacto y datos de envío de pedidos.
+La 002 suma suscripciones, recuperación de contraseña, login con Google, noticias, mensajes de contacto y datos de envío de pedidos. La 003 suma las tablas del contenido editable del sitio (`site_content` y `media`).
+
+**Contenido editable:** todo el texto, las imágenes, el contacto, los planes, las preguntas frecuentes, el SEO y los textos legales se cambian desde `/admin → Sitio` y se ven al instante. Los títulos y descripciones que se muestran al compartir un enlace por WhatsApp o Instagram se actualizan al próximo build (`npm run build`).
 
 Si ya existe más de una ficha con el mismo `user_id`, el índice único falla: resolver los duplicados y volver a correrla.
 

@@ -1,3 +1,4 @@
+import { useContent } from "../contexts/ContentContext";
 import { useState, useEffect } from "react";
 import { MapPin, Search, Wind, DollarSign, Calendar, Sparkles, Loader2 } from "lucide-react";
 import { apiFetch } from "../lib/api";
@@ -6,6 +7,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { SEOMeta } from "../components/SEOMeta";
 
 export function Directory() {
+  const { t, img } = useContent();
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [disciplineFilter, setDisciplineFilter] = useState("Todas");
   const [locationFilter, setLocationFilter] = useState("Todos");
@@ -68,17 +70,13 @@ export function Directory() {
 
   return (
     <div className="py-12 px-6 max-w-7xl mx-auto">
-      <SEOMeta 
-        title="Directorio de Profesores de Yoga y Pilates | Omia"
-        description="Buscá y filtrá entre los mejores instructores de Yoga y Pilates (Reformer, Mat, Barre) en Buenos Aires. Filtrá por barrio, disciplina, precios y horarios."
-        keywords="directorio profesores yoga, instructores de pilates, pilates reformer, pilates mat, yoga buenos aires, profesores ashtanga, pilates postural"
-      />
+      <SEOMeta title={t("seo.directory.title")} description={t("seo.directory.description")} ogImage={img("seo.image")} keywords="directorio profesores yoga, instructores de pilates, pilates reformer, pilates mat, yoga buenos aires, profesores ashtanga, pilates postural" />
       <div className="mb-12">
         <h1 className="text-4xl font-light tracking-tight mb-4 text-[#2C2C2C]">
-          Directorio de Profesionales e Instructores
+          {t("directory.title")}
         </h1>
         <p className="text-[#5D5D5D] max-w-2xl text-lg">
-          Encontrá a los mejores instructores de <strong className="text-[#2C2C2C] font-medium">Yoga & Pilates</strong> en tu ciudad. Filtrá por disciplina, zona o usá nuestra búsqueda inteligente por IA.
+          {t("directory.subtitle")}
         </p>
       </div>
 

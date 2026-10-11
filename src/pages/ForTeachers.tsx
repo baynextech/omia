@@ -1,3 +1,4 @@
+import { useContent } from "../contexts/ContentContext";
 import { useState } from "react";
 import { Sparkles, CheckCircle2, ShieldCheck, CreditCard, HelpCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -9,6 +10,7 @@ export function ForTeachers() {
   const [isPaying, setIsPaying] = useState(false);
   const navigate = useNavigate();
   const { formatPrice } = usePlans();
+  const { t, list, pairs, img } = useContent();
 
   const handleSubscribe = async () => {
     setIsPaying(true);
@@ -23,97 +25,62 @@ export function ForTeachers() {
 
   return (
     <div className="py-12 px-6 max-w-7xl mx-auto min-h-screen">
-      <SEOMeta 
-        title="Unite como Profesor de Yoga | Omia"
-        description="Publicá tus clases de yoga, creá tu landing page personalizable y captá alumnos en tu zona sin pagar comisiones por clase. Omia es la red de yoga líder."
-        keywords="publicar clases de yoga, marketing para profesores de yoga, membresias para instructores, landing page para profesores de yoga"
-      />
+      <SEOMeta title={t("seo.teachers.title")} description={t("seo.teachers.description")} ogImage={img("seo.image")} keywords="publicar clases de yoga, marketing para profesores de yoga, membresias para instructores, landing page para profesores de yoga" />
       {/* Hero section */}
       <div className="text-center mb-16 max-w-3xl mx-auto">
         <span className="text-xs bg-[#98A77C]/15 text-[#98A77C] px-3.5 py-1.5 rounded-sm font-bold tracking-widest uppercase mb-4 inline-block">
-          Unite a la red de Omia
+          {t("para.hero.eyebrow")}
         </span>
         <h1 className="text-4xl md:text-6xl font-light tracking-tight mb-6 text-[#2C2C2C] leading-tight">
-          Conectá con más alumnos y multiplicá tu práctica.
+          {t("para.hero.title")}
         </h1>
         <p className="text-[#5D5D5D] text-lg leading-relaxed">
-          Creamos el espacio digital más moderno, orgánico y recomendado por inteligencia artificial para instructores independientes de yoga en la Argentina.
+          {t("para.hero.subtitle")}
         </p>
       </div>
 
       {/* Feature Bento Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
-        <div className="bg-white border border-[#E8E0D0] p-8 rounded-3xl flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow">
-          <div>
-            <div className="w-12 h-12 bg-[#98A77C]/10 text-[#98A77C] rounded-2xl flex items-center justify-center mb-6">
-              <Sparkles className="w-6 h-6" />
+        {pairs("para.benefits").map(({ a: title, b: desc }, i) => {
+          const Icon = [Sparkles, CreditCard, CheckCircle2][i % 3];
+          return (
+            <div key={i} className="bg-white border border-[#E8E0D0] p-8 rounded-3xl flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow">
+              <div>
+                <div className="w-12 h-12 bg-[#98A77C]/10 text-[#98A77C] rounded-2xl flex items-center justify-center mb-6">
+                  <Icon className="w-6 h-6" />
+                </div>
+                <h3 className="text-xl font-semibold mb-3 text-[#2C2C2C]">{title}</h3>
+                <p className="text-[#5D5D5D] text-sm leading-relaxed">{desc}</p>
+              </div>
             </div>
-            <h3 className="text-xl font-semibold mb-3 text-[#2C2C2C]">Recomendación Inteligente</h3>
-            <p className="text-[#5D5D5D] text-sm leading-relaxed">
-              Nuestra guía con IA recomienda activamente tu perfil, horarios y especialidad a los usuarios que buscan de forma natural (ej: "clases de yoga cerca de Belgrano").
-            </p>
-          </div>
-        </div>
-
-        <div className="bg-white border border-[#E8E0D0] p-8 rounded-3xl flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow">
-          <div>
-            <div className="w-12 h-12 bg-[#98A77C]/10 text-[#98A77C] rounded-2xl flex items-center justify-center mb-6">
-              <CreditCard className="w-6 h-6" />
-            </div>
-            <h3 className="text-xl font-semibold mb-3 text-[#2C2C2C]">Suscripción con Mercado Pago</h3>
-            <p className="text-[#5D5D5D] text-sm leading-relaxed">
-              Pagás tu plan mes a mes con Mercado Pago, con débito automático en pesos. Los alumnos te contactan directo y vos cobrás tus clases como siempre, sin intermediarios.
-            </p>
-          </div>
-        </div>
-
-        <div className="bg-white border border-[#E8E0D0] p-8 rounded-3xl flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow">
-          <div>
-            <div className="w-12 h-12 bg-[#98A77C]/10 text-[#98A77C] rounded-2xl flex items-center justify-center mb-6">
-              <CheckCircle2 className="w-6 h-6" />
-            </div>
-            <h3 className="text-xl font-semibold mb-3 text-[#2C2C2C]">Estadísticas y Reseñas</h3>
-            <p className="text-[#5D5D5D] text-sm leading-relaxed">
-              Visualizá el alcance de tu perfil, recopilá calificaciones de cinco estrellas firmadas de forma transparente y ganá confianza dentro de la comunidad.
-            </p>
-          </div>
-        </div>
+          );
+        })}
       </div>
 
       {/* Pricing comparison section */}
       <div className="max-w-5xl mx-auto bg-[#F4EFE4] border border-[#E8E0D0] rounded-3xl overflow-hidden shadow-sm grid grid-cols-1 md:grid-cols-12">
         <div className="md:col-span-7 p-8 md:p-12 flex flex-col justify-between">
           <div>
-            <span className="text-xs text-[#98A77C] font-bold uppercase tracking-wider">Plan para Instructores</span>
-            <h2 className="text-3xl font-semibold text-[#2C2C2C] mt-2 mb-6">Omia Pro Membership</h2>
+            <span className="text-xs text-[#98A77C] font-bold uppercase tracking-wider">{t("para.plan.eyebrow")}</span>
+            <h2 className="text-3xl font-semibold text-[#2C2C2C] mt-2 mb-6">{t("para.plan.title")}</h2>
             
             <p className="text-[#5D5D5D] text-sm mb-8 leading-relaxed">
-              Súmate al único plan diseñado para dar visibilidad total a tu agenda. Sin contratos forzosos. Cancelás en cualquier momento con un clic en tu panel.
+              {t("para.plan.desc")}
             </p>
 
             <ul className="space-y-4 text-[#2C2C2C] text-sm">
-              <li className="flex items-center gap-3">
-                <CheckCircle2 className="w-5 h-5 text-[#98A77C] shrink-0" />
-                <span>Exposición destacada en la grilla y mapa de instructores.</span>
-              </li>
-              <li className="flex items-center gap-3">
-                <CheckCircle2 className="w-5 h-5 text-[#98A77C] shrink-0" />
-                <span>Prioridad absoluta de recomendación en la IA conversacional.</span>
-              </li>
-              <li className="flex items-center gap-3">
-                <CheckCircle2 className="w-5 h-5 text-[#98A77C] shrink-0" />
-                <span>Solicitudes de clase y consultas ilimitadas, directo a tu mail.</span>
-              </li>
-              <li className="flex items-center gap-3">
-                <CheckCircle2 className="w-5 h-5 text-[#98A77C] shrink-0" />
-                <span>Insignia Pro y optimización SEO de tu página personal.</span>
-              </li>
+              {list("para.plan.features").map((f) => (
+                <li key={f} className="flex items-center gap-3">
+                  <CheckCircle2 className="w-5 h-5 text-[#98A77C] shrink-0" />
+                  <span>{f}</span>
+                </li>
+              ))}
             </ul>
           </div>
 
           <div className="mt-12 flex items-center gap-2.5 text-xs text-[#5D5D5D]">
             <ShieldCheck className="w-4 h-4 text-[#98A77C]" />
-            <span>Cobros gestionados en pesos argentinos mediante pasarela segura.</span>
+            <span>{t("para.plan.secure")}</span>
           </div>
         </div>
 
@@ -136,14 +103,14 @@ export function ForTeachers() {
               <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-sm animate-spin" />
             ) : (
               <>
-                <span>Unirme a Omia Pro</span>
+                <span>{t("para.plan.button")}</span>
                 <Sparkles className="w-4 h-4" />
               </>
             )}
           </button>
           
           <p className="text-xs text-[#5D5D5D] mt-4">
-            Sin permanencia: te das de baja cuando quieras desde tu panel.
+            {t("para.plan.footnote")}
           </p>
         </div>
       </div>
@@ -152,24 +119,15 @@ export function ForTeachers() {
       <div className="mt-24 max-w-3xl mx-auto">
         <h2 className="text-2xl font-semibold text-[#2C2C2C] text-center mb-8">Preguntas frecuentes</h2>
         <div className="space-y-6">
-          <div className="bg-white border border-[#E8E0D0] p-6 rounded-2xl">
-            <h4 className="font-semibold text-base text-[#2C2C2C] mb-2 flex items-center gap-2">
-              <HelpCircle className="w-4 h-4 text-[#98A77C]" />
-              ¿Necesito una cuenta especial de Mercado Pago?
-            </h4>
-            <p className="text-sm text-[#5D5D5D] leading-relaxed">
-              No. Para pagar tu membresía podés usar cualquier cuenta de Mercado Pago o tarjeta bancaria. El cobro se renueva solo cada mes y te podés dar de baja cuando quieras desde tu panel.
-            </p>
-          </div>
-          <div className="bg-white border border-[#E8E0D0] p-6 rounded-2xl">
-            <h4 className="font-semibold text-base text-[#2C2C2C] mb-2 flex items-center gap-2">
-              <HelpCircle className="w-4 h-4 text-[#98A77C]" />
-              ¿Hay costos extras o comisiones por clases vendidas?
-            </h4>
-            <p className="text-sm text-[#5D5D5D] leading-relaxed">
-              Omia no cobra ninguna comisión sobre tus clases. Los alumnos te contactan por WhatsApp, mail o Instagram y arreglan el pago directamente con vos: el 100% es tuyo.
-            </p>
-          </div>
+          {pairs("para.faq").map(({ a: q, b: ans }, i) => (
+            <div key={i} className="bg-white border border-[#E8E0D0] p-6 rounded-2xl">
+              <h4 className="font-semibold text-base text-[#2C2C2C] mb-2 flex items-center gap-2">
+                <HelpCircle className="w-4 h-4 text-[#98A77C]" />
+                {q}
+              </h4>
+              <p className="text-sm text-[#5D5D5D] leading-relaxed">{ans}</p>
+            </div>
+          ))}
         </div>
       </div>
     </div>

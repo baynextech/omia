@@ -3,11 +3,13 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { apiFetch } from "../lib/api";
+import { useContent, Rich, mediaUrl } from "../contexts/ContentContext";
 
 const container = { hidden: {}, visible: { transition: { staggerChildren: 0.14, delayChildren: 0.3 } } };
 const item = { hidden: { opacity: 0, y: 32 }, visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] } } };
 
 export function Hero() {
+  const { t } = useContent();
   const [stats, setStats] = useState({ teachers: 0, institutes: 0, zones: 0 });
   useEffect(() => {
     apiFetch("/api/stats").then((r) => (r.ok ? r.json() : null)).then((d) => d && setStats(d)).catch(() => {});
@@ -23,7 +25,7 @@ export function Hero() {
         preload="auto"
         className="absolute inset-0 w-full h-full object-cover"
       >
-        <source src="/videos/hero_1.mp4" type="video/mp4" />
+        <source src={mediaUrl(t("home.hero.video") || "/videos/hero_1.mp4")} type="video/mp4" />
       </video>
 
       <div className="absolute inset-0 bg-gradient-to-b from-[#0d1f14]/75 via-[#1C3829]/50 to-[#0d1f14]/70 z-10" />
@@ -37,26 +39,25 @@ export function Hero() {
       >
         <motion.span variants={item} className="inline-flex items-center gap-2 text-xs font-bold tracking-widest text-[#98A77C] uppercase mb-8 border border-[#98A77C]/40 px-4 py-2 rounded-sm bg-[#98A77C]/10 backdrop-blur-sm">
           <span className="w-1.5 h-1.5 rounded-sm bg-[#98A77C]" />
-          Yoga · Pilates · Bienestar · Buenos Aires
+          {t("home.hero.eyebrow")}
         </motion.span>
 
         <motion.h1 variants={item} className="text-4xl sm:text-5xl md:text-6xl font-serif font-light tracking-tight text-white max-w-2xl leading-[1.1] mb-6">
-          Encontrá tu profe, <span className="italic text-[#C8D8B0]">tu centro</span> y tu práctica.
+          <Rich text={t("home.hero.title")} em="italic text-[#C8D8B0]" />
         </motion.h1>
 
         <motion.p variants={item} className="text-base md:text-lg text-white/70 max-w-xl font-light leading-relaxed mb-10">
-          Conectá con los mejores instructores e institutos de Yoga & Pilates en Argentina.
-          Leé opiniones reales, reservá tu lugar y equipate.
+          {t("home.hero.subtitle")}
         </motion.p>
 
         <motion.div variants={item} className="flex flex-wrap items-center gap-3">
           <Link to="/directorio" className="group flex items-center gap-3 bg-[#98A77C] hover:bg-[#88976C] active:scale-[0.97] text-white px-7 py-4 rounded-sm font-semibold transition-all shadow-lg">
             <Search className="w-4 h-4" />
-            <span>Buscá un Profe</span>
+            <span>{t("home.hero.cta1")}</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Link>
           <Link to="/estudios" className="flex items-center gap-2 bg-white/10 border border-white/25 hover:bg-white/20 active:scale-[0.97] text-white px-6 py-4 rounded-sm font-medium transition-all backdrop-blur-sm">
-            Estudios e Institutos
+            {t("home.hero.cta2")}
           </Link>
         </motion.div>
 

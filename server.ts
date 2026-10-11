@@ -1729,6 +1729,70 @@ app.delete('/api/admin/reviews/:id', requireAdmin, h(async (req, res) => {
   res.json({ success: true });
 }));
 
+// ─── Contenido editable del sitio ────────────────────────────────────────────
+
+const CONTENT_KEY = /^[a-z0-9_]+(\.[a-z0-9_]+){1,5}$/;
+
+// Todo lo que el administrador cambió. El sitio usa su texto original para lo que no figure acá.
+app.get('/api/content', h(async (_req, res) => {
+  const rows = (await pool.query('SELECT key, value FROM site_content')).rows;
+  // no-cache + ETag: el navegador siempre consulta, pero si no hubo cambios la respuesta es un 304 liviano.
+  res.set('Cache-Control', 'no-cache').json(Object.fromEntries(rows.map((r) => [r.key, r.value])));
+}));
+
+// Cambia varios valores a la vez. Un valor null vuelve al texto original.
+app.put('/api/admin/content', requireAdmin, h(async (req, res) => {
+  const values = req.body?.values;
+  if (!values || typeof values !== 'object' || Array.isArray(values)) return res.status(400).json({ error: 'Datos inválidos' });
+  const entries = Object.entries(values);
+  if (!entries.length || entries.length > 300) return res.status(400).json({ error: 'Cantidad de cambios inválida' });
+  for (const [key, value] of entries) {
+    if (!CONTENT_KEY.test(key)) return res.status(400).json({ error: `Clave inválida: ${key}` });
+    if (value !== null && JSON.stringify(value).length > 400_000) return res.status(400).json({ error: `El contenido de "${key}" es demasiado largo` });
+  }
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    for (const [key, value] of entries) {
+      if (value === null) await client.query('DELETE FROM site_content WHERE key = $1', [key]);
+      else await client.query(
+        `INSERT INTO site_content (key, value, updated_by) VALUES ($1, $2::jsonb, $3)
+         ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = NOW(), updated_by = EXCLUDED.updated_by`,
+        [key, JSON.stringify(value), req.user!.id]
+      );
+    }
+    await client.query('COMMIT');
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
+  const rows = (await pool.query('SELECT key, value FROM site_content')).rows;
+  res.json(Object.fromEntries(rows.map((r) => [r.key, r.value])));
+}));
+
+// Subida de imágenes del sitio: llegan como data URL, se guardan y se sirven con caché larga.
+const MEDIA_TYPES = ['image/png', 'image/jpeg', 'image/webp'];
+app.post('/api/admin/media', requireAdmin, h(async (req, res) => {
+  const match = /^data:(image\/(?:png|jpeg|webp));base64,([A-Za-z0-9+/=]+)$/.exec(String(req.body?.dataUrl || ''));
+  if (!match || !MEDIA_TYPES.includes(match[1])) return res.status(400).json({ error: 'Subí una imagen PNG, JPG o WebP' });
+  const data = Buffer.from(match[2], 'base64');
+  if (data.length > 4 * 1024 * 1024) return res.status(400).json({ error: 'La imagen supera los 4 MB' });
+  const row = (await pool.query(
+    'INSERT INTO media (mime, data, name, created_by) VALUES ($1, $2, $3, $4) RETURNING id',
+    [match[1], data, String(req.body?.name || '').slice(0, 120) || null, req.user!.id]
+  )).rows[0];
+  res.status(201).json({ url: `/api/media/${row.id}` });
+}));
+
+app.get('/api/media/:id', h(async (req, res) => {
+  if (!isUuid(req.params.id)) return res.sendStatus(404);
+  const row = (await pool.query('SELECT mime, data FROM media WHERE id = $1', [req.params.id])).rows[0];
+  if (!row) return res.sendStatus(404);
+  res.set({ 'Content-Type': row.mime, 'Cache-Control': 'public, max-age=31536000, immutable', 'Cross-Origin-Resource-Policy': 'cross-origin' }).send(row.data);
+}));
+
 // ─── Contacto, arrepentimiento y bajas (público) ─────────────────────────────
 
 const contactLimiter = rateLimit(5, 60 * 60 * 1000);

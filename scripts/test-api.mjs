@@ -102,3 +102,23 @@ test("formularios públicos y sitemap", async () => {
   const sm = await fetch(`${API}/sitemap.xml`);
   assert.match(await sm.text(), /<urlset/);
 });
+
+test("el contenido del sitio se edita solo como administrador y se puede restaurar", async () => {
+  const anon = await call("/api/admin/content", { method: "PUT", body: { values: { "home.hero.title": "x" } } });
+  assert.equal(anon.status, 401);
+  const noAdmin = await call("/api/admin/content", { method: "PUT", token, body: { values: { "home.hero.title": "x" } } });
+  assert.equal(noAdmin.status, 403);
+
+  const admin = await call("/api/auth/login", { method: "POST", body: { email: process.env.ADMIN_EMAIL || "admin@omia.site", password: process.env.ADMIN_PASSWORD || "local-admin-pass-123" } });
+  const at = admin.data.token;
+  const bad = await call("/api/admin/content", { method: "PUT", token: at, body: { values: { "Clave Mala": "x" } } });
+  assert.equal(bad.status, 400);
+
+  const saved = await call("/api/admin/content", { method: "PUT", token: at, body: { values: { "home.hero.title": `Título ${run}`, "plan.inicial.features": ["Uno", "Dos"] } } });
+  assert.equal(saved.data["home.hero.title"], `Título ${run}`);
+  const pub = await call("/api/content");
+  assert.deepEqual(pub.data["plan.inicial.features"], ["Uno", "Dos"]);
+
+  const reset = await call("/api/admin/content", { method: "PUT", token: at, body: { values: { "home.hero.title": null, "plan.inicial.features": null } } });
+  assert.equal(reset.data["home.hero.title"], undefined);
+});

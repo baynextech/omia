@@ -113,7 +113,7 @@ export function UserProfile() {
     price: "$8.000/clase",
     availableDays: ["Lun", "Mié", "Vie"] as string[],
     bio: "",
-    image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&q=80&w=600",
+    image: "",
     email: "",
     phone: "",
     images: [] as string[],
@@ -175,7 +175,7 @@ export function UserProfile() {
           price: linkedTeacher.price,
           availableDays: linkedTeacher.availableDays || ["Lun", "Mié", "Vie"],
           bio: linkedTeacher.bio || "",
-          image: linkedTeacher.image || "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&q=80&w=600",
+          image: linkedTeacher.image || "",
           email: linkedTeacher.email || profileData.email || "",
           phone: linkedTeacher.phone || "",
           images: linkedTeacher.images || [],
@@ -313,7 +313,7 @@ export function UserProfile() {
         ...prev,
         images: updated,
         image: prev.image === (prev.images || [])[idxToRemove] 
-          ? (updated[0] || "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&q=80&w=600")
+          ? (updated[0] || "")
           : prev.image
       };
     });
@@ -432,7 +432,7 @@ export function UserProfile() {
       <div className="py-24 px-6 max-w-7xl mx-auto flex flex-col justify-center items-center h-[60vh] text-center gap-6">
         <User className="w-16 h-16 text-[#E5E5E5]" />
         <h2 className="text-2xl font-medium text-[#2C2C2C]">Iniciá sesión para ver tu perfil</h2>
-        <p className="text-[#5D5D5D] max-w-sm">Creá una cuenta o ingresá para acceder a tus reservas, favoritos y configuración.</p>
+        <p className="text-[#5D5D5D] max-w-sm">Creá una cuenta o ingresá para acceder a tus solicitudes, favoritos y configuración.</p>
         <Link to="/" className="px-6 py-3 bg-[#98A77C] hover:bg-[#88976C] text-white rounded-sm font-medium transition-colors">
           Volver al inicio
         </Link>
@@ -454,12 +454,12 @@ export function UserProfile() {
     { id: "perfil", label: "Mi Perfil", icon: User },
     { id: "stats", label: "Estadísticas", icon: TrendingUp },
     { id: "landing", label: "Mi Página", icon: LayoutDashboard },
-    { id: "bookings", label: "Reservas", icon: Calendar },
+    { id: "bookings", label: "Solicitudes", icon: Calendar },
     { id: "reseñas", label: "Reseñas", icon: Star },
     { id: "premium", label: "Plan Premium", icon: Sparkles },
   ] : [
     { id: "perfil", label: "Mi Perfil", icon: User },
-    { id: "bookings", label: "Mis Reservas", icon: Calendar },
+    { id: "bookings", label: "Mis Solicitudes", icon: Calendar },
     { id: "favoritos", label: "Favoritos", icon: Heart },
     { id: "visited", label: "Visitados", icon: Eye },
     { id: "reseñas", label: "Mis Reseñas", icon: Star },
@@ -534,7 +534,7 @@ export function UserProfile() {
             {/* Mini stat cards */}
             <div className="grid grid-cols-3 gap-4">
               {[
-                { label: "Reservas totales", value: bookings.length, icon: Calendar, bars: [30,50,40,70,55,80,65,90,75,85] },
+                { label: "Solicitudes de clase", value: bookings.length, icon: Calendar, bars: [30,50,40,70,55,80,65,90,75,85] },
                 { label: "Favoritos", value: favoriteTeachers.length, icon: Heart, bars: [60,40,70,50,80,45,75,55,85,70] },
                 { label: "Reseñas", value: reviews.length, icon: Star, bars: [20,40,30,60,45,70,55,80,65,75] },
               ].map(stat => (
@@ -688,7 +688,7 @@ export function UserProfile() {
         {/* TAB 2b: RESERVAS RECIBIDAS (PROFESOR / INSTITUTO) */}
         {activeTab === "bookings" && isTeacherOrInstitute && (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
-            <h1 className="text-3xl font-light tracking-tight text-[#2C2C2C] mb-6">Reservas recibidas</h1>
+            <h1 className="text-3xl font-light tracking-tight text-[#2C2C2C] mb-6">Solicitudes de clase recibidas</h1>
             {bookings.length > 0 ? (
               <div className="bg-white border border-[#E8E0D0] rounded-3xl overflow-hidden shadow-sm">
                 <table className="w-full text-sm">
@@ -720,7 +720,7 @@ export function UserProfile() {
             ) : (
               <div className="bg-[#F4EFE4] rounded-3xl border border-[#E8E0D0] py-20 px-6 text-center">
                 <Calendar className="w-12 h-12 text-[#E5E5E5] mx-auto mb-4" />
-                <h2 className="text-xl font-medium text-[#2C2C2C] mb-2">Todavía no recibiste reservas</h2>
+                <h2 className="text-xl font-medium text-[#2C2C2C] mb-2">Todavía no recibiste solicitudes</h2>
                 <p className="text-[#5D5D5D] max-w-sm mx-auto">Cuando alguien reserve una clase desde tu perfil, la vas a ver acá con sus datos de contacto.</p>
               </div>
             )}
@@ -730,7 +730,7 @@ export function UserProfile() {
         {/* TAB 2: RESERVAS (SOLO ALUMNO) */}
         {activeTab === "bookings" && !isTeacherOrInstitute && (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
-            <h1 className="text-3xl font-light tracking-tight text-[#2C2C2C] mb-6">Mis Clases Reservadas</h1>
+            <h1 className="text-3xl font-light tracking-tight text-[#2C2C2C] mb-6">Mis solicitudes de clase</h1>
             {bookings.length > 0 ? (
               <div className="flex flex-col gap-6">
                 {bookings.map((booking) => (
@@ -765,7 +765,7 @@ export function UserProfile() {
             ) : (
               <div className="bg-[#F4EFE4] rounded-3xl border border-[#E8E0D0] py-20 px-6 text-center flex flex-col items-center">
                 <Calendar className="w-12 h-12 text-[#E5E5E5] mb-4" />
-                <h2 className="text-xl font-medium text-[#2C2C2C] mb-2">No tenés reservas todavía</h2>
+                <h2 className="text-xl font-medium text-[#2C2C2C] mb-2">No pediste clases todavía</h2>
                 <p className="text-[#5D5D5D] mb-6 max-w-sm mx-auto">Encontrá el profesor que mejor se adapte a tu estilo y agendá una clase.</p>
                 <Link to="/directorio" className="px-6 py-3 bg-[#98A77C] hover:bg-[#88976C] text-white rounded-sm font-medium transition-colors">
                   Buscar Profesores
@@ -968,7 +968,7 @@ export function UserProfile() {
                   </h3>
                   <p className="text-sm text-[#5D5D5D] leading-relaxed mb-6">
                     Omia opera bajo un esquema de <strong>comisión cero</strong> para los profesionales de yoga. 
-                    Cobrás el total del dinero que se genera de tus reservas de clases de forma directa, sin retenciones del sitio.
+                    Cobrás tus clases de forma directa con cada alumno, sin retenciones ni comisiones del sitio.
                   </p>
                   <p className="text-sm text-[#5D5D5D] leading-relaxed">
                     Lo único que abonás para mantener tu landing page activa y recibir tráfico continuo es la <strong>membresía fija mensual</strong>.

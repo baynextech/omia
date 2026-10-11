@@ -1,3 +1,4 @@
+import { Photo } from "../components/Photo";
 import { useState, useEffect } from "react";
 import { apiFetch } from "../lib/api";
 import { usePlans, startSubscription } from "../hooks/usePlans";
@@ -152,11 +153,10 @@ export function Home() {
                   transition={{ duration: 0.25, ease: "easeOut" }}
                 >
                   <div className="relative overflow-hidden" style={{ height: 360 }}>
-                    <img
+                    <Photo
                       src={t.image}
-                      alt={t.name}
+                      name={t.name}
                       className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700"
-                      referrerPolicy="no-referrer"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#1C3829] via-transparent to-transparent" />
                     <span className="absolute top-3 left-3 text-[10px] font-bold px-2.5 py-1 uppercase tracking-wider bg-[#1C3829]/80 backdrop-blur-sm text-[#C8D8B0] border border-[#98A77C]/30" style={{ borderRadius: 3 }}>

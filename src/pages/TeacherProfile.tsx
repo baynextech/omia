@@ -1,3 +1,4 @@
+import { placeholderFor } from "../components/Photo";
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { apiFetch } from "../lib/api";
@@ -79,7 +80,7 @@ export function TeacherProfile() {
   // Asegurar que tengamos una lista de imágenes para la galería
   const galleryImages = teacher.images && teacher.images.length > 0 
     ? teacher.images 
-    : [teacher.image];
+    : [teacher.image || placeholderFor(teacher.name)];
 
   const handlePrevPhoto = (e: React.MouseEvent) => {
     e.stopPropagation();

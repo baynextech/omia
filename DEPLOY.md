@@ -23,15 +23,28 @@ Revisar el archivo de variables de la API contra `.env.example`. **El servidor n
 
 Cambiar `JWT_SECRET` cierra todas las sesiones abiertas; los usuarios vuelven a ingresar.
 
-Variables nuevas a definir: `API_URL=https://api.omia.site`, `MERCADOPAGO_WEBHOOK_SECRET` (opcional) y `ADMIN_PASSWORD` (solo si todavía no existe el usuario admin; mínimo 10 caracteres). Sin `MERCADOPAGO_ACCESS_TOKEN` los pagos quedan deshabilitados y el sitio lo avisa.
+Variables nuevas a definir (detalle en `.env.example`):
+
+| Variable | Para qué |
+|---|---|
+| `API_URL=https://api.omia.site` | Webhook de Mercado Pago |
+| `MERCADOPAGO_ACCESS_TOKEN` | Credenciales de **producción** de la aplicación. Sin esto los pagos quedan deshabilitados y el sitio lo avisa |
+| `MERCADOPAGO_WEBHOOK_SECRET` | Firma del webhook (recomendada) |
+| `ADMIN_PASSWORD` | Solo si todavía no existe el usuario admin (mínimo 10 caracteres) |
+| `GOOGLE_CLIENT_ID` | Botón "Continuar con Google". Sin esto el botón no aparece |
+| `RESEND_API_KEY`, `EMAIL_FROM`, `CONTACT_EMAIL` | Mails de bienvenida, cobros, recuperación de contraseña y avisos al equipo |
+| `SITE_URL=https://omia.site` | Sitemap |
+
+En Mercado Pago Developers → Webhooks, la URL `https://api.omia.site/api/webhooks/mercadopago` tiene que recibir los eventos **Pagos** y **Planes y suscripciones**.
 
 ## 2. Base de datos
 
 ```bash
-psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f migrations/001_alta_pagos_ranking.sql
+npm run db:migrate     # corre migrations/*.sql en orden (001 y 002)
 ```
 
-La migración solo agrega columnas, tablas e índices. Se puede correr más de una vez.
+Las migraciones solo agregan columnas, tablas e índices. Se pueden correr más de una vez.
+La 002 suma suscripciones, recuperación de contraseña, login con Google, noticias, mensajes de contacto y datos de envío de pedidos.
 
 Si ya existe más de una ficha con el mismo `user_id`, el índice único falla: resolver los duplicados y volver a correrla.
 
@@ -51,6 +64,9 @@ curl -s https://api.omia.site/api/plans     # debe devolver los tres planes
 En la máquina local:
 
 ```bash
+# La API tiene que estar arriba: el build lee las fichas y notas publicadas para armar
+# sitemap.xml y una página con etiquetas propias por cada profesor, instituto y nota.
+# Cargar antes los VITE_* de .env.example (CUIT, mail, WhatsApp, Google Analytics, Meta Pixel).
 VITE_API_URL=https://api.omia.site npm run build
 rsync -av --delete --exclude 'server.cjs*' dist/ <usuario>@<host>:<carpeta public_html de omia.site>/
 ```
@@ -63,7 +79,11 @@ Después, limpiar la caché del CDN en el panel del hosting; si no, se sigue vie
 2. Registrar una cuenta de prueba e ingresar.
 3. Ingresar como admin y abrir `/admin`.
 4. Con credenciales de prueba de Mercado Pago: crear una ficha, abonar un plan y confirmar que aparece en el directorio.
-5. En Mercado Pago Developers → Webhooks, configurar `https://api.omia.site/api/webhooks/mercadopago` para el evento **Pagos**.
+5. Suscribirse con una cuenta compradora de prueba y verificar que el plan queda activo, que llega el mail y que aparece en `/admin → Suscripciones`.
+6. Darse de baja desde el panel y confirmar que Mercado Pago muestra la suscripción cancelada.
+7. Probar `https://omia.site/sitemap.xml`, `/robots.txt` y compartir un perfil por WhatsApp para ver la vista previa.
+8. Alta en Google Search Console (propiedad `omia.site`) y envío del sitemap.
+9. Con la API local o de prueba: `npm run test:api` (ver "Desarrollo local").
 
 ## 6. Vuelta atrás
 
@@ -82,6 +102,7 @@ DATABASE_URL=postgres://localhost/omia_dev PORT=4100 APP_URL=http://localhost:51
 VITE_API_URL=http://localhost:4100 npm run dev:web -- --port 5199
 
 API=http://localhost:4100 node scripts/seed-prueba.mjs   # profesor y alumno de prueba
+API=http://localhost:4100 npm run test:api               # pruebas de punta a punta (suscripción, baja, mails, formularios)
 ```
 
 Sin `MERCADOPAGO_ACCESS_TOKEN` y fuera de producción, los pagos usan un simulador.

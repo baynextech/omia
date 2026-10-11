@@ -1,3 +1,4 @@
+import { Photo } from "../components/Photo";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { apiFetch } from "../lib/api";
@@ -136,11 +137,10 @@ export function Studios() {
               >
                 {/* Image & location tag */}
                 <div className="relative h-60 w-full overflow-hidden shrink-0">
-                  <img 
-                    src={studio.image} 
-                    alt={studio.name} 
+                  <Photo
+                    src={studio.image}
+                    name={studio.name}
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
-                    referrerPolicy="no-referrer"
                   />
                   <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-md text-[#2C2C2C] px-3.5 py-1 rounded-sm text-xs font-semibold shadow-sm flex items-center gap-1">
                     <MapPin className="w-3.5 h-3.5 text-[#98A77C]" />

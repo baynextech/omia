@@ -12,7 +12,8 @@
     "lint": "tsc --noEmit",
     "dev:web": "vite",
     "db:migrate": "for f in migrations/*.sql; do psql \"$DATABASE_URL\" -v ON_ERROR_STOP=1 -f \"$f\" || exit 1; done",
-    "postbuild": "node scripts/postbuild.mjs"
+    "postbuild": "node scripts/postbuild.mjs",
+    "test:api": "node --test scripts/test-api.mjs"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",

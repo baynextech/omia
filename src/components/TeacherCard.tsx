@@ -1,3 +1,4 @@
+import { Photo } from "./Photo";
 import { useState, useEffect } from "react";
 import { Star, MapPin, Heart } from "lucide-react";
 import { useFavorites } from "../hooks/useFavorites";
@@ -55,11 +56,10 @@ export function TeacherCard({ teacher, onToggleFavoriteOverride }: { teacher: Te
       >
         {/* Image */}
         <div className="relative h-80 overflow-hidden">
-          <img
+          <Photo
             src={localTeacher.image}
-            alt={localTeacher.name}
+            name={localTeacher.name}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-            referrerPolicy="no-referrer"
           />
           {/* Dark gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-[#1C3829] via-[#1C3829]/20 to-transparent" />

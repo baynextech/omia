@@ -113,15 +113,20 @@ Sin `MERCADOPAGO_ACCESS_TOKEN` y fuera de producción, los pagos usan un simulad
 
 La API corre en el VPS `srv1885334` como proyecto Docker **`omia`** (hPanel → VPS → Docker manager): contenedores `omia-api` (Node 22, código en `/app`, arranca `dist/server.cjs`) y `omia-db` (PostgreSQL 16, red propia `omia-net`). La base no soporta SSL (`DATABASE_SSL` queda sin definir).
 
-1. **Respaldo** — Terminal de `omia-db`:
+El «Terminal» de hPanel abre la consola del **servidor** (`root@srv1885334`), no la de un contenedor: los comandos se dirigen al contenedor de Omia con `docker exec <nombre>`. Usar solo los contenedores `omia-db` y `omia-api` (el servidor lo comparten otros proyectos).
+
+1. **Respaldo**:
    ```sh
-   pg_dump -U omia_user omia > /var/lib/postgresql/data/respaldo-$(date +%F).sql && ls -la /var/lib/postgresql/data/respaldo-*.sql
+   docker exec omia-db pg_dump -U omia_user omia > ~/omia-respaldo-$(date +%F).sql && ls -la ~/omia-respaldo-*.sql
    ```
-2. **Deploy** — Terminal de `omia-api`:
+2. **Deploy**:
    ```sh
-   wget -qO /tmp/deploy-api.sh https://raw.githubusercontent.com/baynextech/omia/feat/lanzamiento/scripts/deploy-api.sh && sh /tmp/deploy-api.sh
+   docker exec omia-api sh -c 'wget -qO /tmp/deploy-api.sh https://raw.githubusercontent.com/baynextech/omia/feat/lanzamiento/scripts/deploy-api.sh && sh /tmp/deploy-api.sh'
    ```
-3. **Reiniciar** `omia-api` desde el Docker manager y verificar `https://api.omia.site/api/plans` (debe devolver los tres planes).
+3. **Reiniciar** y verificar `https://api.omia.site/api/plans` (debe devolver los tres planes):
+   ```sh
+   docker restart omia-api
+   ```
 4. **Sitio** — compilar con `VITE_API_URL=https://api.omia.site npm run build` y subir el contenido de `dist/` (sin `server.cjs*`) a `public_html` de omia.site desde el administrador de archivos de hPanel.
 
 Variables del proyecto que conviene corregir cuando haya acceso: `MERCADOPAGO_ACCESS_TOKEN` (vencido), `ADMIN_PASSWORD` (clave compartida) y `GEMINI_API_KEY`. Además, el modelo `gemini-2.0-flash` ya no existe (el código nuevo usa `gemini-3.8-flash`).

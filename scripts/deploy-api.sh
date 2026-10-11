@@ -1,8 +1,8 @@
 #!/bin/sh
 # Deploy de la API de Omia. Se ejecuta DENTRO del contenedor omia-api
-# (hPanel → VPS → Docker manager → proyecto omia → omia-api → Terminal).
+# (desde el Terminal del servidor: docker exec omia-api sh -c ...).
 #
-# Antes: respaldo de la base desde el terminal de omia-db (ver DEPLOY.md, "Respaldo").
+# Antes: respaldo de la base (ver DEPLOY.md, "Respaldo").
 # Uso:   sh deploy-api.sh [rama]        (por defecto feat/lanzamiento; después de mergear, main)
 set -eu
 
@@ -40,5 +40,5 @@ cp dist/server.cjs /app/dist/server.cjs
 cp dist/server.cjs.map /app/dist/server.cjs.map 2>/dev/null || true
 
 echo ""
-echo "✔ Listo. Falta reiniciar el contenedor omia-api (Docker manager → omia → ⋮ → Reiniciar)."
+echo "✔ Listo. Falta reiniciar la API: docker restart omia-api (desde el Terminal del servidor)."
 echo "  Para volver atrás: cp -r /app/dist.bak-$STAMP/. /app/dist/ y reiniciar."

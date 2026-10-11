@@ -20,8 +20,8 @@ function LegalPage({ title, description, path, children, updated = true }: { tit
 
 const Titular = () => (
   <p>
-    <b>{SITE.legalName}</b>{SITE.cuit ? <> (CUIT {SITE.cuit})</> : null}, con domicilio en {SITE.address} (en adelante, “Omia”). Contacto:{" "}
-    <a href={`mailto:${SITE.email}`}>{SITE.email}</a> o desde el <Link to="/contacto">formulario de contacto</Link>.
+    <b>{SITE.legalName}</b>{SITE.cuit ? <> (CUIT {SITE.cuit})</> : null}, con domicilio legal en {SITE.address} (en adelante, “Omia”). Omia es un <b>servicio digital</b>: la atención se presta a distancia, por el mail{" "}
+    <a href={`mailto:${SITE.email}`}>{SITE.email}</a> y el <Link to="/contacto">formulario de contacto</Link>, que constituyen su domicilio electrónico.
   </p>
 );
 
@@ -75,7 +75,16 @@ export function Terms() {
       <h2>10. Propiedad intelectual</h2>
       <p>La marca Omia, el diseño y el software del sitio son de {SITE.legalName}. No podés copiarlos ni usarlos sin autorización.</p>
 
-      <h2>11. Cambios y ley aplicable</h2>
+      <h2>11. Servicio digital, comunicaciones y domicilio electrónico</h2>
+      <ul>
+        <li>Omia se presta íntegramente por internet. Las comunicaciones entre Omia y los usuarios se hacen por el mail registrado en la cuenta y por el sitio; las notificaciones enviadas a ese mail se consideran válidas.</li>
+        <li>Es tu responsabilidad mantener actualizado tu mail y revisar tu casilla de correo no deseado.</li>
+        <li>Podemos suspender el servicio temporalmente por mantenimiento, fallas de proveedores externos (hosting, Mercado Pago, mails) o causas de fuerza mayor, sin que eso genere responsabilidad más allá de la que la ley establece.</li>
+        <li>No está permitido usar el sitio para actividades ilícitas, enviar spam, automatizar la extracción masiva de datos, suplantar identidades o intentar vulnerar su seguridad.</li>
+        <li>Los profesionales y institutos actúan de forma independiente: no existe relación laboral, de representación ni de sociedad con Omia.</li>
+      </ul>
+
+      <h2>12. Cambios y ley aplicable</h2>
       <p>Podemos actualizar estos términos; cuando el cambio sea importante te avisamos por mail o en el sitio. Se rigen por las leyes de la República Argentina. Para reclamos de consumo, podés acudir a la autoridad de aplicación de tu jurisdicción (Defensa del Consumidor).</p>
     </LegalPage>
   );

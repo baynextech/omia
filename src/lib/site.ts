@@ -3,9 +3,10 @@
 export const SITE = {
   url: (import.meta.env.VITE_SITE_URL || "https://omia.site").replace(/\/$/, ""),
   name: "Omia",
+  // Titular del servicio. Valores provisorios: se reemplazan con VITE_LEGAL_* cuando estén los datos definitivos (razón social, CUIT, domicilio).
   legalName: import.meta.env.VITE_LEGAL_NAME || "Omia Bienestar",
   cuit: import.meta.env.VITE_LEGAL_CUIT || "",
-  address: import.meta.env.VITE_LEGAL_ADDRESS || "Ciudad Autónoma de Buenos Aires, Argentina",
+  address: import.meta.env.VITE_LEGAL_ADDRESS || "Ciudad Autónoma de Buenos Aires, República Argentina (servicio digital, sin atención presencial)",
   email: import.meta.env.VITE_CONTACT_EMAIL || "hola@omia.site",
   whatsapp: (import.meta.env.VITE_WHATSAPP || "").replace(/\D/g, ""),
   instagram: import.meta.env.VITE_INSTAGRAM || "omiayoga.ar",

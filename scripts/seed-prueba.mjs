@@ -17,7 +17,7 @@ async function call(path, body, token, method = body ? 'POST' : 'GET') {
 
 // Registra la cuenta o, si ya existe, inicia sesión.
 async function account(email, name, role) {
-  const created = await call('/api/auth/register', { email, password: PASSWORD, name, role });
+  const created = await call('/api/auth/register', { email, password: PASSWORD, name, role, acceptTerms: true });
   if (created.token) return created.token;
   return (await call('/api/auth/login', { email, password: PASSWORD })).token;
 }
@@ -37,9 +37,9 @@ const { teacher } = await call('/api/teachers/create-or-update', {
 }, profe);
 
 if (!teacher.plan_active) {
-  const pay = await call('/api/payments/mercadopago', { type: 'subscription', itemId: 'destacado' }, profe);
-  if (!pay.isMock) throw new Error('La API no está en modo simulador: el plan de prueba no se puede activar sin un pago real.');
-  await call('/api/payments/confirm', { tx: pay.transactionId }, profe);
+  const sub = await call('/api/subscriptions/checkout', { plan: 'destacado' }, profe);
+  if (!sub.isMock) throw new Error('La API no está en modo simulador: el plan de prueba no se puede activar sin un pago real.');
+  await call('/api/subscriptions/sync', { subscriptionId: sub.subscriptionId }, profe);
 }
 
 const alumno = await account('alumno@prueba.test', 'Juan Pérez (prueba)', 'alumno');

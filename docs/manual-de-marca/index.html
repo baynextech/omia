@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Omia — Manual de marca</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,300;1,9..144,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bosque:#1C3829; --bosque-hondo:#0D1F14; --bosque-medio:#243D2D;
+    --salvia:#98A77C; --salvia-profunda:#5F7348; --salvia-clara:#C8D8B0;
+    --crema:#F4EFE4; --marfil:#FAF8F2; --arena:#E8E0D0;
+    --tinta:#2C2C2C; --piedra:#5D5D5D;
+    --ok:#2F7D4F; --aviso:#B7791F; --error:#B42318;
+  }
+  @page { size: A4; margin: 0; }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html{ -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  body{ font-family:'Inter',system-ui,sans-serif; color:var(--tinta); background:#d9d4c8; font-size:10.2pt; line-height:1.5; }
+  .page{ width:210mm; height:297mm; padding:18mm 17mm 16mm; margin:0 auto 8mm; background:var(--crema); position:relative; overflow:hidden; page-break-after:always; break-after:page; }
+  @media print{ body{background:none} .page{margin:0} }
+  h1,h2,h3,.serif{ font-family:'Fraunces',Georgia,serif; font-weight:300; letter-spacing:-0.01em; color:var(--bosque); }
+  h1{ font-size:44pt; line-height:1.02; }
+  h2{ font-size:25pt; line-height:1.1; margin-bottom:3mm; }
+  h3{ font-size:13pt; font-weight:400; margin:5mm 0 2mm; }
+  em{ font-style:italic; }
+  p{ margin-bottom:2.5mm; }
+  .eyebrow{ font-size:7.5pt; font-weight:700; letter-spacing:.18em; text-transform:uppercase; color:var(--salvia-profunda); margin-bottom:3mm; }
+  .lead{ font-size:12pt; color:var(--piedra); max-width:150mm; }
+  .muted{ color:var(--piedra); }
+  .small{ font-size:8.3pt; }
+  .foot{ position:absolute; left:17mm; right:17mm; bottom:9mm; display:flex; justify-content:space-between; font-size:7.5pt; color:var(--piedra); border-top:1px solid var(--arena); padding-top:3mm; }
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:7mm; }
+  .grid3{ display:grid; grid-template-columns:repeat(3,1fr); gap:5mm; }
+  .grid4{ display:grid; grid-template-columns:repeat(4,1fr); gap:4mm; }
+  .card{ background:#fff; border:1px solid var(--arena); border-radius:5mm; padding:5mm; }
+  .card.dark{ background:var(--bosque); border-color:var(--bosque); color:var(--crema); }
+  .card.dark h3{ color:var(--crema); }
+  .tag{ display:inline-block; font-size:7pt; font-weight:700; letter-spacing:.08em; text-transform:uppercase; padding:1mm 2.4mm; border-radius:99px; }
+  .tag.keep{ background:#e4ecd8; color:var(--salvia-profunda); }
+  .tag.fix{ background:#fbe9d0; color:#8a5a12; }
+  .tag.new{ background:#dfe9f5; color:#254a7a; }
+  /* portada */
+  .cover{ background:var(--bosque); color:var(--crema); display:flex; flex-direction:column; justify-content:space-between; }
+  .cover h1{ color:var(--crema); font-size:58pt; }
+  .cover h1 em{ color:var(--salvia-clara); }
+  .cover .eyebrow{ color:var(--salvia); }
+  .cover .lead{ color:#b9c6a6; }
+  .cover .orb{ position:absolute; right:-40mm; top:-30mm; width:150mm; height:150mm; border-radius:50%; background:radial-gradient(circle at 35% 35%, rgba(152,167,124,.38), rgba(152,167,124,0) 65%); }
+  .cover .orb2{ position:absolute; left:-50mm; bottom:-60mm; width:140mm; height:140mm; border-radius:50%; background:radial-gradient(circle, rgba(200,216,176,.16), rgba(200,216,176,0) 65%); }
+  .cover > *{ position:relative; }
+  /* swatches */
+  .sw{ border-radius:4mm; overflow:hidden; border:1px solid var(--arena); background:#fff; }
+  .sw .c{ height:22mm; display:flex; align-items:flex-end; padding:2.4mm 3mm; font-size:7.6pt; font-weight:600; }
+  .sw .t{ padding:2.4mm 3mm 3mm; font-size:7.8pt; line-height:1.35; }
+  .sw .t b{ display:block; font-size:9pt; color:var(--tinta); }
+  .sw .t span{ color:var(--piedra); }
+  .proportion{ display:flex; height:11mm; border-radius:3mm; overflow:hidden; margin:3mm 0 1mm; border:1px solid var(--arena); }
+  table{ width:100%; border-collapse:collapse; font-size:8.6pt; }
+  th{ text-align:left; font-size:7.3pt; text-transform:uppercase; letter-spacing:.1em; color:var(--salvia-profunda); padding:2mm 2.5mm; border-bottom:1.5px solid var(--arena); }
+  td{ padding:2.2mm 2.5mm; border-bottom:1px solid var(--arena); vertical-align:top; }
+  .ok{ color:var(--ok); font-weight:700; } .bad{ color:var(--error); font-weight:700; } .mid{ color:var(--aviso); font-weight:700; }
+  /* componentes de muestra */
+  .btn{ display:inline-flex; align-items:center; gap:2mm; font-weight:600; font-size:9pt; padding:3mm 6mm; border-radius:2mm; border:1px solid transparent; }
+  .btn.sage{ background:var(--salvia); color:#fff; }
+  .btn.primary{ background:var(--salvia-profunda); color:#fff; border-radius:3mm; }
+  .btn.dark{ background:var(--bosque); color:#fff; border-radius:3mm; }
+  .btn.ghost{ background:transparent; border-color:var(--bosque); color:var(--bosque); border-radius:3mm; }
+  .btn.mp{ background:#009EE3; color:#fff; }
+  .input{ background:var(--crema); border:1px solid var(--arena); border-radius:3mm; padding:3mm 4mm; color:#9a9a9a; font-size:9pt; }
+  .badge{ display:inline-block; font-size:7pt; font-weight:700; padding:1mm 2.5mm; border-radius:1.5mm; background:var(--arena); color:#4d6340; letter-spacing:.04em; }
+  .chip{ display:inline-block; font-size:8pt; padding:1.6mm 3.4mm; border:1px solid var(--arena); background:#fff; border-radius:99px; }
+  .mock{ border-radius:4mm; overflow:hidden; border:1px solid var(--arena); background:#fff; }
+  .nav{ display:flex; align-items:center; justify-content:space-between; padding:3.2mm 4.5mm; background:rgba(244,239,228,.95); border-bottom:1px solid var(--arena); font-size:8pt; }
+  .logo-word{ font-family:'Fraunces',serif; font-style:italic; font-weight:400; color:var(--bosque); font-size:15pt; }
+  .code{ background:var(--bosque-hondo); color:#d7e3c6; border-radius:3mm; padding:4mm 5mm; font:7.6pt/1.5 ui-monospace,Menlo,monospace; white-space:pre; overflow:hidden; }
+  .code b{ color:#98A77C; font-weight:400; }
+  .quote{ border-left:1.2mm solid var(--salvia); padding:1mm 0 1mm 4mm; font-family:'Fraunces',serif; font-style:italic; font-size:12.5pt; color:var(--bosque); margin:3mm 0; }
+  ul{ padding-left:4.2mm; } li{ margin-bottom:1.3mm; }
+  .do{ border-top:1.2mm solid var(--ok); } .dont{ border-top:1.2mm solid var(--error); }
+  .photo{ border-radius:4mm; background:linear-gradient(180deg,rgba(13,31,20,.15),rgba(13,31,20,.65)), linear-gradient(135deg,#7e9168,#33503c 60%,#1C3829); height:42mm; position:relative; color:#fff; padding:4mm; display:flex; align-items:flex-end; font-size:8pt; }
+  .num{ font-family:'Fraunces',serif; font-size:30pt; font-weight:300; color:var(--salvia); line-height:1; }
+</style>
+</head>
+<body>
+
+<!-- 1. PORTADA -->
+<section class="page cover">
+  <div class="orb"></div><div class="orb2"></div>
+  <div>
+    <svg width="46" height="46" viewBox="0 0 64 64" fill="none"><circle cx="32" cy="32" r="26" stroke="#C8D8B0" stroke-width="3" stroke-dasharray="150 14" stroke-linecap="round"/><path d="M32 45c-10-4-12-17 0-27 12 10 10 23 0 27z" fill="#98A77C"/></svg>
+  </div>
+  <div>
+    <p class="eyebrow">Manual de marca · Versión 1.0 · Octubre 2026</p>
+    <h1>Omia,<br><em>el lugar donde empieza tu práctica.</em></h1>
+    <p class="lead" style="margin-top:8mm">La estética actual del sitio, documentada tal como está en el código, y una guía concreta para llevarla al siguiente nivel: más cálida, más accesible y más coherente.</p>
+  </div>
+  <div style="display:flex;justify-content:space-between;font-size:8pt;color:#9db085">
+    <span>omia.site · Yoga &amp; Pilates · Argentina</span><span>Documento de trabajo — editable en <b>docs/manual-de-marca</b></span>
+  </div>
+</section>
+
+<!-- 2. ESENCIA -->
+<section class="page">
+  <p class="eyebrow">01 · Esencia</p>
+  <h2>Quiénes somos y <em>cómo nos sentimos</em></h2>
+  <p class="lead">Omia conecta a personas que quieren empezar (o retomar) yoga y pilates con profesores e institutos reales de su barrio, sin intermediarios ni comisiones por clase.</p>
+  <div class="grid3" style="margin-top:7mm">
+    <div class="card"><div class="eyebrow">Propósito</div><p class="serif" style="font-size:12.5pt">Que encontrar a tu profe sea tan simple como charlar con alguien que te entiende.</p></div>
+    <div class="card"><div class="eyebrow">Promesa</div><p class="serif" style="font-size:12.5pt">Profes reales, precios claros, contacto directo y el 100% de la clase para quien la da.</p></div>
+    <div class="card"><div class="eyebrow">Visión</div><p class="serif" style="font-size:12.5pt">La red de referencia del bienestar en Argentina, hecha por profes y para alumnos.</p></div>
+  </div>
+  <h3>Personalidad</h3>
+  <div class="grid4">
+    <div class="card"><b>Cálida</b><p class="small muted">Habla como una persona, no como una empresa.</p></div>
+    <div class="card"><b>Serena</b><p class="small muted">Mucho aire, ritmo pausado, nada grita.</p></div>
+    <div class="card"><b>Honesta</b><p class="small muted">Dice lo que hay y lo que no. Sin promesas vacías.</p></div>
+    <div class="card"><b>Orgánica</b><p class="small muted">Verdes, fibras, luz natural, formas suaves.</p></div>
+  </div>
+  <h3>Dos públicos, un mismo lenguaje</h3>
+  <div class="grid2">
+    <div class="card"><b>Alumnas y alumnos</b><p class="small muted">25–50 años, urbanos, buscan clases cerca de casa, miran precio, reseñas y horarios. Muchos nunca hicieron yoga o pilates: necesitan sentirse bienvenidos, no evaluados.</p></div>
+    <div class="card"><b>Profesores e institutos</b><p class="small muted">Independientes y estudios boutique. Quieren aparecer en las búsquedas de su zona, cobrar directo y no perder tiempo en tecnología. Valoran la claridad y la confianza.</p></div>
+  </div>
+  <h3>Lo que la marca nunca es</h3>
+  <p class="muted">Un marketplace frío, un sitio de fitness agresivo (rojo, negro, “bajá de peso”), ni un espacio esotérico exagerado. Es un lugar tranquilo, confiable y local.</p>
+  <div class="foot"><span>Omia · Manual de marca</span><span>02</span></div>
+</section>
+
+<!-- 3. VOZ -->
+<section class="page">
+  <p class="eyebrow">02 · Voz y tono</p>
+  <h2>Hablamos <em>como una persona</em> del barrio</h2>
+  <p class="lead">Español rioplatense, voseo, frases cortas. El mismo tono en el sitio, los mails, el chat y las redes.</p>
+  <div class="grid2" style="margin-top:6mm">
+    <div class="card do"><div class="eyebrow" style="color:var(--ok)">Sí</div>
+      <ul class="small">
+        <li><b>Voseo siempre:</b> “contame”, “fijate”, “podés”.</li>
+        <li><b>Oraciones cortas</b> y una idea por mensaje.</li>
+        <li><b>Concreto:</b> precio, barrio, día, paso siguiente.</li>
+        <li><b>Reconocer la emoción:</b> “uf, qué fastidio” antes de resolver.</li>
+        <li>Máximo <b>un emoji</b>, si suma.</li>
+        <li>Decir “no lo sé” y ofrecer un camino.</li>
+      </ul></div>
+    <div class="card dont"><div class="eyebrow" style="color:var(--error)">No</div>
+      <ul class="small">
+        <li>“Estimado usuario”, “le informamos que”.</li>
+        <li>Promesas de resultados (“vas a bajar de peso”).</li>
+        <li>Mayúsculas, signos de admiración en cadena, urgencia falsa.</li>
+        <li>Jerga de startup (“disruptivo”, “ecosistema”).</li>
+        <li>Prometer lo que no existe (“te avisamos cuando haya”).</li>
+        <li>Hablar mal de otros profes o plataformas.</li>
+      </ul></div>
+  </div>
+  <h3>Reescrituras reales del sitio</h3>
+  <table>
+    <tr><th style="width:36%">Hoy</th><th style="width:42%">Mejor</th><th>Por qué</th></tr>
+    <tr><td>“Cobros 100% directos”</td><td>“Tus clases las cobrás vos, directo, sin comisión.”</td><td>Dice quién cobra y qué evita.</td></tr>
+    <tr><td>“Prioridad en IA (Chatbot)”</td><td>“Omi te recomienda primero a los alumnos que buscan en tu zona.”</td><td>Habla del beneficio, no de la tecnología.</td></tr>
+    <tr><td>“Perfiles reales”</td><td>“Cada ficha la carga el propio profe, con reseñas de quienes tomaron clases.”</td><td>Explica por qué es real.</td></tr>
+    <tr><td>“Ocurrió un error”</td><td>“Uf, no me está andando la conexión. Probá de nuevo en un ratito.”</td><td>Humano y con salida.</td></tr>
+    <tr><td>“Aceptá los términos de arriba”</td><td>“Al continuar con Google aceptás los Términos y la Privacidad.”</td><td>Sin bloquear el paso.</td></tr>
+  </table>
+  <h3>El asistente: Omi</h3>
+  <div class="quote">“¡Hola! Soy Omi, el asistente de Omia. Te ayudo a encontrar profe o estudio y te cuento cómo funciona todo. ¿Qué estás buscando?”</div>
+  <p class="small muted">Omi es honesto sobre ser una IA, no da consejos médicos, no inventa fichas ni precios y siempre ofrece hablar con una persona desde Contacto. Su nombre, saludo y novedades se editan en Admin → Sitio → Asistente.</p>
+  <div class="foot"><span>Omia · Manual de marca</span><span>03</span></div>
+</section>
+
+<!-- 4. LOGO -->
+<section class="page">
+  <p class="eyebrow">03 · Logo</p>
+  <h2>El logo <em>hoy</em> y cómo lo mejoraría</h2>
+  <div class="grid2" style="margin-top:5mm">
+    <div class="card" style="min-height:62mm;display:flex;flex-direction:column;justify-content:space-between">
+      <span class="tag keep">Hoy</span>
+      <div class="logo-word" style="font-size:34pt;text-align:center">Omia</div>
+      <p class="small muted">Palabra en serif cursiva (la que haya en el dispositivo). Sin símbolo. Favicon provisorio: emoji 🧘. Imagen para compartir: foto de portada recortada, sin marca.</p>
+    </div>
+    <div class="card dark" style="min-height:62mm;display:flex;flex-direction:column;justify-content:space-between">
+      <span class="tag new">Propuesta</span>
+      <div style="display:flex;align-items:center;justify-content:center;gap:4mm">
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none"><circle cx="32" cy="32" r="26" stroke="#C8D8B0" stroke-width="3" stroke-dasharray="150 14" stroke-linecap="round"/><path d="M32 45c-10-4-12-17 0-27 12 10 10 23 0 27z" fill="#98A77C"/></svg>
+        <span style="font-family:'Fraunces',serif;font-style:italic;font-size:36pt;color:#F4EFE4">Omia</span>
+      </div>
+      <p class="small" style="color:#b9c6a6">Símbolo: un círculo abierto (la “O” y el ciclo de la respiración) con una hoja en el centro (naturaleza, crecimiento, el pétalo del loto). Se usa solo, o con la palabra.</p>
+    </div>
+  </div>
+  <h3>Versiones y zona de respeto</h3>
+  <div class="grid4">
+    <div class="card" style="text-align:center;background:var(--crema)"><div class="logo-word" style="font-size:18pt">Omia</div><p class="small muted">Principal sobre crema</p></div>
+    <div class="card dark" style="text-align:center"><div class="logo-word" style="font-size:18pt;color:#F4EFE4">Omia</div><p class="small" style="color:#b9c6a6">Sobre bosque</p></div>
+    <div class="card" style="text-align:center;background:var(--salvia-profunda);border-color:var(--salvia-profunda)"><div class="logo-word" style="font-size:18pt;color:#fff">Omia</div><p class="small" style="color:#e3ebd6">Sobre salvia profunda</p></div>
+    <div class="card" style="text-align:center"><svg width="34" height="34" viewBox="0 0 64 64" fill="none"><circle cx="32" cy="32" r="26" stroke="#1C3829" stroke-width="3" stroke-dasharray="150 14" stroke-linecap="round"/><path d="M32 45c-10-4-12-17 0-27 12 10 10 23 0 27z" fill="#98A77C"/></svg><p class="small muted">Solo símbolo (ícono, avatar)</p></div>
+  </div>
+  <h3>Reglas</h3>
+  <ul class="small">
+    <li><b>Espacio libre:</b> alrededor del logo, como mínimo la altura de la “O”.</li>
+    <li><b>Tamaño mínimo:</b> palabra 70 px de ancho (pantalla) / 18 mm (impreso). Símbolo 16 px.</li>
+    <li><b>No</b> estirarlo, rotarlo, cambiarle el color por uno fuera de la paleta, ponerlo sobre fotos sin overlay oscuro ni agregarle sombras.</li>
+    <li><b>Archivos a producir:</b> SVG (símbolo y versión horizontal), favicon 32/180/512 px, imagen social 1200×630.</li>
+  </ul>
+  <div class="foot"><span>Omia · Manual de marca</span><span>04</span></div>
+</section>
+
+<!-- 5. COLOR -->
+<section class="page">
+  <p class="eyebrow">04 · Color</p>
+  <h2>Verdes de bosque <em>sobre crema cálida</em></h2>
+  <p class="lead">La paleta actual es hermosa y reconocible. El problema es práctico: hay 5 verdes casi iguales y el que se usa en los botones no tiene contraste suficiente.</p>
+  <h3>Paleta base (se mantiene)</h3>
+  <div class="grid4">
+    <div class="sw"><div class="c" style="background:var(--bosque);color:#fff">Aa</div><div class="t"><b>Bosque</b>#1C3829<br><span>Fondos oscuros, títulos, menú activo</span></div></div>
+    <div class="sw"><div class="c" style="background:var(--salvia);color:#fff">Aa</div><div class="t"><b>Salvia</b>#98A77C<br><span>Acento: rellenos, íconos, detalles. No para texto</span></div></div>
+    <div class="sw"><div class="c" style="background:var(--crema);color:var(--tinta)">Aa</div><div class="t"><b>Crema</b>#F4EFE4<br><span>Fondo general del sitio</span></div></div>
+    <div class="sw"><div class="c" style="background:var(--arena);color:var(--tinta)">Aa</div><div class="t"><b>Arena</b>#E8E0D0<br><span>Bordes, divisores, campos</span></div></div>
+  </div>
+  <h3>Neutros y apoyos</h3>
+  <div class="grid4">
+    <div class="sw"><div class="c" style="background:var(--tinta);color:#fff">Aa</div><div class="t"><b>Tinta</b>#2C2C2C<br><span>Texto principal (12:1 sobre crema)</span></div></div>
+    <div class="sw"><div class="c" style="background:var(--piedra);color:#fff">Aa</div><div class="t"><b>Piedra</b>#5D5D5D<br><span>Texto secundario (5,7:1)</span></div></div>
+    <div class="sw"><div class="c" style="background:var(--salvia-clara);color:var(--bosque)">Aa</div><div class="t"><b>Salvia clara</b>#C8D8B0<br><span>Detalle sobre bosque</span></div></div>
+    <div class="sw"><div class="c" style="background:var(--marfil);color:var(--tinta)">Aa</div><div class="t"><b>Marfil</b>#FAF8F2<br><span>Tarjetas y paneles sobre crema</span></div></div>
+  </div>
+  <h3>Nuevos (propuesta) <span class="tag new">Nuevo</span></h3>
+  <div class="grid4">
+    <div class="sw"><div class="c" style="background:var(--salvia-profunda);color:#fff">Aa</div><div class="t"><b>Salvia profunda</b>#5F7348<br><span>Botones principales y enlaces (blanco: 5,2:1 ✓)</span></div></div>
+    <div class="sw"><div class="c" style="background:var(--ok);color:#fff">Aa</div><div class="t"><b>Éxito</b>#2F7D4F<br><span>Confirmaciones</span></div></div>
+    <div class="sw"><div class="c" style="background:var(--aviso);color:#fff">Aa</div><div class="t"><b>Aviso</b>#B7791F<br><span>Pendiente, vencimientos</span></div></div>
+    <div class="sw"><div class="c" style="background:var(--error);color:#fff">Aa</div><div class="t"><b>Error</b>#B42318<br><span>Errores y bajas</span></div></div>
+  </div>
+  <h3>Proporción de uso</h3>
+  <div class="proportion"><div style="flex:55;background:var(--crema)"></div><div style="flex:15;background:var(--marfil)"></div><div style="flex:14;background:var(--bosque)"></div><div style="flex:8;background:var(--salvia)"></div><div style="flex:5;background:var(--salvia-profunda)"></div><div style="flex:3;background:var(--arena)"></div></div>
+  <p class="small muted">55% crema · 15% marfil · 14% bosque · 8% salvia · 5% salvia profunda · 3% arena. El color de acción (salvia profunda) aparece poco y siempre significa “hacé clic acá”.</p>
+  <div class="foot"><span>Omia · Manual de marca</span><span>05</span></div>
+</section>
+
+<!-- 6. CONTRASTE -->
+<section class="page">
+  <p class="eyebrow">04 · Color · accesibilidad</p>
+  <h2>Qué combinaciones <em>se leen bien</em></h2>
+  <p class="lead">Medimos las parejas de color que usa hoy el sitio con la norma WCAG 2.1. El mínimo para texto común es 4,5:1; para texto grande y elementos de interfaz, 3:1.</p>
+  <table style="margin-top:5mm">
+    <tr><th>Combinación</th><th>Dónde se usa hoy</th><th>Contraste</th><th>Resultado</th></tr>
+    <tr><td>Blanco sobre salvia #98A77C</td><td>Botones “Registrarse”, “Ingresar”, “Buscá un profe”</td><td>2,6 : 1</td><td class="bad">No cumple</td></tr>
+    <tr><td>Salvia #98A77C sobre crema</td><td>Etiquetas, enlaces, “Ver todos”</td><td>2,3 : 1</td><td class="bad">No cumple</td></tr>
+    <tr><td>Blanco sobre azul Mercado Pago #009EE3</td><td>Botones de pago</td><td>3,0 : 1</td><td class="mid">Solo texto grande</td></tr>
+    <tr><td>Blanco sobre #88976C</td><td>Botones del panel</td><td>3,1 : 1</td><td class="mid">Solo texto grande</td></tr>
+    <tr><td>Salvia #98A77C sobre bosque</td><td>Etiquetas en secciones oscuras</td><td>4,9 : 1</td><td class="ok">Cumple</td></tr>
+    <tr><td>Piedra #5D5D5D sobre crema</td><td>Texto secundario</td><td>5,7 : 1</td><td class="ok">Cumple</td></tr>
+    <tr><td>Tinta #2C2C2C sobre crema</td><td>Texto principal</td><td>12,2 : 1</td><td class="ok">Cumple</td></tr>
+    <tr><td>Crema sobre bosque #1C3829</td><td>Hero, planes, pie</td><td>11,1 : 1</td><td class="ok">Cumple</td></tr>
+    <tr><td><b>Blanco sobre salvia profunda #5F7348</b></td><td><b>Propuesta: botón principal</b></td><td><b>5,2 : 1</b></td><td class="ok"><b>Cumple</b></td></tr>
+    <tr><td><b>Salvia profunda #5F7348 sobre crema</b></td><td><b>Propuesta: enlaces y etiquetas</b></td><td><b>4,5 : 1</b></td><td class="ok"><b>Cumple</b></td></tr>
+  </table>
+  <div class="grid2" style="margin-top:7mm">
+    <div class="card"><span class="tag fix">Hoy</span><div style="margin:4mm 0"><span class="btn sage">Registrarse</span></div><p class="small muted">Elegante, pero cuesta leerlo para cualquiera con poca luz, pantalla brillante o baja visión.</p></div>
+    <div class="card"><span class="tag new">Propuesta</span><div style="margin:4mm 0"><span class="btn primary">Registrarse</span></div><p class="small muted">Misma familia, más profundidad. Se lee bien y se siente igual de natural.</p></div>
+  </div>
+  <p class="small muted" style="margin-top:4mm"><b>Regla simple:</b> la salvia clara (#98A77C) es para rellenos y decoración; todo lo que se lee o se toca va en salvia profunda, bosque o tinta.</p>
+  <div class="foot"><span>Omia · Manual de marca</span><span>06</span></div>
+</section>
+
+<!-- 7. TIPOGRAFIA -->
+<section class="page">
+  <p class="eyebrow">05 · Tipografía</p>
+  <h2>Una serif cálida <em>y una sans clara</em></h2>
+  <div class="card" style="margin-top:3mm;padding:3.5mm 5mm;border-left:1.2mm solid var(--aviso)">
+    <b>Hallazgo importante</b>
+    <p class="small muted" style="margin-top:1mm">El sitio usa “serif” y “sans” genéricas, pero no carga ninguna fuente. Cada dispositivo muestra la suya: en un Mac se ve una serif elegante; en Windows o Android, Times o Georgia, mucho menos refinadas. Es la mejora de mayor impacto con menor esfuerzo.</p>
+  </div>
+  <div class="grid2" style="margin-top:5mm">
+    <div class="card">
+      <span class="tag new">Títulos — Fraunces</span>
+      <p class="serif" style="font-size:21pt;line-height:1.08;margin:3mm 0">Encontrá tu profe, <em>tu centro</em> y tu práctica.</p>
+      <p class="small muted">Serif “suave” con cursiva expresiva. Pesos 300 (títulos) y 400. La cursiva marca la palabra con alma de cada título.</p>
+    </div>
+    <div class="card">
+      <span class="tag new">Texto — Inter</span>
+      <p style="font-size:11pt;margin:3mm 0;font-weight:500">Buscá por barrio, disciplina y precio. Leé reseñas de alumnos y contactá directo al profe.</p>
+      <p class="small muted">Sans neutra y muy legible en pantallas pequeñas. Pesos 400, 500, 600 y 700.</p>
+    </div>
+  </div>
+  <h3>Escala</h3>
+  <table>
+    <tr><th style="width:22%">Nivel</th><th style="width:30%">Muestra</th><th>Especificación</th></tr>
+    <tr><td>Hero (H1)</td><td class="serif" style="font-size:22pt;line-height:1.05">Tu práctica</td><td>Fraunces 300 · 44–64 px (móvil 36) · interlínea 1,1 · cursiva en una frase</td></tr>
+    <tr><td>Sección (H2)</td><td class="serif" style="font-size:16pt">Profesionales <em>destacados</em></td><td>Fraunces 300 · 36–48 px · interlínea 1,15</td></tr>
+    <tr><td>Tarjeta (H3)</td><td class="serif" style="font-size:12pt;font-weight:400">Lucía Méndez</td><td>Fraunces 400 · 20–24 px</td></tr>
+    <tr><td>Texto / texto chico</td><td>Clases de Pilates Reformer</td><td>Inter 400 · 16 px (chico 13–14 px, color Piedra) · interlínea 1,6</td></tr>
+    <tr><td>Etiqueta</td><td class="eyebrow" style="margin:0">Directorio</td><td>Inter 700 · 11–12 px · mayúsculas · espaciado .18em · Salvia profunda</td></tr>
+    <tr><td>Precio / datos</td><td style="font-family:ui-monospace,Menlo,monospace">$43.900 / mes</td><td>Hoy: monoespaciada. Propuesta: Inter 600 con números tabulares</td></tr>
+  </table>
+  <h3>Cómo se incorpora</h3>
+  <div class="code"><b>/* index.html */</b> Google Fonts: Fraunces (300, 400, cursivas) + Inter (400–700), display=swap
+<b>/* src/index.css */</b>
+@theme { --font-serif: 'Fraunces', Georgia, serif;  --font-sans: 'Inter', system-ui, sans-serif; }</div>
+  <div class="foot"><span>Omia · Manual de marca</span><span>07</span></div>
+</section>
+
+<!-- 8. FORMA -->
+<section class="page">
+  <p class="eyebrow">06 · Forma, espacio y movimiento</p>
+  <h2>Suave, <em>con aire</em>, sin apuros</h2>
+  <h3>Esquinas: hoy hay seis radios distintos</h3>
+  <table>
+    <tr><th>Radio actual</th><th>Veces que aparece</th><th>Dónde</th></tr>
+    <tr><td>rounded-sm (2 px)</td><td>177</td><td>Botones, etiquetas, tarjetas de profes — casi “filo”</td></tr>
+    <tr><td>rounded-xl (12 px)</td><td>63</td><td>Campos, filtros, tarjetas medianas</td></tr>
+    <tr><td>rounded-2xl (16 px)</td><td>47</td><td>Tarjetas, avisos</td></tr>
+    <tr><td>rounded-3xl (24 px)</td><td>42</td><td>Paneles grandes, modales</td></tr>
+    <tr><td>rounded-lg / full</td><td>12 / 11</td><td>Detalles, avatares</td></tr>
+  </table>
+  <p class="small muted" style="margin-top:2mm">Resultado: botones casi rectos junto a tarjetas muy redondeadas. Se siente como dos marcas.</p>
+  <h3>Sistema propuesto <span class="tag new">Nuevo</span></h3>
+  <div class="grid4">
+    <div class="card" style="text-align:center"><div style="height:13mm;background:var(--arena);border-radius:2mm;margin-bottom:2mm"></div><b class="small">Etiquetas</b><p class="small muted">8 px</p></div>
+    <div class="card" style="text-align:center"><div style="height:13mm;background:var(--arena);border-radius:3.2mm;margin-bottom:2mm"></div><b class="small">Botones y campos</b><p class="small muted">12 px</p></div>
+    <div class="card" style="text-align:center"><div style="height:13mm;background:var(--arena);border-radius:5mm;margin-bottom:2mm"></div><b class="small">Tarjetas</b><p class="small muted">20 px</p></div>
+    <div class="card" style="text-align:center"><div style="height:13mm;background:var(--arena);border-radius:99px;margin-bottom:2mm"></div><b class="small">Píldoras, avatar</b><p class="small muted">100%</p></div>
+  </div>
+  <h3>Espacio y estructura</h3>
+  <div class="grid3">
+    <div class="card"><div class="num">80</div><p class="small muted">px de alto del menú fijo. Todo contenido arranca como mínimo a 128 px del borde superior (pt-32).</p></div>
+    <div class="card"><div class="num">1280</div><p class="small muted">px de ancho máximo del contenido (max-w-7xl), con 24 px de margen lateral en móvil.</p></div>
+    <div class="card"><div class="num">96</div><p class="small muted">px entre secciones grandes (py-24). Escala de espacio: 4 · 8 · 12 · 16 · 24 · 32 · 48 · 96.</p></div>
+  </div>
+  <h3>Sombras y bordes</h3>
+  <p class="small muted">Hoy: bordes finos de Arena y sombras suaves (<code>shadow-sm</code>), con alguna sombra marcada en modales. Propuesta: tres niveles — <b>reposo</b> (solo borde), <b>elevada</b> (0 8px 24px rgba(28,56,41,.08)) y <b>flotante</b> (0 24px 48px rgba(13,31,20,.18)). Las sombras llevan el verde del bosque, no negro puro.</p>
+  <h3>Movimiento</h3>
+  <p class="small muted">Hoy: entradas con desplazamiento de 32 px y curva (0.22, 1, 0.36, 1) en 0,65 s; tarjetas que suben 8 px al pasar el mouse; botón flotante con rebote. Se conserva. Propuesta: respetar <code>prefers-reduced-motion</code> (sin desplazamientos) y quitar el rebote continuo del cartelito del chat.</p>
+  <div class="foot"><span>Omia · Manual de marca</span><span>08</span></div>
+</section>
+
+<!-- 9. FOTO -->
+<section class="page">
+  <p class="eyebrow">07 · Imagen y fotografía</p>
+  <h2>Luz natural, <em>personas reales</em></h2>
+  <div class="grid3" style="margin-top:4mm">
+    <div class="photo">Hero: video a pantalla completa con overlay de bosque (75 % → 50 % → 70 %)</div>
+    <div class="photo" style="background:linear-gradient(180deg,rgba(13,31,20,.05),rgba(13,31,20,.6)),linear-gradient(135deg,#c8d8b0,#8aa16f 55%,#3a6048)">Fichas: retrato del profe, vertical 5:6, con degradé inferior</div>
+    <div class="photo" style="background:linear-gradient(180deg,rgba(13,31,20,.05),rgba(13,31,20,.5)),linear-gradient(135deg,#e8e0d0,#b9c6a6 50%,#5F7348)">Estudios: el espacio, no el cartel. Luz de ventana, plantas, madera</div>
+  </div>
+  <h3>Dirección fotográfica</h3>
+  <div class="grid2">
+    <div class="card do"><div class="eyebrow" style="color:var(--ok)">Sí</div><ul class="small"><li>Luz natural, tonos tierra y verdes; mucho espacio negativo.</li><li>Personas reales de Buenos Aires, de distintas edades y cuerpos.</li><li>Gestos tranquilos: respirar, estirar, enseñar, sonreír.</li><li>Fotos horizontales para portadas y verticales para fichas.</li></ul></div>
+    <div class="card dont"><div class="eyebrow" style="color:var(--error)">No</div><ul class="small"><li>Fotos de stock ajenas a la plataforma (hoy las muestras de Unsplash en la ficha).</li><li>Poses extremas, cuerpos “de revista”, filtros fuertes.</li><li>Fondos blancos de estudio, flash, textos sobre la cara.</li><li>Más de un overlay a la vez.</li></ul></div>
+  </div>
+  <h3>Tratamiento técnico</h3>
+  <ul class="small">
+    <li><b>Overlay:</b> degradé de Bosque profundo (#0D1F14) del 15 % al 70 % de abajo hacia arriba, para que el texto crema se lea siempre.</li>
+    <li><b>Peso:</b> hoy las fotos del sitio pesan 1,1–1,5 MB cada una (PNG). Propuesta: WebP/AVIF a 1600 px, menos de 250 KB, con <code>loading="lazy"</code>. La portada carga bastante más rápido.</li>
+    <li><b>Perfiles sin foto:</b> círculo o recuadro de Salvia con la inicial en serif cursiva (ya implementado), nunca una foto de otra persona.</li>
+    <li><b>Imagen para compartir:</b> 1200×630 con logo, frase y foto; una por sección clave (portada, tienda, noticias).</li>
+  </ul>
+  <h3>Íconos</h3>
+  <p class="small muted">Línea fina (Lucide, trazo 1,5–2 px), color Salvia profunda o Bosque. Nunca emojis como íconos de interfaz (sí, de forma ocasional, en mensajes del asistente y redes).</p>
+  <div class="foot"><span>Omia · Manual de marca</span><span>09</span></div>
+</section>
+
+<!-- 10. COMPONENTES -->
+<section class="page">
+  <p class="eyebrow">08 · Componentes</p>
+  <h2>Piezas de interfaz <em>y cómo las dejaría</em></h2>
+  <h3>Menú de navegación</h3>
+  <div class="mock"><div class="nav"><span class="logo-word">Omia</span><span class="muted">Directorio &nbsp;&nbsp; Estudios &nbsp;&nbsp; Ranking &nbsp;&nbsp; Tienda &nbsp;&nbsp; Noticias &nbsp;&nbsp; Para Profes</span><span style="display:flex;align-items:center;gap:2mm;border:1px solid var(--arena);border-radius:99px;padding:1.2mm 3.5mm 1.2mm 1.6mm;background:#fff"><span style="width:6.4mm;height:6.4mm;border-radius:50%;background:var(--salvia);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:7pt">F</span> Fernando ⌄</span></div></div>
+  <p class="small muted" style="margin-top:1.5mm">Alto 80 px, fondo crema 95 % con desenfoque, sombra solo al bajar. Cuenta: foto redonda + nombre + menú. Sobre la portada, translúcido y sin borde.</p>
+  <h3>Botones</h3>
+  <div style="display:flex;flex-wrap:wrap;gap:3mm;align-items:center">
+    <span class="btn primary">Suscribirme</span><span class="btn dark">Crear mi perfil</span><span class="btn ghost">Ver perfil</span><span class="btn mp">Pagar con Mercado Pago</span>
+  </div>
+  <p class="small muted" style="margin-top:1.5mm"><b>Principal</b> salvia profunda · <b>Fuerte</b> bosque (llamado final) · <b>Secundario</b> borde bosque · <b>Pago</b>: se mantiene el azul de Mercado Pago solo dentro del flujo de pago (3,0:1: usar texto en negrita 16 px o más). Radio 12 px, alto mínimo 44 px, texto semibold.</p>
+  <h3>Campos y filtros</h3>
+  <div class="grid3">
+    <div class="input">Correo electrónico</div><div class="input">Contraseña (mínimo 8 caracteres)</div><div class="input">Elegí un barrio ⌄</div>
+  </div>
+  <p class="small muted" style="margin-top:1.5mm">Fondo crema, borde arena, enfoque con anillo salvia profunda de 2 px. Etiqueta siempre visible arriba (no solo placeholder), error en rojo con el motivo.</p>
+  <h3>Tarjeta de profesional</h3>
+  <div class="grid3">
+    <div class="mock"><div style="height:30mm;background:linear-gradient(180deg,rgba(13,31,20,.1),rgba(13,31,20,.6)),linear-gradient(135deg,#8aa16f,#2c4a37)"><span class="badge" style="margin:2.5mm;display:inline-block">YOGA</span></div><div style="padding:3mm"><b class="serif" style="font-size:11pt">Valentina Ruiz</b><p class="small muted" style="margin:0">Vinyasa · Palermo</p><p class="small" style="margin:1.5mm 0 0"><span class="badge">★ 4,9</span> &nbsp; 48 reseñas · $8.500</p></div></div>
+    <div class="card" style="grid-column:span 2"><b>Anatomía</b><ul class="small muted" style="margin-top:2mm"><li>Foto vertical con degradé; disciplina arriba a la izquierda, favorito arriba a la derecha.</li><li>Nombre en serif; especialidad y barrio en una línea.</li><li>Valoración y cantidad de reseñas siempre juntas (una nota sin cantidad engaña).</li><li>Precio visible sin entrar a la ficha. Días disponibles como chips.</li><li>Al pasar el mouse: sube 8 px y aparece “Ver perfil”.</li></ul></div>
+  </div>
+  <h3>Etiquetas, chips y avisos</h3>
+  <div style="display:flex;flex-wrap:wrap;gap:3mm;align-items:center"><span class="badge">PRO</span><span class="chip">Lun</span><span class="chip">Mié</span><span class="chip">Vie</span><span class="chip">📍 Profes en mi barrio</span><span class="tag keep">Activo</span><span class="tag fix">Pendiente</span></div>
+  <div class="foot"><span>Omia · Manual de marca</span><span>10</span></div>
+</section>
+
+<!-- 11. APLICACIONES -->
+<section class="page">
+  <p class="eyebrow">09 · Aplicaciones</p>
+  <h2>La marca <em>fuera del sitio</em></h2>
+  <div class="grid2" style="margin-top:4mm">
+    <div>
+      <h3 style="margin-top:0">Mails</h3>
+      <div class="mock" style="padding:5mm"><div class="logo-word" style="font-size:13pt;margin-bottom:3mm">Omia</div><div class="serif" style="font-size:14pt;margin-bottom:2mm">¡Tu plan está activo!</div><p class="small muted">Activaste el Plan Destacado por $43.900 por mes. Tu ficha ya figura en el directorio.</p><span class="btn primary" style="font-size:8pt;padding:2mm 4.5mm">Ir a mi panel</span></div>
+      <p class="small muted" style="margin-top:2mm">Hoy: botón en salvia con texto blanco y títulos en tipografía del sistema. Propuesta: botón en salvia profunda, logotipo arriba, pie con contacto y baja.</p>
+    </div>
+    <div>
+      <h3 style="margin-top:0">Instagram (1080×1350)</h3>
+      <div class="mock" style="background:var(--bosque);padding:6mm;height:62mm;display:flex;flex-direction:column;justify-content:space-between;border:none"><span class="eyebrow" style="color:var(--salvia);margin:0">Omia · Directorio</span><div class="serif" style="color:var(--crema);font-size:17pt;line-height:1.08">Pilates reformer<br>en <em style="color:var(--salvia-clara)">Palermo</em>:<br>5 estudios para empezar</div><span style="color:#9db085;font-size:7.5pt">omia.site · link en bio</span></div>
+      <p class="small muted" style="margin-top:2mm">Fondo bosque o foto con overlay; título en Fraunces con una palabra en cursiva salvia clara; pie con el sitio. Máximo 12 palabras por pieza.</p>
+    </div>
+  </div>
+  <h3>Otras piezas</h3>
+  <table>
+    <tr><th>Pieza</th><th>Formato</th><th>Regla</th></tr>
+    <tr><td>Imagen al compartir enlaces</td><td>1200 × 630</td><td>Logo + frase + foto con overlay; una por sección</td></tr>
+    <tr><td>Historias y reels</td><td>1080 × 1920</td><td>Primeros 2 segundos: gesto o frase corta; logo chico abajo</td></tr>
+    <tr><td>Carteles para estudios</td><td>A4 / A5</td><td>Fondo crema, QR a la ficha del estudio, “Encontranos en Omia”</td></tr>
+    <tr><td>Firma de mail</td><td>—</td><td>Nombre en Fraunces, datos en Inter 12 px, logo 70 px</td></tr>
+    <tr><td>Sticker “Estamos en Omia”</td><td>Círculo 8 cm</td><td>Símbolo sobre bosque con anillo salvia clara</td></tr>
+  </table>
+  <h3>Sonido de la marca en el chat y los avisos</h3>
+  <div class="quote">“Listo, ya te llegó la confirmación por mail. Cualquier cosa me escribís por acá.”</div>
+  <div class="foot"><span>Omia · Manual de marca</span><span>11</span></div>
+</section>
+
+<!-- 12. DIAGNOSTICO -->
+<section class="page">
+  <p class="eyebrow">10 · Diagnóstico</p>
+  <h2>Qué mejoraría, <em>en orden de impacto</em></h2>
+  <p class="lead">Lo que ya funciona se mantiene. Estas son las mejoras, de mayor a menor retorno.</p>
+  <table style="margin-top:3mm">
+    <tr><th style="width:4%">#</th><th style="width:22%">Hoy</th><th style="width:37%">Mejora</th><th style="width:15%">Impacto</th><th>Esfuerzo</th></tr>
+    <tr><td>1</td><td>Fuentes genéricas; cada dispositivo muestra otra</td><td>Cargar Fraunces e Inter con respaldo y definir la escala tipográfica</td><td class="ok">Muy alto</td><td>Bajo (½ día)</td></tr>
+    <tr><td>2</td><td>Botones blancos sobre salvia: contraste 2,6:1</td><td>Pasar a salvia profunda #5F7348 y bosque; corregir enlaces y etiquetas</td><td class="ok">Muy alto</td><td>Bajo (½ día)</td></tr>
+    <tr><td>3</td><td>5 verdes parecidos y colores sueltos en el código</td><td>Definir tokens de color (variables CSS) y reemplazar valores sueltos</td><td class="ok">Alto</td><td>Medio (1 día)</td></tr>
+    <tr><td>4</td><td>6 radios de esquina distintos</td><td>Sistema de 4 radios (8 · 12 · 20 · 100%)</td><td class="ok">Alto</td><td>Medio (1 día)</td></tr>
+    <tr><td>5</td><td>Sin símbolo; favicon es un emoji</td><td>Símbolo + versión horizontal en SVG, favicon, imagen social</td><td class="ok">Alto</td><td>Medio (diseño + ½ día)</td></tr>
+    <tr><td>6</td><td>Fotos de 1,2 MB en PNG; muestras de Unsplash en las fichas</td><td>WebP/AVIF &lt; 250 KB; fotos propias; sin stock en perfiles reales</td><td class="ok">Alto</td><td>Medio (continuo)</td></tr>
+    <tr><td>7</td><td>Paneles (admin y perfil) con otro estilo: sombras fuertes, grises, azul</td><td>Usar los mismos tokens y componentes del sitio público</td><td class="mid">Medio</td><td>Medio (1–2 días)</td></tr>
+    <tr><td>8</td><td>Precios en monoespaciada; chips y etiquetas con distintos tamaños</td><td>Inter con números tabulares; una sola escala de etiquetas</td><td class="mid">Medio</td><td>Bajo</td></tr>
+    <tr><td>9</td><td>Animaciones sin opción de reducir movimiento; cartelito del chat que rebota siempre</td><td>Respetar “reducir movimiento”; rebote solo al inicio</td><td class="mid">Medio</td><td>Bajo</td></tr>
+    <tr><td>10</td><td>Sin modo oscuro ni estados vacíos ilustrados</td><td>Estados vacíos con ilustración simple y un llamado a la acción (“Sé el primero en tu barrio”)</td><td class="mid">Medio</td><td>Medio</td></tr>
+  </table>
+  <h3>Lo que se mantiene tal cual</h3>
+  <div style="display:flex;flex-wrap:wrap;gap:2.5mm"><span class="tag keep">Paleta crema + bosque</span><span class="tag keep">Video de portada con overlay</span><span class="tag keep">Menú translúcido</span><span class="tag keep">Foto/inicial redonda</span><span class="tag keep">Voseo y tono cálido</span><span class="tag keep">Ritmo con mucho aire</span><span class="tag keep">Cursiva en una palabra del título</span></div>
+  <div class="foot"><span>Omia · Manual de marca</span><span>12</span></div>
+</section>
+
+<!-- 13. TOKENS + RUTA -->
+<section class="page">
+  <p class="eyebrow">11 · Implementación</p>
+  <h2>Tokens listos <em>para copiar</em></h2>
+  <div class="code"><b>/* src/index.css */</b>
+@import "tailwindcss";
+
+@theme {
+  --color-bosque:        #1C3829;   --color-bosque-hondo: #0D1F14;
+  --color-salvia:        #98A77C;   --color-salvia-profunda: #5F7348;
+  --color-salvia-clara:  #C8D8B0;
+  --color-crema:         #F4EFE4;   --color-marfil: #FAF8F2;   --color-arena: #E8E0D0;
+  --color-tinta:         #2C2C2C;   --color-piedra: #5D5D5D;
+  --color-ok: #2F7D4F;  --color-aviso: #B7791F;  --color-error: #B42318;
+
+  --font-serif: 'Fraunces', Georgia, serif;
+  --font-sans:  'Inter', system-ui, sans-serif;
+
+  --radius-etiqueta: 8px;  --radius-control: 12px;  --radius-tarjeta: 20px;
+  --shadow-elevada:  0 8px 24px rgba(28,56,41,.08);
+  --shadow-flotante: 0 24px 48px rgba(13,31,20,.18);
+}
+body { background: var(--color-crema); color: var(--color-tinta); font-family: var(--font-sans); }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }</div>
+  <h3>Hoja de ruta</h3>
+  <div class="grid3">
+    <div class="card"><div class="num">1</div><b>Semana 1 — base</b><ul class="small muted" style="margin-top:2mm"><li>Fuentes y escala tipográfica.</li><li>Botón y enlaces en salvia profunda.</li><li>Tokens de color y radios.</li><li>Favicon e imagen social provisorios.</li></ul></div>
+    <div class="card"><div class="num">2</div><b>Semanas 2–3 — identidad</b><ul class="small muted" style="margin-top:2mm"><li>Símbolo y logo en SVG.</li><li>Fotos propias y compresión a WebP.</li><li>Paneles con el mismo sistema.</li><li>Mails con el logo nuevo.</li></ul></div>
+    <div class="card"><div class="num">3</div><b>Mes 2 — expansión</b><ul class="small muted" style="margin-top:2mm"><li>Plantillas de Instagram.</li><li>Estados vacíos ilustrados.</li><li>Carteles y stickers para estudios.</li><li>Revisión de accesibilidad completa.</li></ul></div>
+  </div>
+  <h3>Cómo medir si funcionó</h3>
+  <p class="small muted">Contraste AA en toda la interfaz (herramienta de auditoría del navegador), peso de la portada menor a 2 MB, ratio de registros sobre visitas, tiempo hasta primera interacción y revisión mensual de que no aparezcan colores o radios fuera de los tokens.</p>
+  <p class="small muted" style="margin-top:3mm">Este manual vive en el repositorio (<b>docs/manual-de-marca</b>) y se actualiza junto con el sitio.</p>
+  <div class="foot"><span>Omia · Manual de marca</span><span>13</span></div>
+</section>
+
+</body>
+</html>

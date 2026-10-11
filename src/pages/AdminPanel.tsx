@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { apiFetch } from "../lib/api";
+import { AdminNews, AdminOrders, AdminSubscriptions, AdminMessages } from "./AdminExtras";
 import {
   Users, BookOpen, DollarSign, Package, Settings,
   Edit2, Trash2, Plus, Save, X, Check, Calendar,
@@ -17,7 +18,7 @@ const API = (token: string) => ({
   del: (url: string) => apiFetch(url, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }).then(r => r.json()),
 });
 
-type Tab = "dashboard" | "teachers" | "products" | "users" | "bookings" | "reviews" | "transactions" | "config";
+type Tab = "dashboard" | "teachers" | "products" | "users" | "bookings" | "reviews" | "transactions" | "subscriptions" | "orders" | "news" | "messages" | "config";
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
 const btn = {
@@ -176,9 +177,13 @@ export function AdminPanel() {
     { id: "teachers", label: "Profesores", icon: BookOpen, count: teachers.length || undefined },
     { id: "products", label: "Productos", icon: Package, count: products.length || undefined },
     { id: "users", label: "Usuarios", icon: Users, count: users.length || undefined },
-    { id: "bookings", label: "Reservas", icon: Calendar, count: bookings.length || undefined },
+    { id: "bookings", label: "Solicitudes", icon: Calendar, count: bookings.length || undefined },
     { id: "reviews", label: "Reseñas", icon: Star, count: reviews.length || undefined },
     { id: "transactions", label: "Transacciones", icon: DollarSign },
+    { id: "subscriptions", label: "Suscripciones", icon: RefreshCw },
+    { id: "orders", label: "Pedidos", icon: Package },
+    { id: "news", label: "Noticias", icon: BookOpen },
+    { id: "messages", label: "Mensajes", icon: Users },
     { id: "config", label: "Configuración", icon: Settings },
   ];
 
@@ -207,7 +212,11 @@ export function AdminPanel() {
     teachers: "Profesores",
     products: "Productos",
     users: "Usuarios",
-    bookings: "Reservas",
+    bookings: "Solicitudes de clase",
+    subscriptions: "Suscripciones",
+    orders: "Pedidos de la tienda",
+    news: "Noticias",
+    messages: "Mensajes y bajas",
     reviews: "Reseñas",
     transactions: "Transacciones",
     config: "Configuración",
@@ -718,6 +727,11 @@ export function AdminPanel() {
           )}
 
           {/* ── TRANSACCIONES ── */}
+          {tab === "subscriptions" && <AdminSubscriptions token={token!} />}
+          {tab === "orders" && <AdminOrders token={token!} />}
+          {tab === "news" && <AdminNews token={token!} />}
+          {tab === "messages" && <AdminMessages token={token!} />}
+
           {tab === "transactions" && (
             <div className="space-y-4">
               {/* Search */}

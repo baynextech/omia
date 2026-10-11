@@ -13,6 +13,7 @@ export function CheckoutSimulator() {
   const price = searchParams.get("price") || "8000";
   const prefId = searchParams.get("prefId") || "";
   const tx = searchParams.get("tx") || "";
+  const sub = searchParams.get("sub") || "";
 
   const [paymentMethod, setPaymentMethod] = useState<"card" | "wallet" | "transfer">("card");
   const [isProcessing, setIsProcessing] = useState(false);
@@ -35,11 +36,12 @@ export function CheckoutSimulator() {
   useEffect(() => {
     if (isSuccess) {
       const timer = setTimeout(() => {
-        navigate(`/perfil?payment=success&type=${type}&itemId=${itemId}&prefId=${prefId}&tx=${tx}`);
+        // Suscripciones: vuelve como lo hace Mercado Pago (?subscription=<id>); compras: con la transacción.
+        navigate(sub ? `/perfil?subscription=${sub}` : `/perfil?payment=success&type=${type}&itemId=${itemId}&prefId=${prefId}&tx=${tx}`);
       }, 2500);
       return () => clearTimeout(timer);
     }
-  }, [isSuccess, type, itemId, prefId, tx, navigate]);
+  }, [isSuccess, type, itemId, prefId, tx, sub, navigate]);
 
   return (
     <div className="min-h-screen bg-[#F0F2F5] text-[#2C2C2C] font-sans flex flex-col justify-between">

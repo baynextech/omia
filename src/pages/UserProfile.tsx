@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { apiFetch, apiJson } from "../lib/api";
-import { usePlans, startCheckout } from "../hooks/usePlans";
+import { usePlans, startSubscription } from "../hooks/usePlans";
 import { User, Heart, MessageSquare, Camera, Edit2, Star, Save, Calendar, ShieldCheck, Sparkles, AlertCircle, CheckCircle2, Eye, DollarSign, ArrowUpRight, Mail, Phone, Check, UploadCloud, X, Plus, TrendingUp, LayoutDashboard } from "lucide-react";
 import { TeacherCard, Teacher } from "../components/TeacherCard";
 import { useFavorites } from "../hooks/useFavorites";
@@ -99,9 +99,12 @@ export function UserProfile() {
   const [teacherStats, setTeacherStats] = useState({
     visitors: [] as { name: string; date: string }[],
     impressions: 0,
-    earned: 0,
-    pendingPayout: 0
+    bookings: 0,
+    rating: 0,
+    reviews: 0
   });
+  const [subInfo, setSubInfo] = useState<{ subscription: any | null; payments: any[] }>({ subscription: null, payments: [] });
+  const [subBusy, setSubBusy] = useState(false);
 
   const [landingForm, setLandingForm] = useState({
     name: "",
@@ -127,7 +130,7 @@ export function UserProfile() {
   
   const { favorites } = useFavorites();
   const { formatPrice } = usePlans();
-  const { token, isAuthenticated, profile: authProfile, logout } = useAuth();
+  const { token, isAuthenticated, profile: authProfile, logout, refreshProfile } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -160,7 +163,7 @@ export function UserProfile() {
       setReviews(reviewsData);
       setBookings(bookingsData);
       setVisitedTeachers(visitedData);
-      setTeacherStats({ visitors: [], impressions: 0, earned: 0, pendingPayout: 0, ...statsData });
+      setTeacherStats({ visitors: [], impressions: 0, bookings: 0, rating: 0, reviews: 0, ...statsData });
 
       // Sincronizar el formulario de landing page
       const linkedTeacher = ownTeacher as Teacher | null;
@@ -205,6 +208,23 @@ export function UserProfile() {
       const itemId = searchParams.get("itemId");
 
       const tx = searchParams.get("tx");
+      const subscriptionId = searchParams.get("subscription");
+
+      if (subscriptionId) {
+        setIsLoading(true);
+        try {
+          // El estado sale de Mercado Pago, no de lo que diga la dirección del navegador.
+          const { ok, data } = await apiJson("/api/subscriptions/sync", { subscriptionId });
+          if (ok && data.subscription?.status === "activa") {
+            setPaymentResult({ success: true, message: "¡Listo! Tu suscripción está activa y tu perfil ya figura en Omia." });
+          } else {
+            setPaymentResult({ success: false, message: "Todavía no recibimos la autorización de Mercado Pago. Si ya la completaste, tu plan se activa solo en unos minutos." });
+          }
+        } catch (err) {
+          console.error("Sync error", err);
+        }
+        setSearchParams({});
+      }
 
       if (paymentStatus && tx) {
         setIsLoading(true);
@@ -220,11 +240,7 @@ export function UserProfile() {
             if (ok && data.success) {
               setPaymentResult({
                 success: true,
-                message: type === "subscription"
-                  ? "¡Listo! Tu plan está activo y tu perfil ya figura en Omia."
-                  : type === "product"
-                    ? "¡Compra abonada con éxito! Te vamos a contactar para coordinar la entrega."
-                    : "¡Reserva de clase abonada con éxito!"
+                message: "¡Compra abonada con éxito! Te enviamos la confirmación por mail y te avisamos cuando despachemos tu pedido."
               });
             } else {
               setPaymentResult({
@@ -240,6 +256,7 @@ export function UserProfile() {
       }
       
       await fetchUserData();
+      loadSubscription();
     };
 
     handlePaymentConfirmation();
@@ -329,11 +346,37 @@ export function UserProfile() {
     }
   };
 
-  const handlePay = async (type: "booking" | "subscription", itemId: string) => {
-    setIsPayingId(itemId);
-    const error = await startCheckout({ type, itemId });
+  const handleSubscribe = async (planId: string) => {
+    setIsPayingId(planId);
+    const error = await startSubscription(planId);
     if (error) alert(error);
     setIsPayingId(null);
+  };
+
+  const loadSubscription = async () => {
+    try {
+      const res = await apiFetch("/api/subscriptions/me");
+      if (res.ok) setSubInfo(await res.json());
+    } catch {}
+  };
+
+  const handleCancelSubscription = async () => {
+    if (!window.confirm("¿Querés darte de baja? Vas a conservar los beneficios hasta el final del período que ya pagaste y no se te volverá a cobrar.")) return;
+    setSubBusy(true);
+    const { ok, data } = await apiJson("/api/subscriptions/cancel");
+    if (!ok) alert(data.error || "No pudimos procesar la baja. Probá de nuevo.");
+    await loadSubscription();
+    await refreshProfile();
+    setSubBusy(false);
+  };
+
+  const handleChangePlan = async (planId: string) => {
+    setSubBusy(true);
+    const { ok, data } = await apiJson("/api/subscriptions/change", { plan: planId });
+    if (!ok) alert(data.error || "No pudimos cambiar el plan. Probá de nuevo.");
+    await loadSubscription();
+    await refreshProfile();
+    setSubBusy(false);
   };
 
   const handleReplyReview = async (review: any) => {
@@ -708,33 +751,13 @@ export function UserProfile() {
                     </div>
                     
                     <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center gap-3 pt-4 md:pt-0 border-t md:border-t-0 border-[#E8E0D0]">
-                      <div className="flex flex-col items-start md:items-end gap-1">
-                        <span className="text-xs text-[#5D5D5D]">Estado del pago:</span>
-                        <span className={`px-3 py-1 rounded-sm text-xs font-semibold ${
-                          booking.paymentStatus === "Pagado" 
-                            ? "bg-green-100 text-green-700" 
-                            : "bg-yellow-100 text-yellow-700"
-                        }`}>
-                          {booking.paymentStatus}
+                      <div className="flex flex-col items-start md:items-end gap-1 max-w-[220px]">
+                        <span className="text-xs text-[#5D5D5D]">Pago y confirmación:</span>
+                        <span className="px-3 py-1 rounded-sm text-xs font-semibold bg-[#98A77C]/15 text-[#5f7348]">
+                          A coordinar con el profesional
                         </span>
+                        <span className="text-[11px] text-[#5D5D5D] md:text-right">Contactalo para confirmar la clase y acordar el pago.</span>
                       </div>
-
-                      {booking.paymentStatus === "Pendiente" && (
-                        <button
-                          onClick={() => handlePay("booking", booking.id)}
-                          disabled={isPayingId === booking.id}
-                          className="px-5 py-2.5 bg-[#009EE3] hover:bg-[#008CD0] text-white rounded-sm text-xs font-semibold transition-colors flex items-center gap-1.5 shadow-sm disabled:opacity-50 cursor-pointer"
-                        >
-                          {isPayingId === booking.id ? (
-                            <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-sm animate-spin" />
-                          ) : (
-                            <>
-                              <span>Pagar clase</span>
-                              <ShieldCheck className="w-3.5 h-3.5" />
-                            </>
-                          )}
-                        </button>
-                      )}
                     </div>
                   </div>
                 ))}
@@ -849,7 +872,7 @@ export function UserProfile() {
         {activeTab === "stats" && isTeacherOrInstitute && (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
             <h1 className="text-3xl font-light tracking-tight text-[#2C2C2C] mb-2">Panel de Control Profesional</h1>
-            <p className="text-[#5D5D5D] mb-8">Hacé el seguimiento del rendimiento de tu landing page y el estado financiero de tus reservas.</p>
+            <p className="text-[#5D5D5D] mb-8">Hacé el seguimiento del rendimiento de tu página y de las solicitudes de clase que recibís.</p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
               {/* Card 1: Impresiones */}
@@ -876,30 +899,29 @@ export function UserProfile() {
                 <p className="text-xs text-[#5D5D5D] mt-2">Gente que ingresó a tu landing</p>
               </div>
 
-              {/* Card 3: Plata ganada */}
+              {/* Card 3: Solicitudes de clase */}
               <div className="bg-white border border-[#E8E0D0] rounded-3xl p-6 shadow-sm">
                 <div className="flex justify-between items-start mb-4">
                   <span className="p-3 bg-amber-50 text-amber-600 rounded-2xl">
-                    <DollarSign className="w-5 h-5" />
+                    <Calendar className="w-5 h-5" />
                   </span>
                   <span className="text-xs text-white bg-[#98A77C] font-semibold px-2 py-0.5 rounded-sm">100% Tuyo</span>
                 </div>
-                <p className="text-sm text-[#5D5D5D] font-medium uppercase tracking-wider">Plata Ganada (Histórico)</p>
-                <h3 className="text-3xl font-mono font-bold text-[#2C2C2C] mt-1">${teacherStats.earned.toLocaleString("es-AR")}</h3>
-                <p className="text-xs text-[#5D5D5D] mt-2">Total facturado por tus reservas</p>
+                <p className="text-sm text-[#5D5D5D] font-medium uppercase tracking-wider">Solicitudes de clase</p>
+                <h3 className="text-3xl font-mono font-bold text-[#2C2C2C] mt-1">{teacherStats.bookings}</h3>
+                <p className="text-xs text-[#5D5D5D] mt-2">Cobrás tus clases directo, sin comisión</p>
               </div>
 
-              {/* Card 4: Para cobrar */}
+              {/* Card 4: Valoración */}
               <div className="bg-white border border-[#E8E0D0] rounded-3xl p-6 shadow-sm">
                 <div className="flex justify-between items-start mb-4">
                   <span className="p-3 bg-emerald-50 text-emerald-600 rounded-2xl">
-                    <ShieldCheck className="w-5 h-5" />
+                    <Star className="w-5 h-5" />
                   </span>
-                  <span className="text-xs text-[#2C2C2C] bg-[#F4EFE4] border border-[#E8E0D0] font-semibold px-2 py-0.5 rounded-sm">Disponible</span>
                 </div>
-                <p className="text-sm text-[#5D5D5D] font-medium uppercase tracking-wider">Para Cobrar</p>
-                <h3 className="text-3xl font-mono font-bold text-[#98A77C] mt-1">${teacherStats.pendingPayout.toLocaleString("es-AR")}</h3>
-                <p className="text-xs text-[#5D5D5D] mt-2">Dinero acumulado para retirar</p>
+                <p className="text-sm text-[#5D5D5D] font-medium uppercase tracking-wider">Valoración</p>
+                <h3 className="text-3xl font-mono font-bold text-[#98A77C] mt-1">{teacherStats.reviews ? teacherStats.rating.toFixed(1) : "—"}</h3>
+                <p className="text-xs text-[#5D5D5D] mt-2">{teacherStats.reviews} {teacherStats.reviews === 1 ? "reseña" : "reseñas"} de alumnos</p>
               </div>
             </div>
 
@@ -1276,26 +1298,76 @@ export function UserProfile() {
             <h1 className="text-3xl font-light tracking-tight text-[#2C2C2C] mb-6">Mi Membresía de Pauta</h1>
             
             {profile.isPremium ? (
-              <div className="bg-[#98A77C]/10 border-2 border-[#98A77C] rounded-3xl p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-                <div>
-                  <div className="flex items-center gap-2 mb-3 text-[#98A77C]">
-                    <Sparkles className="w-6 h-6" />
-                    <span className="font-semibold uppercase tracking-wider text-sm">Tu membresía fija está activa</span>
+              <div className="space-y-6">
+                <div className="bg-[#98A77C]/10 border-2 border-[#98A77C] rounded-3xl p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                  <div>
+                    <div className="flex items-center gap-2 mb-3 text-[#98A77C]">
+                      <Sparkles className="w-6 h-6" />
+                      <span className="font-semibold uppercase tracking-wider text-sm">Tu membresía está activa</span>
+                    </div>
+                    <h2 className="text-2xl font-semibold text-[#2C2C2C] mb-2">
+                      {profile.plan === "inicial" ? "Plan Inicial" : profile.plan === "institucional" ? "Plan Institucional" : "Plan Destacado"}
+                    </h2>
+                    <p className="text-[#5D5D5D] max-w-xl text-sm leading-relaxed">
+                      Tu ficha está publicada en el directorio. Podés editar tu página en cualquier momento, ver tus estadísticas y recibir solicitudes de clase sin comisiones.
+                    </p>
                   </div>
-                  <h2 className="text-2xl font-semibold text-[#2C2C2C] mb-2">
-                    Membresía Activa: {profile.plan === "inicial" ? "Plan Inicial" : profile.plan === "institucional" ? "Plan Institutos" : "Plan Destacado"}
-                  </h2>
-                  <p className="text-[#5D5D5D] max-w-xl text-sm leading-relaxed">
-                    Tu suscripción se encuentra vinculada a tu cuenta. Disfrutás de visibilidad completa en el mapa de búsquedas de zona, acceso para editar tu landing page en tiempo real, recolección de estadísticas detalladas de visitas y total prioridad de recomendación en nuestro guía inteligente por IA.
-                  </p>
+                  <div className="bg-white/80 backdrop-blur border border-[#98A77C] rounded-2xl p-4 text-center shrink-0 w-full md:w-auto">
+                    <p className="text-xs text-[#5D5D5D] font-medium uppercase tracking-wider mb-1">Facturación</p>
+                    {subInfo.subscription?.status === "activa" ? (
+                      <>
+                        <p className="text-lg font-bold text-green-700">{formatPrice(subInfo.subscription.plan)}/mes · débito automático</p>
+                        <p className="text-xs text-[#5D5D5D] mt-1">
+                          {subInfo.subscription.next_payment_at ? `Próximo cobro: ${new Date(subInfo.subscription.next_payment_at).toLocaleDateString("es-AR")}` : "Renovación mensual por Mercado Pago"}
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <p className="text-lg font-bold text-amber-700">{subInfo.subscription?.status === "cancelada" ? "Baja solicitada" : "Sin renovación automática"}</p>
+                        <p className="text-xs text-[#5D5D5D] mt-1">
+                          {profile.planExpiresAt ? `Beneficios hasta el ${new Date(profile.planExpiresAt).toLocaleDateString("es-AR")}` : "Plan activo"}
+                        </p>
+                      </>
+                    )}
+                  </div>
                 </div>
-                <div className="bg-white/80 backdrop-blur border border-[#98A77C] rounded-2xl p-4 text-center shrink-0 w-full md:w-auto">
-                  <p className="text-xs text-[#5D5D5D] font-medium uppercase tracking-wider mb-1">Estado de Facturación</p>
-                  <p className="text-lg font-bold text-green-700">Abonado vía Mercado Pago</p>
-                  <p className="text-xs text-[#5D5D5D] mt-1">
-                    {profile.planExpiresAt ? `Vigente hasta el ${new Date(profile.planExpiresAt).toLocaleDateString("es-AR")}` : "Plan activo"}
-                  </p>
-                </div>
+
+                {subInfo.subscription?.status === "activa" && (
+                  <div className="bg-white border border-[#E8E0D0] rounded-3xl p-6 flex flex-col md:flex-row gap-4 md:items-center justify-between">
+                    <div>
+                      <h3 className="font-semibold text-[#2C2C2C]">Cambiar de plan</h3>
+                      <p className="text-xs text-[#5D5D5D] mt-1">El nuevo importe rige desde el próximo cobro; los beneficios, desde ya.</p>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {(["inicial", "destacado", "institucional"] as const)
+                        .filter((id) => id !== subInfo.subscription.plan && (id !== "institucional" || profile.role === "instituto"))
+                        .map((id) => (
+                          <button key={id} disabled={subBusy} onClick={() => handleChangePlan(id)}
+                            className="px-4 py-2 rounded-sm border border-[#98A77C] text-[#5f7348] hover:bg-[#98A77C]/10 text-xs font-semibold disabled:opacity-50">
+                            Pasar a {id === "inicial" ? "Inicial" : id === "destacado" ? "Destacado" : "Institucional"} ({formatPrice(id)})
+                          </button>
+                        ))}
+                      <button disabled={subBusy} onClick={handleCancelSubscription}
+                        className="px-4 py-2 rounded-sm border border-red-200 text-red-700 hover:bg-red-50 text-xs font-semibold disabled:opacity-50">
+                        Darme de baja
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {subInfo.payments.length > 0 && (
+                  <div className="bg-white border border-[#E8E0D0] rounded-3xl p-6">
+                    <h3 className="font-semibold text-[#2C2C2C] mb-3">Historial de pagos</h3>
+                    <ul className="divide-y divide-[#E8E0D0] text-sm">
+                      {subInfo.payments.map((pay) => (
+                        <li key={pay.id} className="py-2 flex justify-between gap-4">
+                          <span>{new Date(pay.created_at).toLocaleDateString("es-AR")} · {pay.description}</span>
+                          <span className="font-mono">${Number(pay.amount).toLocaleString("es-AR")}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="bg-white border border-[#E8E0D0] rounded-3xl p-8 shadow-sm">
@@ -1303,7 +1375,7 @@ export function UserProfile() {
                   <AlertCircle className="w-12 h-12 text-[#98A77C] mx-auto mb-4" />
                   <h2 className="text-2xl font-medium text-[#2C2C2C] mb-3">Pauta no activa</h2>
                   <p className="text-[#5D5D5D] mb-8 leading-relaxed">
-                    Para poder publicar tu landing page, subir tus datos, imágenes y figurar en las búsquedas inteligentes del directorio de Omia, debés contar con un plan de pauta mensual activo. El cobro se realiza de forma fija sin comisiones sobre tus ventas.
+                    Para poder publicar tu landing page, subir tus datos, imágenes y figurar en las búsquedas inteligentes del directorio de Omia, debés contar con un plan de pauta mensual activo. El cobro es mensual y automático por Mercado Pago, sin comisiones sobre tus clases, y te podés dar de baja cuando quieras.
                   </p>
                   
                   <div className="flex flex-col gap-3">
@@ -1311,7 +1383,7 @@ export function UserProfile() {
                       { id: "inicial", name: "Plan Inicial", desc: "Tu perfil publicado en el directorio." },
                       { id: "destacado", name: "Plan Destacado (más elegido)", desc: "Prioridad en las búsquedas, insignia y estadísticas completas." },
                       { id: "institucional", name: "Plan Institucional", desc: "Para institutos y estudios con varios profesores." },
-                    ] as const).map(plan => (
+                    ] as const).filter(plan => plan.id !== "institucional" || profile.role === "instituto").map(plan => (
                       <div key={plan.id} className="p-6 bg-[#F4EFE4] rounded-3xl border border-[#E8E0D0] flex flex-col sm:flex-row justify-between items-center gap-4 text-left">
                         <div>
                           <h4 className="font-semibold text-[#2C2C2C]">{plan.name}</h4>
@@ -1320,11 +1392,11 @@ export function UserProfile() {
                         <div className="flex items-center gap-4 shrink-0 w-full sm:w-auto justify-between sm:justify-start">
                           <span className="text-2xl font-mono font-bold text-[#2C2C2C]">{formatPrice(plan.id)}<span className="text-xs text-[#5D5D5D] font-sans">/mes</span></span>
                           <button
-                            onClick={() => handlePay("subscription", plan.id)}
+                            onClick={() => handleSubscribe(plan.id)}
                             disabled={isPayingId !== null}
                             className="px-5 py-3 bg-[#009EE3] hover:bg-[#008CD0] disabled:opacity-60 text-white rounded-sm text-xs font-bold transition-all shadow-sm"
                           >
-                            {isPayingId === plan.id ? "Abriendo…" : "Abonar Plan"}
+                            {isPayingId === plan.id ? "Abriendo…" : "Suscribirme"}
                           </button>
                         </div>
                       </div>

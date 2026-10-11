@@ -49,6 +49,7 @@ export function BookingModal({ teacher, onClose, onSuccess }: BookingModalProps)
     setDate(`${year}-${month}-${dayStr}`);
   };
   
+  const [contact, setContact] = useState<{ name?: string; phone?: string | null; email?: string | null; instagram?: string | null } | null>(null);
   const timeSlots = ["08:00", "10:00", "15:00", "18:00", "19:30"];
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -67,7 +68,8 @@ export function BookingModal({ teacher, onClose, onSuccess }: BookingModalProps)
       });
       
       if (response.ok) {
-        onSuccess();
+        const data = await response.json().catch(() => ({}));
+        setContact(data.contact || {});
       } else {
         const data = await response.json().catch(() => ({}));
         alert(response.status === 401 ? "Ingresá a tu cuenta para reservar." : data.error || "No se pudo crear la reserva.");
@@ -89,7 +91,25 @@ export function BookingModal({ teacher, onClose, onSuccess }: BookingModalProps)
           <X className="w-5 h-5" />
         </button>
         
-        <h2 className="text-2xl font-medium text-[#2C2C2C] mb-2">Reservar Sesión</h2>
+        {contact ? (
+          <div className="text-center py-4">
+            <h2 className="text-2xl font-medium text-[#2C2C2C] mb-2">¡Solicitud enviada!</h2>
+            <p className="text-[#5D5D5D] text-sm mb-6">
+              Le avisamos a {teacher.name} por mail. Para <b>confirmar la clase y acordar el pago</b> escribile directo (el pago es entre ustedes, Omia no cobra comisión):
+            </p>
+            <div className="flex flex-col gap-3 mb-6">
+              {contact.phone && (
+                <a href={`https://wa.me/${contact.phone.replace(/\D/g, "")}?text=${encodeURIComponent(`Hola ${teacher.name}, te escribo desde Omia para reservar una clase el ${date} a las ${time}.`)}`} target="_blank" rel="noopener noreferrer"
+                  className="bg-[#25D366] hover:bg-[#1fb857] text-white py-3 rounded-sm font-medium">Escribir por WhatsApp</a>
+              )}
+              {contact.email && <a href={`mailto:${contact.email}`} className="border border-[#E8E0D0] hover:bg-[#F4EFE4] py-3 rounded-sm font-medium text-[#2C2C2C]">{contact.email}</a>}
+              {contact.instagram && <a href={`https://instagram.com/${contact.instagram.replace(/^@/, "")}`} target="_blank" rel="noopener noreferrer" className="border border-[#E8E0D0] hover:bg-[#F4EFE4] py-3 rounded-sm font-medium text-[#2C2C2C]">Instagram {contact.instagram}</a>}
+              {!contact.phone && !contact.email && !contact.instagram && <p className="text-sm text-[#5D5D5D]">Te va a contactar al mail con el que te registraste.</p>}
+            </div>
+            <button onClick={onSuccess} className="w-full bg-[#2C2C2C] hover:bg-black text-white py-3 rounded-sm font-medium">Listo</button>
+          </div>
+        ) : (<>
+        <h2 className="text-2xl font-medium text-[#2C2C2C] mb-2">Solicitar clase</h2>
         <p className="text-[#5D5D5D] mb-6">con {teacher.name}</p>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
@@ -173,9 +193,10 @@ export function BookingModal({ teacher, onClose, onSuccess }: BookingModalProps)
             disabled={isSubmitting || !date || !time}
             className="w-full bg-[#2C2C2C] hover:bg-black disabled:bg-[#E5E5E5] disabled:text-[#5D5D5D] disabled:cursor-not-allowed text-white py-4 rounded-sm font-medium transition-colors mt-2"
           >
-            {isSubmitting ? "Confirmando..." : "Confirmar Reserva"}
+            {isSubmitting ? "Enviando..." : "Enviar solicitud"}
           </button>
         </form>
+        </>)}
       </div>
     </div>
   );

@@ -41,3 +41,18 @@ export async function startCheckout(body: Record<string, unknown>): Promise<stri
     return "Error de conexión. Probá de nuevo.";
   }
 }
+
+// Alta de la suscripción mensual: devuelve el mensaje de error o redirige a Mercado Pago.
+export async function startSubscription(plan: PlanId | string): Promise<string | null> {
+  try {
+    const { ok, status, data } = await apiJson("/api/subscriptions/checkout", { plan });
+    if (ok && data.checkoutUrl) {
+      window.location.href = data.checkoutUrl;
+      return null;
+    }
+    if (status === 401) return "Ingresá a tu cuenta para continuar.";
+    return data.error || "No pudimos iniciar la suscripción. Probá de nuevo.";
+  } catch {
+    return "Error de conexión. Probá de nuevo.";
+  }
+}

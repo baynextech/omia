@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
-import { Outlet, Link, useLocation } from "react-router-dom";
+import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import { AIChat } from "../components/AIChat";
 import { useAuth } from "../contexts/AuthContext";
 import { AuthModal } from "../components/AuthModal";
+import { Analytics } from "../components/Analytics";
+import { SITE } from "../lib/site";
 import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -23,6 +25,22 @@ export function RootLayout() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  // /login, /registro y el enlace del mail de recuperación (/?reset=…) abren el modal de acceso.
+  const navigate = useNavigate();
+  const { search } = useLocation();
+  useEffect(() => {
+    const params = new URLSearchParams(search);
+    const auth = params.get("auth");
+    if (auth === "login" || auth === "register") {
+      setAuthMode(auth);
+      setIsAuthModalOpen(true);
+      navigate(pathname, { replace: true });
+    } else if (params.get("reset")) {
+      setAuthMode("login");
+      setIsAuthModalOpen(true);
+    }
+  }, [search]);
 
   const openAuth = (mode: "login" | "register") => {
     setAuthMode(mode);
@@ -49,6 +67,7 @@ export function RootLayout() {
               { to: "/estudios", label: "Estudios" },
               { to: "/ranking", label: "Ranking" },
               { to: "/tienda", label: "Tienda" },
+              { to: "/noticias", label: "Noticias" },
               { to: "/para-profes", label: "Para Profes" },
             ].map(({ to, label }) => (
               <Link
@@ -221,27 +240,36 @@ export function RootLayout() {
                 <Link to="/estudios" className="text-[#9DB085] text-sm hover:text-[#F4EFE4] transition-colors">Estudios</Link>
                 <Link to="/ranking" className="text-[#9DB085] text-sm hover:text-[#F4EFE4] transition-colors">Ranking</Link>
                 <Link to="/tienda" className="text-[#9DB085] text-sm hover:text-[#F4EFE4] transition-colors">Tienda</Link>
+                <Link to="/noticias" className="text-[#9DB085] text-sm hover:text-[#F4EFE4] transition-colors">Noticias</Link>
               </div>
               <div className="flex flex-col gap-3">
                 <span className="text-[#F4EFE4] text-xs font-bold uppercase tracking-widest">Profesionales</span>
                 <Link to="/para-profes" className="text-[#9DB085] text-sm hover:text-[#F4EFE4] transition-colors">Para Profes</Link>
-                <a href="#planes-section" className="text-[#9DB085] text-sm hover:text-[#F4EFE4] transition-colors">Membresías</a>
+                <Link to="/para-profes" className="text-[#9DB085] text-sm hover:text-[#F4EFE4] transition-colors">Membresías</Link>
               </div>
               <div className="flex flex-col gap-3">
                 <span className="text-[#F4EFE4] text-xs font-bold uppercase tracking-widest">Legal</span>
-                <a href="#" className="text-[#9DB085] text-sm hover:text-[#F4EFE4] transition-colors">Nosotros</a>
-                <a href="#" className="text-[#9DB085] text-sm hover:text-[#F4EFE4] transition-colors">Términos</a>
-                <a href="#" className="text-[#9DB085] text-sm hover:text-[#F4EFE4] transition-colors">Privacidad</a>
+                <Link to="/nosotros" className="text-[#9DB085] text-sm hover:text-[#F4EFE4] transition-colors">Nosotros</Link>
+                <Link to="/contacto" className="text-[#9DB085] text-sm hover:text-[#F4EFE4] transition-colors">Contacto</Link>
+                <Link to="/terminos" className="text-[#9DB085] text-sm hover:text-[#F4EFE4] transition-colors">Términos</Link>
+                <Link to="/privacidad" className="text-[#9DB085] text-sm hover:text-[#F4EFE4] transition-colors">Privacidad</Link>
+                <Link to="/arrepentimiento" className="text-[#9DB085] text-sm hover:text-[#F4EFE4] transition-colors">Botón de arrepentimiento</Link>
+                <Link to="/contacto?tipo=baja" className="text-[#9DB085] text-sm hover:text-[#F4EFE4] transition-colors">Botón de baja</Link>
               </div>
             </div>
           </div>
           <div className="border-t border-[#2a4d38] pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-[#6B8C78] text-sm">© {new Date().getFullYear()} Omia Bienestar. Todos los derechos reservados.</p>
-            <p className="text-[#6B8C78] text-xs">Yoga · Pilates · Reformer · Mat · Barre · Buenos Aires</p>
+            <p className="text-[#6B8C78] text-xs flex items-center gap-4">
+              <a href={`https://instagram.com/${SITE.instagram}`} target="_blank" rel="noopener noreferrer" className="hover:text-[#F4EFE4]">Instagram</a>
+              {SITE.whatsapp && <a href={`https://wa.me/${SITE.whatsapp}`} target="_blank" rel="noopener noreferrer" className="hover:text-[#F4EFE4]">WhatsApp</a>}
+              <span>Yoga · Pilates · Buenos Aires</span>
+            </p>
           </div>
         </div>
       </footer>
 
+      <Analytics />
       <AIChat />
       <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} initialMode={authMode} />
     </div>

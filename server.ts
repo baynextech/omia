@@ -432,6 +432,17 @@ app.post('/api/auth/register', authLimiter, h(async (req, res) => {
   res.status(201).json(await sessionPayload(result.rows[0]));
 }));
 
+// Cifras reales para la portada (solo fichas publicadas).
+app.get('/api/stats', h(async (_req, res) => {
+  const r = (await pool.query(
+    `SELECT COUNT(*) FILTER (WHERE kind = 'profesor') AS teachers,
+            COUNT(*) FILTER (WHERE kind = 'instituto') AS institutes,
+            COUNT(DISTINCT NULLIF(TRIM(location), '')) AS zones
+     FROM teachers WHERE status = 'activo'`
+  )).rows[0];
+  res.set('Cache-Control', 'public, max-age=300').json({ teachers: Number(r.teachers), institutes: Number(r.institutes), zones: Number(r.zones) });
+}));
+
 // Configuración pública que necesita el sitio para saber qué mostrar.
 app.get('/api/config', (_req, res) => {
   res.json({ googleClientId: GOOGLE_CLIENT_ID || null, paymentsEnabled: !!mp || SIMULATED_PAYMENTS });

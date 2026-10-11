@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { apiFetch } from "../lib/api";
-import { usePlans, startCheckout } from "../hooks/usePlans";
+import { usePlans, startSubscription } from "../hooks/usePlans";
 import { MapPin, Check, ArrowRight, Star, Heart } from "lucide-react";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Hero } from "../components/Hero";
@@ -11,20 +11,10 @@ import { useAuth } from "../contexts/AuthContext";
 import { AuthModal } from "../components/AuthModal";
 import { motion } from "motion/react";
 
-const DEMO_TEACHERS = [
-  { id: "demo-1", name: "Valentina Ruiz",  specialty: "Yoga Vinyasa & Meditación", discipline: "Yoga",         location: "Palermo",   rating: 4.9, reviews: 48, price: "$8.500/clase",  availableDays: ["Lun","Mié","Vie"], bio: "8 años de experiencia en flow dinámico y técnicas de respiración consciente.",          image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=600&q=85&auto=format&fit=crop&crop=face" },
-  { id: "demo-2", name: "Lucía Méndez",    specialty: "Pilates Reformer",           discipline: "Pilates",      location: "Recoleta",  rating: 5.0, reviews: 62, price: "$12.000/clase", availableDays: ["Mar","Jue","Sáb"], bio: "Certificada en STOTT Pilates. Clases personalizadas con máquina Reformer.",             image: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=600&q=85&auto=format&fit=crop&crop=face" },
-  { id: "demo-3", name: "Martín Gómez",    specialty: "Ashtanga & Power Yoga",      discipline: "Yoga",         location: "Núñez",     rating: 4.9, reviews: 55, price: "$9.500/clase",  availableDays: ["Mar","Vie","Sáb"], bio: "Practicante de Ashtanga hace 12 años. Clases intensas para nivel intermedio y avanzado.", image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=600&q=85&auto=format&fit=crop&crop=face" },
-  { id: "demo-4", name: "Camila Torres",   specialty: "Yoga & Pilates Mat",         discipline: "Yoga & Pilates", location: "Belgrano", rating: 4.8, reviews: 34, price: "$7.000/clase",  availableDays: ["Lun","Mar","Jue"], bio: "Fusión de yoga y pilates mat para mejorar postura, flexibilidad y fuerza core.",       image: "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=600&q=85&auto=format&fit=crop&crop=face" },
-  { id: "demo-5", name: "Sebastián Mora",  specialty: "Pilates Funcional",          discipline: "Pilates",      location: "Palermo",   rating: 4.8, reviews: 39, price: "$10.000/clase", availableDays: ["Lun","Mié","Vie"], bio: "Pilates funcional y entrenamiento de fuerza. Enfoque en lesiones deportivas.",          image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=600&q=85&auto=format&fit=crop&crop=face" },
-  { id: "demo-6", name: "Martina Sosa",    specialty: "Barre & Pilates",            discipline: "Pilates",      location: "San Telmo", rating: 4.9, reviews: 27, price: "$9.000/clase",  availableDays: ["Mié","Vie","Sáb"], bio: "Ballet fitness y pilates. Clases de barre para tonificar y estirar.",                  image: "https://images.unsplash.com/photo-1499952127939-9bbf5af6c51c?w=600&q=85&auto=format&fit=crop&crop=face" },
-  { id: "demo-7", name: "Andrés Villalba", specialty: "Yin Yoga & Mindfulness",     discipline: "Yoga",         location: "Almagro",   rating: 4.7, reviews: 31, price: "$7.500/clase",  availableDays: ["Mar","Jue","Sáb"], bio: "Especialista en Yin y yoga restaurativo. Meditación y técnicas de relajación profunda.", image: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=600&q=85&auto=format&fit=crop&crop=face" },
-  { id: "demo-8", name: "Sofía Acosta",    specialty: "Hatha Yoga",                 discipline: "Yoga",         location: "Colegiales",rating: 4.7, reviews: 41, price: "$6.500/clase",  availableDays: ["Lun","Jue","Sáb"], bio: "Hatha clásico y yoga restaurativo. Ideal para principiantes y personas con estrés.",   image: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=600&q=85&auto=format&fit=crop&crop=face" },
-];
 
 const fadeUp = {
   hidden: { opacity: 0, y: 32 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.65, ease: [0.22, 1, 0.36, 1] } }
+  visible: { opacity: 1, y: 0, transition: { duration: 0.65, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] } }
 };
 
 const stagger = {
@@ -55,7 +45,7 @@ export function Home() {
       setIsAuthOpen(true);
       return;
     }
-    const error = await startCheckout({ type: "subscription", itemId: planId });
+    const error = await startSubscription(planId);
     if (error) alert(error);
   };
 
@@ -81,7 +71,7 @@ export function Home() {
       <section className="bg-[#F4EFE4] py-20 px-6 border-b border-[#E0D8CC]">
         <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-12">
           {[
-            { title: "Profesores verificados", desc: "Todos los instructores pasan por un proceso de verificación. Reseñas reales de alumnos." },
+            { title: "Perfiles reales", desc: "Cada profe y cada instituto tiene su propia ficha, con reseñas de alumnos que tomaron clases." },
             { title: "Reservá sin comisiones", desc: "Contactá directamente con el profe. El 100% del pago va al instructor, sin intermediarios." },
             { title: "Encontrá tu zona", desc: "Buscá por barrio en Buenos Aires. Palermo, Belgrano, Recoleta y 11 zonas más." },
           ].map(({ title, desc }) => (
@@ -123,7 +113,7 @@ export function Home() {
           </div>
           <div className="flex items-center gap-6">
             <p className="text-[#5D5D5D] text-sm max-w-xs leading-relaxed hidden md:block">
-              Descubrí profes verificados en tu zona. Leé reseñas y reservá tu próxima sesión.
+              Descubrí profes en tu zona. Leé reseñas y reservá tu próxima sesión.
             </p>
             <a href="/directorio" className="shrink-0 inline-flex items-center gap-2 text-sm font-semibold text-[#1C3829] hover:text-[#98A77C] transition-colors whitespace-nowrap">
               Ver todos <ArrowRight className="w-4 h-4" />
@@ -131,17 +121,29 @@ export function Home() {
           </div>
         </motion.div>
 
+        {teachers.length === 0 && (
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="border border-dashed border-[#98A77C]/60 rounded-sm p-10 text-center bg-white/40">
+              <p className="font-serif text-2xl text-[#1C3829] mb-2">Estamos sumando a los primeros profes de tu zona</p>
+              <p className="text-[#5D5D5D] text-sm mb-6">¿Das clases de yoga o pilates? Creá tu ficha gratis y aparecé acá.</p>
+              <button onClick={() => { setAuthMode("register"); setIsAuthOpen(true); }} className="inline-block bg-[#98A77C] hover:bg-[#88976C] text-white px-7 py-3 text-sm font-semibold transition-colors" style={{ borderRadius: 5 }}>
+                Crear mi ficha
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Slider full width pegado al borde derecho */}
-        <div className="overflow-x-auto pl-6 md:pl-[max(1.5rem,calc((100vw-80rem)/2+1.5rem))]" style={{ scrollbarWidth: "none" }}>
+        <div className={teachers.length === 0 ? "hidden" : "overflow-x-auto pl-6 md:pl-[max(1.5rem,calc((100vw-80rem)/2+1.5rem))]"} style={{ scrollbarWidth: "none" }}>
             <motion.div
               className="flex gap-4 pr-6"
               style={{ width: "max-content" }}
               initial={{ x: 80, opacity: 0 }}
               whileInView={{ x: 0, opacity: 1 }}
               viewport={{ once: true, margin: "-60px" }}
-              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
             >
-              {(teachers.length > 0 ? teachers : DEMO_TEACHERS).map((t) => (
+              {teachers.map((t) => (
                 <motion.div
                   key={t.id}
                   className="group relative overflow-hidden bg-[#1C3829] cursor-pointer shrink-0 flex flex-col"

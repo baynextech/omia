@@ -517,7 +517,7 @@ export function TeacherProfile() {
       {bookingSuccess && (
         <div className="fixed bottom-6 right-6 z-50 bg-[#98A77C] text-white px-6 py-4 rounded-2xl shadow-lg animate-in slide-in-from-bottom-5 duration-300 flex items-center gap-2">
           <Star className="w-5 h-5 fill-white text-white" />
-          <span className="font-medium">¡Reserva confirmada con éxito!</span>
+          <span className="font-medium">¡Solicitud enviada! Coordiná la clase directo con el profe.</span>
         </div>
       )}
     </div>

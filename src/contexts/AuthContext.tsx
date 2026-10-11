@@ -19,7 +19,9 @@ interface AuthContextType {
   profile: Profile | null;
   token: string | null;
   login: (email: string, password: string) => Promise<{ error?: string }>;
-  register: (email: string, password: string, name: string, role?: string) => Promise<{ error?: string }>;
+  register: (email: string, password: string, name: string, role?: string, acceptTerms?: boolean) => Promise<{ error?: string }>;
+  loginWithGoogle: (credential: string, role?: string, acceptTerms?: boolean) => Promise<{ error?: string; needsTerms?: boolean }>;
+  startSessionFrom: (data: any) => boolean;
   logout: () => void;
   isAuthenticated: boolean;
   isLoading: boolean;
@@ -85,12 +87,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const register = async (email: string, password: string, name: string, role = "alumno") => {
+  const loginWithGoogle = async (credential: string, role = "alumno", acceptTerms = false) => {
+    try {
+      const res = await apiFetch("/api/auth/google", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ credential, role, acceptTerms })
+      });
+      const data = await res.json();
+      if (!res.ok) return { error: data.error || "No pudimos ingresar con Google", needsTerms: !!data.needsTerms };
+      if (!startSession(data)) return { error: "No se pudo iniciar la sesión" };
+      return {};
+    } catch {
+      return { error: "Error de conexión" };
+    }
+  };
+
+  const register = async (email: string, password: string, name: string, role = "alumno", acceptTerms = false) => {
     try {
       const res = await apiFetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, name, role })
+        body: JSON.stringify({ email, password, name, role, acceptTerms })
       });
       const data = await res.json();
       if (!res.ok) return { error: data.error || "Error al registrarse" };
@@ -112,7 +130,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return (
     <AuthContext.Provider value={{
       user, profile, token,
-      login, register, logout,
+      login, register, loginWithGoogle, startSessionFrom: startSession, logout,
       isAuthenticated: !!user,
       isLoading,
       isAdmin: profile?.role === "admin",

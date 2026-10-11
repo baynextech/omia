@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { apiFetch } from "../lib/api";
 import { startCheckout } from "../hooks/usePlans";
+import { SITE } from "../lib/site";
 import { 
   ShoppingBag, Search, Filter, Star, Check, Plus, Minus, X, Trash2, 
   Sparkles, ShieldCheck, Truck, ArrowRight, PhoneCall, CreditCard, Heart, ShoppingCart 
@@ -45,6 +46,7 @@ export function Shop() {
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
   const [isProcessingPayment, setIsProcessingPayment] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [ship, setShip] = useState({ method: "envio" as "envio" | "retiro", name: "", phone: "", address: "", city: "", province: "CABA", zip: "" });
 
   const categories = ["Todos", "Mats", "Accesorios", "Pilates Equipment", "Indumentaria", "Aromaterapia"];
   const disciplines = ["Todas", "Yoga", "Pilates", "Yoga & Pilates"];
@@ -100,11 +102,16 @@ export function Shop() {
 
   const handleCheckoutMercadoPago = async () => {
     if (cart.length === 0) return;
+    if (!ship.name.trim() || !ship.phone.trim() || (ship.method === "envio" && (!ship.address.trim() || !ship.city.trim() || !ship.zip.trim()))) {
+      alert("Completá tus datos de contacto y de entrega para continuar.");
+      return;
+    }
     setIsProcessingPayment(true);
     // Se mandan solo ids y cantidades: el total lo calcula el servidor.
     const error = await startCheckout({
       type: "product",
-      items: cart.map(item => ({ id: item.product.id, quantity: item.quantity }))
+      items: cart.map(item => ({ id: item.product.id, quantity: item.quantity })),
+      shipping: ship
     });
     if (error) alert(error);
     setIsProcessingPayment(false);
@@ -115,7 +122,7 @@ export function Shop() {
     const itemsText = cart.map(i => `• ${i.quantity}x ${i.product.name} ($${(i.product.price * i.quantity).toLocaleString("es-AR")})`).join("\n");
     const fullMessage = `¡Hola Omia Shop! Quisiera encargar el siguiente pedido:\n\n${itemsText}\n\n*Total:* $${cartTotal.toLocaleString("es-AR")}\n\n¿Tienen disponibilidad y envíos? Gracias!`;
     const encoded = encodeURIComponent(fullMessage);
-    window.open(`https://wa.me/5491133445566?text=${encoded}`, "_blank");
+    window.open(`https://wa.me/${SITE.whatsapp}?text=${encoded}`, "_blank");
   };
 
   return (
@@ -530,8 +537,24 @@ export function Shop() {
               {cart.length > 0 && (
                 <div className="p-6 border-t border-[#E8E0D0] bg-[#F4EFE4] space-y-4">
                   <div className="flex justify-between items-center text-lg font-bold text-[#2C2C2C]">
-                    <span>Total Estimado:</span>
+                    <span>Subtotal:</span>
                     <span>${cartTotal.toLocaleString("es-AR")}</span>
+                  </div>
+                  <p className="text-[11px] text-[#5D5D5D] -mt-2">El costo de envío (si corresponde) se suma al pagar.</p>
+
+                  <div className="space-y-2">
+                    <div className="flex gap-2 text-xs">
+                      {(["envio", "retiro"] as const).map((m) => (
+                        <button key={m} type="button" onClick={() => setShip({ ...ship, method: m })}
+                          className={`flex-1 py-2 rounded-sm border font-semibold ${ship.method === m ? "bg-[#98A77C] border-[#98A77C] text-white" : "bg-white border-[#E8E0D0] text-[#5D5D5D]"}`}>
+                          {m === "envio" ? "Envío a domicilio" : "Retiro / a coordinar"}
+                        </button>
+                      ))}
+                    </div>
+                    {([["name", "Nombre y apellido"], ["phone", "Teléfono / WhatsApp"], ...(ship.method === "envio" ? [["address", "Calle y número (piso/depto)"], ["city", "Localidad"], ["province", "Provincia"], ["zip", "Código postal"]] : [])] as [keyof typeof ship, string][]).map(([key, label]) => (
+                      <input key={key} value={ship[key]} onChange={(e) => setShip({ ...ship, [key]: e.target.value })} placeholder={label}
+                        className="w-full bg-white border border-[#E8E0D0] focus:border-[#98A77C] rounded-sm px-3 py-2 text-sm outline-none" />
+                    ))}
                   </div>
 
                   <div className="space-y-2">
@@ -544,17 +567,17 @@ export function Shop() {
                       <span>{isProcessingPayment ? "Procesando..." : "Comprar con Mercado Pago"}</span>
                     </button>
 
-                    <button
+                    {SITE.whatsapp && <button
                       onClick={handleWhatsAppCheckout}
                       className="w-full bg-[#25D366] hover:bg-[#20bd5a] text-white py-3.5 rounded-sm font-bold text-sm transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
                     >
                       <PhoneCall className="w-4 h-4" />
                       <span>Pedir por WhatsApp Directo</span>
-                    </button>
+                    </button>}
                   </div>
 
                   <p className="text-[11px] text-center text-[#5D5D5D]">
-                    Garantía de devolución de 30 días • Cobros seguros con encriptación SSL.
+                    Podés arrepentirte dentro de los 10 días (botón en el pie del sitio) • Pago seguro con Mercado Pago.
                   </p>
                 </div>
               )}

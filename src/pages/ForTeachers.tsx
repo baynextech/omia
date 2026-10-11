@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Sparkles, CheckCircle2, ShieldCheck, CreditCard, HelpCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { usePlans, startCheckout } from "../hooks/usePlans";
+import { usePlans, startSubscription } from "../hooks/usePlans";
 import { motion } from "motion/react";
 import { SEOMeta } from "../components/SEOMeta";
 
@@ -12,7 +12,7 @@ export function ForTeachers() {
 
   const handleSubscribe = async () => {
     setIsPaying(true);
-    const error = await startCheckout({ type: "subscription", itemId: "destacado" });
+    const error = await startSubscription("destacado");
     if (error) {
       alert(error);
       // Sin sesión o sin ficha cargada, el paso siguiente está en el panel.
@@ -60,9 +60,9 @@ export function ForTeachers() {
             <div className="w-12 h-12 bg-[#98A77C]/10 text-[#98A77C] rounded-2xl flex items-center justify-center mb-6">
               <CreditCard className="w-6 h-6" />
             </div>
-            <h3 className="text-xl font-semibold mb-3 text-[#2C2C2C]">Integración Mercado Pago</h3>
+            <h3 className="text-xl font-semibold mb-3 text-[#2C2C2C]">Suscripción con Mercado Pago</h3>
             <p className="text-[#5D5D5D] text-sm leading-relaxed">
-              Recibí cobros de tus alumnos sin esfuerzo. Integración nativa con Mercado Pago Argentina para abonar tus planes y agendar alumnos con acreditación segura.
+              Pagás tu plan mes a mes con Mercado Pago, con débito automático en pesos. Los alumnos te contactan directo y vos cobrás tus clases como siempre, sin intermediarios.
             </p>
           </div>
         </div>
@@ -102,7 +102,7 @@ export function ForTeachers() {
               </li>
               <li className="flex items-center gap-3">
                 <CheckCircle2 className="w-5 h-5 text-[#98A77C] shrink-0" />
-                <span>Gestión directa de reservas y consultas ilimitadas.</span>
+                <span>Solicitudes de clase y consultas ilimitadas, directo a tu mail.</span>
               </li>
               <li className="flex items-center gap-3">
                 <CheckCircle2 className="w-5 h-5 text-[#98A77C] shrink-0" />
@@ -143,7 +143,7 @@ export function ForTeachers() {
           </button>
           
           <p className="text-xs text-[#5D5D5D] mt-4">
-            Probá el primer mes. Si no estás conforme, te devolvemos el dinero de forma inmediata.
+            Sin permanencia: te das de baja cuando quieras desde tu panel.
           </p>
         </div>
       </div>
@@ -158,7 +158,7 @@ export function ForTeachers() {
               ¿Necesito una cuenta especial de Mercado Pago?
             </h4>
             <p className="text-sm text-[#5D5D5D] leading-relaxed">
-              No, para pagar tu membresía podés utilizar cualquier cuenta de Mercado Pago o tarjetas bancarias. Para recibir pagos de alumnos, solo necesitás asociar tu cuenta de Mercado Pago regular (sea vendedor o personal).
+              No. Para pagar tu membresía podés usar cualquier cuenta de Mercado Pago o tarjeta bancaria. El cobro se renueva solo cada mes y te podés dar de baja cuando quieras desde tu panel.
             </p>
           </div>
           <div className="bg-white border border-[#E8E0D0] p-6 rounded-2xl">
@@ -167,7 +167,7 @@ export function ForTeachers() {
               ¿Hay costos extras o comisiones por clases vendidas?
             </h4>
             <p className="text-sm text-[#5D5D5D] leading-relaxed">
-              Omia no cobra ninguna comisión extra sobre el valor de tu clase. El 100% de lo abonado por tus alumnos se acredita directamente a tu cuenta de Mercado Pago asociada.
+              Omia no cobra ninguna comisión sobre tus clases. Los alumnos te contactan por WhatsApp, mail o Instagram y arreglan el pago directamente con vos: el 100% es tuyo.
             </p>
           </div>
         </div>

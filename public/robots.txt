@@ -2,6 +2,7 @@ User-agent: *
 Allow: /
 Disallow: /api/
 Disallow: /perfil
+Disallow: /admin
 Disallow: /checkout-simulator
 
 Sitemap: https://omia.site/sitemap.xml

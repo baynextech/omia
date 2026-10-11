@@ -1,11 +1,18 @@
 import { Search, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { motion } from "motion/react";
+import { apiFetch } from "../lib/api";
 
 const container = { hidden: {}, visible: { transition: { staggerChildren: 0.14, delayChildren: 0.3 } } };
-const item = { hidden: { opacity: 0, y: 32 }, visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } } };
+const item = { hidden: { opacity: 0, y: 32 }, visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] } } };
 
 export function Hero() {
+  const [stats, setStats] = useState({ teachers: 0, institutes: 0, zones: 0 });
+  useEffect(() => {
+    apiFetch("/api/stats").then((r) => (r.ok ? r.json() : null)).then((d) => d && setStats(d)).catch(() => {});
+  }, []);
+
   return (
     <section className="relative w-full min-h-screen flex items-center justify-center bg-[#1C3829] overflow-hidden">
       <video
@@ -54,7 +61,7 @@ export function Hero() {
         </motion.div>
 
         <motion.div variants={item} className="mt-16 flex flex-wrap items-center gap-8">
-          {[{ n: "+200", label: "Profesores" }, { n: "+50", label: "Institutos" }, { n: "14", label: "Barrios" }].map(({ n, label }) => (
+          {[{ n: stats.teachers, label: "Profesores" }, { n: stats.institutes, label: "Institutos" }, { n: stats.zones, label: "Barrios" }].filter(({ n }) => n > 0).map(({ n, label }) => (
             <div key={label} className="flex flex-col">
               <span className="text-2xl font-serif italic text-[#C8D8B0] leading-none">{n}</span>
               <span className="text-xs text-white/50 font-medium mt-1 uppercase tracking-wider">{label}</span>

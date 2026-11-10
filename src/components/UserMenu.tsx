@@ -14,7 +14,7 @@ export function UserAvatar({ size = 36 }: { size?: number }) {
     return <img src={src} alt="" referrerPolicy="no-referrer" onError={() => setBroken(true)} style={style} className="rounded-full object-cover shrink-0" />;
   }
   return (
-    <span style={style} className="rounded-full bg-[#98A77C] text-white flex items-center justify-center font-semibold shrink-0 uppercase">
+    <span style={style} className="rounded-full bg-bosque text-lino flex items-center justify-center font-semibold shrink-0 uppercase">
       {name.trim().charAt(0) || <User size={size * 0.5} />}
     </span>
   );
@@ -34,7 +34,7 @@ export function UserMenu({ scrolled }: { scrolled: boolean }) {
   }, []);
 
   const displayName = (profile?.name || profile?.email?.split("@")[0] || "Mi cuenta").trim();
-  const item = "flex items-center gap-2.5 px-4 py-2.5 text-sm text-[#2C2C2C] hover:bg-[#F4EFE4] transition-colors w-full text-left";
+  const item = "flex items-center gap-2.5 px-4 py-2.5 text-sm text-bosque hover:bg-lino transition-colors w-full text-left";
 
   return (
     <div ref={ref} className="relative">
@@ -43,7 +43,7 @@ export function UserMenu({ scrolled }: { scrolled: boolean }) {
         aria-haspopup="menu"
         aria-expanded={open}
         className={`flex items-center gap-3.5 pl-4 pr-7 py-2.5 rounded-full border transition-colors cursor-pointer ${
-          scrolled ? "bg-white border-[#E8E0D0] hover:bg-[#F4EFE4] text-[#2C2C2C]" : "bg-white/15 border-transparent hover:bg-white/25 text-white backdrop-blur-sm"
+          scrolled ? "bg-white border-lino-oscuro hover:bg-lino text-bosque" : "bg-white/15 border-transparent hover:bg-white/25 text-white backdrop-blur-sm"
         }`}
       >
         <UserAvatar />
@@ -52,15 +52,15 @@ export function UserMenu({ scrolled }: { scrolled: boolean }) {
       </button>
 
       {open && (
-        <div role="menu" className="absolute right-0 mt-2 w-60 bg-white border border-[#E8E0D0] rounded-2xl shadow-xl overflow-hidden z-50">
-          <div className="px-4 py-3 border-b border-[#E8E0D0] bg-[#faf8f2]">
-            <p className="text-sm font-semibold text-[#2C2C2C] truncate">{displayName}</p>
-            <p className="text-xs text-[#5D5D5D] truncate">{profile?.email}</p>
+        <div role="menu" className="absolute right-0 mt-2 w-60 bg-white border border-lino-oscuro rounded-2xl shadow-xl overflow-hidden z-50">
+          <div className="px-4 py-3 border-b border-lino-oscuro bg-[#faf8f2]">
+            <p className="text-sm font-semibold text-bosque truncate">{displayName}</p>
+            <p className="text-xs text-musgo truncate">{profile?.email}</p>
           </div>
-          <Link to="/perfil" onClick={() => setOpen(false)} className={item} role="menuitem"><User className="w-4 h-4 text-[#98A77C]" />Mi perfil</Link>
-          <Link to="/favoritos" onClick={() => setOpen(false)} className={item} role="menuitem"><Heart className="w-4 h-4 text-[#98A77C]" />Favoritos</Link>
-          {isAdmin && <Link to="/admin" onClick={() => setOpen(false)} className={item} role="menuitem"><LayoutDashboard className="w-4 h-4 text-[#98A77C]" />Panel de administración</Link>}
-          <button onClick={() => { setOpen(false); logout(); }} className={`${item} border-t border-[#E8E0D0]`} role="menuitem"><LogOut className="w-4 h-4 text-[#98A77C]" />Salir</button>
+          <Link to="/perfil" onClick={() => setOpen(false)} className={item} role="menuitem"><User className="w-4 h-4 text-salvia-oscuro" />Mi perfil</Link>
+          <Link to="/favoritos" onClick={() => setOpen(false)} className={item} role="menuitem"><Heart className="w-4 h-4 text-salvia-oscuro" />Favoritos</Link>
+          {isAdmin && <Link to="/admin" onClick={() => setOpen(false)} className={item} role="menuitem"><LayoutDashboard className="w-4 h-4 text-salvia-oscuro" />Panel de administración</Link>}
+          <button onClick={() => { setOpen(false); logout(); }} className={`${item} border-t border-lino-oscuro`} role="menuitem"><LogOut className="w-4 h-4 text-salvia-oscuro" />Salir</button>
         </div>
       )}
     </div>

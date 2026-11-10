@@ -5,6 +5,7 @@ import { apiFetch } from "../lib/api";
 import { AdminNews, AdminOrders, AdminSubscriptions, AdminMessages } from "./AdminExtras";
 import { AdminContent } from "./AdminContent";
 import { UserAvatar } from "../components/UserMenu";
+import { Logo } from "../components/Logo";
 import {
   Users, BookOpen, DollarSign, Package, Settings,
   Edit2, Trash2, Plus, Save, X, Check, Calendar,
@@ -24,26 +25,26 @@ type Tab = "dashboard" | "teachers" | "products" | "users" | "bookings" | "revie
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
 const btn = {
-  primary: "inline-flex items-center gap-2 bg-[#88976C] hover:bg-[#728156] text-white px-5 py-2.5 rounded-sm text-sm font-medium transition-colors",
-  secondary: "inline-flex items-center gap-2 bg-white border border-[#9DB085] hover:border-[#88976C] text-[#2C2C2C] px-5 py-2.5 rounded-sm text-sm font-medium transition-colors",
+  primary: "inline-flex items-center gap-2 bg-bosque hover:bg-bosque-profundo text-lino px-5 py-2.5 rounded-sm text-sm font-medium transition-colors",
+  secondary: "inline-flex items-center gap-2 bg-white border border-salvia hover:border-salvia text-bosque px-5 py-2.5 rounded-sm text-sm font-medium transition-colors",
   danger: "inline-flex items-center gap-2 bg-red-50 hover:bg-red-100 text-red-600 px-3 py-1.5 rounded-sm text-xs font-medium transition-colors",
-  ghost: "inline-flex items-center gap-1.5 text-[#88976C] hover:text-[#728156] text-sm font-medium transition-colors",
-  icon: "p-2 rounded-sm hover:bg-[#88976C]/10 text-[#5D5D5D] hover:text-[#88976C] transition-colors",
+  ghost: "inline-flex items-center gap-1.5 text-salvia-oscuro hover:text-salvia-oscuro text-sm font-medium transition-colors",
+  icon: "p-2 rounded-sm hover:bg-salvia/10 text-musgo hover:text-salvia-oscuro transition-colors",
 };
 
-const card = "bg-white rounded-2xl border border-[#E5E5E5] shadow-sm";
-const inputCls = "w-full border border-[#E8E0D0] rounded-xl px-4 py-2.5 text-sm text-[#2C2C2C] focus:outline-none focus:border-[#88976C] focus:ring-1 focus:ring-[#88976C]/30 bg-white placeholder:text-[#5D5D5D]/50";
+const card = "bg-white rounded-2xl border border-lino-oscuro shadow-sm";
+const inputCls = "w-full border border-lino-oscuro rounded-xl px-4 py-2.5 text-sm text-bosque focus:outline-none focus:border-salvia focus:ring-1 focus:ring-salvia/30 bg-white placeholder:text-musgo/50";
 const badge = {
-  green: "px-2.5 py-0.5 rounded-sm text-xs font-medium bg-[#E8E0D0] text-[#4a6340]",
-  gray: "px-2.5 py-0.5 rounded-sm text-xs font-medium bg-[#E5E5E5] text-[#5D5D5D]",
+  green: "px-2.5 py-0.5 rounded-sm text-xs font-medium bg-lino-oscuro text-salvia-oscuro",
+  gray: "px-2.5 py-0.5 rounded-sm text-xs font-medium bg-lino-oscuro text-musgo",
   red: "px-2.5 py-0.5 rounded-sm text-xs font-medium bg-red-100 text-red-700",
   blue: "px-2.5 py-0.5 rounded-sm text-xs font-medium bg-blue-100 text-blue-700",
   purple: "px-2.5 py-0.5 rounded-sm text-xs font-medium bg-purple-100 text-purple-700",
   yellow: "px-2.5 py-0.5 rounded-sm text-xs font-medium bg-amber-100 text-amber-700",
 };
 
-const thCls = "px-5 py-3.5 text-left text-[10px] font-semibold text-[#98A77C] uppercase tracking-wider";
-const trCls = "border-b border-[#E5E5E5] last:border-0 hover:bg-[#f4f7f1] transition-colors";
+const thCls = "px-5 py-3.5 text-left text-[10px] font-semibold text-salvia-oscuro uppercase tracking-wider";
+const trCls = "border-b border-lino-oscuro last:border-0 hover:bg-niebla transition-colors";
 
 // ─── Componente principal ─────────────────────────────────────────────────────
 export function AdminPanel() {
@@ -174,16 +175,16 @@ export function AdminPanel() {
     setReviews(rs => rs.filter(r => r.id !== id));
   };
 
-  if (authLoading) return <div className="min-h-screen flex items-center justify-center text-[#5D5D5D]">Cargando…</div>;
+  if (authLoading) return <div className="min-h-screen flex items-center justify-center text-musgo">Cargando…</div>;
   if (isAuthenticated && !isAdmin) {
     return (
       <div className="min-h-screen flex items-center justify-center px-6">
-        <div className="max-w-md bg-white border border-[#E8E0D0] rounded-3xl p-8 text-center shadow-sm">
-          <h1 className="text-2xl font-medium text-[#2C2C2C] mb-3">Esta cuenta no es de administrador</h1>
-          <p className="text-sm text-[#5D5D5D] mb-6">Ingresaste como <b>{profile?.email}</b>. Para entrar al panel necesitás una cuenta con rol admin.</p>
+        <div className="max-w-md bg-white border border-lino-oscuro rounded-3xl p-8 text-center shadow-sm">
+          <h1 className="text-2xl font-medium text-bosque mb-3">Esta cuenta no es de administrador</h1>
+          <p className="text-sm text-musgo mb-6">Ingresaste como <b>{profile?.email}</b>. Para entrar al panel necesitás una cuenta con rol admin.</p>
           <div className="flex flex-col gap-3">
-            <button onClick={() => { logout(); navigate("/?auth=login&next=/admin", { replace: true }); }} className="bg-[#88976C] hover:bg-[#728156] text-white py-3 rounded-sm font-medium">Ingresar con otra cuenta</button>
-            <button onClick={() => navigate("/perfil")} className="border border-[#E8E0D0] hover:bg-[#F4EFE4] py-3 rounded-sm font-medium text-[#2C2C2C]">Ir a mi perfil</button>
+            <button onClick={() => { logout(); navigate("/?auth=login&next=/admin", { replace: true }); }} className="bg-bosque hover:bg-bosque-profundo text-lino py-3 rounded-full font-medium">Ingresar con otra cuenta</button>
+            <button onClick={() => navigate("/perfil")} className="border border-lino-oscuro hover:bg-lino py-3 rounded-full font-medium text-bosque">Ir a mi perfil</button>
           </div>
         </div>
       </div>
@@ -244,24 +245,24 @@ export function AdminPanel() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f4f7f1]">
+    <div className="min-h-screen bg-niebla">
 
       {/* ── Sidebar ── */}
-      <aside className="fixed left-0 top-0 h-screen w-60 bg-white border-r border-[#E5E5E5] flex flex-col z-30 overflow-y-auto">
+      <aside className="fixed left-0 top-0 h-screen w-60 bg-white border-r border-lino-oscuro flex flex-col z-30 overflow-y-auto">
 
         {/* Logo */}
-        <div className="px-6 pt-7 pb-5 border-b border-[#E5E5E5]">
-          <p className="text-[#2C2C2C] text-2xl font-serif italic leading-none">Omia</p>
-          <p className="text-[#98A77C] text-[11px] mt-1 font-light tracking-wide">Admin Panel</p>
+        <div className="px-6 pt-7 pb-5 border-b border-lino-oscuro">
+          <Logo className="h-7 w-auto text-bosque" />
+          <p className="text-salvia-oscuro text-[11px] mt-1 font-light tracking-wide">Admin Panel</p>
         </div>
 
         {/* User info */}
-        <div className="px-5 py-4 border-b border-[#E5E5E5]">
+        <div className="px-5 py-4 border-b border-lino-oscuro">
           <div className="flex items-center gap-3">
             <UserAvatar size={36} />
             <div className="min-w-0">
-              <p className="text-[#2C2C2C] text-sm font-medium truncate">{profile?.name || "Admin"}</p>
-              <p className="text-[#98A77C] text-[11px]">Administrador</p>
+              <p className="text-bosque text-sm font-medium truncate">{profile?.name || "Admin"}</p>
+              <p className="text-salvia-oscuro text-[11px]">Administrador</p>
             </div>
           </div>
         </div>
@@ -277,7 +278,7 @@ export function AdminPanel() {
                 className={`w-full flex items-center justify-between px-4 py-2.5 text-sm font-medium transition-all my-0.5 ${
                   active
                     ? "bg-[#1a2a1a] text-white rounded-lg border-none mx-1"
-                    : "text-[#5D5D5D] hover:bg-[#f4f7f1] hover:text-[#2C2C2C] rounded-lg"
+                    : "text-musgo hover:bg-niebla hover:text-bosque rounded-lg"
                 }`}
               >
                 <span className="flex items-center gap-2.5">
@@ -285,7 +286,7 @@ export function AdminPanel() {
                   {t.label}
                 </span>
                 {t.count != null && (
-                  <span className="bg-[#98A77C]/15 text-[#728156] text-[10px] rounded-sm px-1.5 py-0.5 font-semibold leading-none">
+                  <span className="bg-salvia/15 text-salvia-oscuro text-[10px] rounded-sm px-1.5 py-0.5 font-semibold leading-none">
                     {t.count}
                   </span>
                 )}
@@ -295,10 +296,10 @@ export function AdminPanel() {
         </nav>
 
         {/* Bottom link */}
-        <div className="px-6 py-5 border-t border-[#E5E5E5]">
+        <div className="px-6 py-5 border-t border-lino-oscuro">
           <button
             onClick={() => navigate("/")}
-            className="flex items-center gap-1.5 text-[#5D5D5D] hover:text-[#98A77C] text-sm transition-colors"
+            className="flex items-center gap-1.5 text-musgo hover:text-salvia-oscuro text-sm transition-colors"
           >
             Ver sitio <ArrowUpRight size={13} />
           </button>
@@ -309,9 +310,9 @@ export function AdminPanel() {
       <div className="ml-60">
 
         {/* Top bar */}
-        <div className="bg-white border-b border-[#E5E5E5] px-8 py-4 sticky top-0 z-20 flex items-center justify-between">
+        <div className="bg-white border-b border-lino-oscuro px-8 py-4 sticky top-0 z-20 flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-light text-[#2C2C2C] tracking-tight">{tabTitles[tab]}</h1>
+            <h1 className="text-xl font-light text-bosque tracking-tight">{tabTitles[tab]}</h1>
           </div>
           <div className="flex items-center gap-2">
             {tab === "teachers" && (
@@ -332,7 +333,7 @@ export function AdminPanel() {
             )}
             <button
               onClick={() => reload(tab)}
-              className="p-2 rounded-sm hover:bg-[#f4f7f1] text-[#5D5D5D] hover:text-[#88976C] transition-colors"
+              className="p-2 rounded-full hover:bg-niebla text-musgo hover:text-salvia-oscuro transition-colors"
               title="Actualizar"
             >
               <RefreshCw size={15} />
@@ -349,7 +350,7 @@ export function AdminPanel() {
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 {[
                   { label: "Usuarios totales", value: dashboard.totalUsers ?? 0, icon: Users, iconColor: "text-blue-600", iconBg: "bg-blue-50", trend: "+12% vs mes anterior", bars: [40,55,45,70,50,80,60,85,72,90] },
-                  { label: "Profesores activos", value: dashboard.totalTeachers ?? 0, icon: BookOpen, iconColor: "text-[#88976C]", iconBg: "bg-[#E8E0D0]/40", trend: "+5% vs mes anterior", bars: [60,45,75,55,80,50,70,60,85,75] },
+                  { label: "Profesores activos", value: dashboard.totalTeachers ?? 0, icon: BookOpen, iconColor: "text-salvia-oscuro", iconBg: "bg-lino-oscuro/40", trend: "+5% vs mes anterior", bars: [60,45,75,55,80,50,70,60,85,75] },
                   { label: "Reservas", value: dashboard.totalBookings ?? 0, icon: Calendar, iconColor: "text-purple-600", iconBg: "bg-purple-50", trend: "+18% vs mes anterior", bars: [30,50,40,65,55,75,60,80,70,90] },
                   { label: "Revenue total", value: `$${(dashboard.revenue ?? 0).toLocaleString("es-AR")}`, icon: TrendingUp, iconColor: "text-amber-600", iconBg: "bg-amber-50", trend: "+9% vs mes anterior", bars: [50,35,60,45,70,55,80,65,85,75] },
                 ].map(stat => (
@@ -357,8 +358,8 @@ export function AdminPanel() {
                     <div className={`w-10 h-10 ${stat.iconBg} rounded-2xl flex items-center justify-center mb-4`}>
                       <stat.icon size={18} className={stat.iconColor} />
                     </div>
-                    <p className="text-[10px] text-[#98A77C] uppercase tracking-widest font-semibold mb-1">{stat.label}</p>
-                    <p className="text-3xl font-light text-[#2C2C2C]">{stat.value}</p>
+                    <p className="text-[10px] text-salvia-oscuro uppercase tracking-widest font-semibold mb-1">{stat.label}</p>
+                    <p className="text-3xl font-light text-bosque">{stat.value}</p>
                   </div>
                 ))}
               </div>
@@ -366,32 +367,32 @@ export function AdminPanel() {
               {/* Bottom cards */}
               <div className="grid md:grid-cols-2 gap-4">
                 <div className={`${card} p-5`}>
-                  <h3 className="text-sm font-medium text-[#2C2C2C] mb-4">Revenue por tipo</h3>
+                  <h3 className="text-sm font-medium text-bosque mb-4">Revenue por tipo</h3>
                   {[
                     { label: "Membresías", value: dashboard.revenueByType?.subscriptions ?? 0, dot: "bg-purple-400" },
                     { label: "Reservas", value: dashboard.revenueByType?.bookings ?? 0, dot: "bg-blue-400" },
-                    { label: "Tienda", value: dashboard.revenueByType?.products ?? 0, dot: "bg-[#88976C]" },
+                    { label: "Tienda", value: dashboard.revenueByType?.products ?? 0, dot: "bg-salvia" },
                   ].map(item => (
-                    <div key={item.label} className="flex items-center justify-between py-3 border-b border-[#E5E5E5] last:border-0">
+                    <div key={item.label} className="flex items-center justify-between py-3 border-b border-lino-oscuro last:border-0">
                       <div className="flex items-center gap-2.5">
                         <div className={`w-2 h-2 rounded-full ${item.dot}`} />
-                        <span className="text-sm text-[#5D5D5D]">{item.label}</span>
+                        <span className="text-sm text-musgo">{item.label}</span>
                       </div>
-                      <span className="font-medium text-[#2C2C2C] text-sm">${item.value.toLocaleString("es-AR")}</span>
+                      <span className="font-medium text-bosque text-sm">${item.value.toLocaleString("es-AR")}</span>
                     </div>
                   ))}
                 </div>
                 <div className={`${card} p-5`}>
-                  <h3 className="text-sm font-medium text-[#2C2C2C] mb-4">Últimos usuarios</h3>
+                  <h3 className="text-sm font-medium text-bosque mb-4">Últimos usuarios</h3>
                   {(dashboard.recentUsers ?? []).map((u: any) => (
-                    <div key={u.email} className="flex items-center justify-between py-2.5 border-b border-[#E5E5E5] last:border-0">
+                    <div key={u.email} className="flex items-center justify-between py-2.5 border-b border-lino-oscuro last:border-0">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-7 h-7 rounded-sm bg-[#E8E0D0]/60 flex items-center justify-center text-xs font-semibold text-[#728156]">
+                        <div className="w-7 h-7 rounded-sm bg-lino-oscuro/60 flex items-center justify-center text-xs font-semibold text-salvia-oscuro">
                           {initials(u.name, u.email)}
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-[#2C2C2C] leading-tight">{u.name || "—"}</p>
-                          <p className="text-xs text-[#5D5D5D]">{u.email}</p>
+                          <p className="text-sm font-medium text-bosque leading-tight">{u.name || "—"}</p>
+                          <p className="text-xs text-musgo">{u.email}</p>
                         </div>
                       </div>
                       <span className={u.role === "admin" ? badge.red : u.role === "profesor" ? badge.blue : badge.gray}>{u.role}</span>
@@ -401,13 +402,13 @@ export function AdminPanel() {
               </div>
 
               {/* Bar chart — Actividad mensual */}
-              <div className="bg-white rounded-2xl border border-[#E5E5E5] p-5 shadow-sm">
+              <div className="bg-white rounded-2xl border border-lino-oscuro p-5 shadow-sm">
                 <div className="flex items-center justify-between mb-5">
                   <div>
-                    <h3 className="font-medium text-[#2C2C2C] text-sm">Actividad mensual</h3>
-                    <p className="text-xs text-[#5D5D5D] mt-0.5">Reservas y pagos aprobados por mes</p>
+                    <h3 className="font-medium text-bosque text-sm">Actividad mensual</h3>
+                    <p className="text-xs text-musgo mt-0.5">Reservas y pagos aprobados por mes</p>
                   </div>
-                  <span className="text-xs bg-[#98A77C]/15 text-[#728156] px-3 py-1 rounded-sm font-medium">Últimos 6 meses</span>
+                  <span className="text-xs bg-salvia/15 text-salvia-oscuro px-3 py-1 rounded-sm font-medium">Últimos 6 meses</span>
                 </div>
                 {(() => {
                   const monthly: { label: string; bookings: number; transactions: number }[] = dashboard.monthly || [];
@@ -418,17 +419,17 @@ export function AdminPanel() {
                         <div key={m.label} className="flex-1 flex flex-col items-center gap-1" title={`${m.bookings} reservas · ${m.transactions} pagos aprobados`}>
                           <div className="w-full flex items-end gap-0.5" style={{ height: "100px" }}>
                             <div className="flex-1 bg-[#1a2a1a] rounded-t-sm" style={{ height: `${(m.bookings / max) * 100}%` }} />
-                            <div className="flex-1 bg-[#98A77C]/50 rounded-t-sm" style={{ height: `${(m.transactions / max) * 100}%` }} />
+                            <div className="flex-1 bg-salvia/50 rounded-t-sm" style={{ height: `${(m.transactions / max) * 100}%` }} />
                           </div>
-                          <span className="text-[9px] text-[#5D5D5D]">{m.label}</span>
+                          <span className="text-[9px] text-musgo">{m.label}</span>
                         </div>
                       ))}
                     </div>
                   );
                 })()}
-                <div className="flex items-center gap-4 mt-3 pt-3 border-t border-[#E5E5E5]">
-                  <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-sm bg-[#1a2a1a]"/><span className="text-xs text-[#5D5D5D]">Reservas</span></div>
-                  <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-sm bg-[#98A77C]/50"/><span className="text-xs text-[#5D5D5D]">Pagos aprobados</span></div>
+                <div className="flex items-center gap-4 mt-3 pt-3 border-t border-lino-oscuro">
+                  <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-sm bg-[#1a2a1a]"/><span className="text-xs text-musgo">Reservas</span></div>
+                  <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-sm bg-salvia/50"/><span className="text-xs text-musgo">Pagos aprobados</span></div>
                 </div>
               </div>
             </div>
@@ -447,13 +448,13 @@ export function AdminPanel() {
 
               {/* Search */}
               <div className="relative">
-                <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#98A77C]" />
+                <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-salvia-oscuro" />
                 <input
                   type="text"
                   placeholder="Buscar por nombre o email…"
                   value={searchTeachers}
                   onChange={e => setSearchTeachers(e.target.value)}
-                  className="w-full max-w-sm border border-[#E8E0D0] rounded-xl pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:border-[#88976C] focus:ring-1 focus:ring-[#88976C]/30 bg-white placeholder:text-[#5D5D5D]/50"
+                  className="w-full max-w-sm border border-lino-oscuro rounded-xl pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:border-salvia focus:ring-1 focus:ring-salvia/30 bg-white placeholder:text-musgo/50"
                 />
               </div>
 
@@ -461,7 +462,7 @@ export function AdminPanel() {
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="bg-[#f4f7f1] border-b border-[#E5E5E5]">
+                      <tr className="bg-niebla border-b border-lino-oscuro">
                         {["Profesor", "Disciplina", "Zona", "Plan", "Estado", "Acciones"].map(h => (
                           <th key={h} className={thCls}>{h}</th>
                         ))}
@@ -469,7 +470,7 @@ export function AdminPanel() {
                     </thead>
                     <tbody>
                       {filteredTeachers.length === 0 && (
-                        <tr><td colSpan={6} className="px-5 py-10 text-center text-[#5D5D5D] text-sm">Sin profesores registrados</td></tr>
+                        <tr><td colSpan={6} className="px-5 py-10 text-center text-musgo text-sm">Sin profesores registrados</td></tr>
                       )}
                       {filteredTeachers.map(t => (
                         <tr key={t.id} className={trCls}>
@@ -477,16 +478,16 @@ export function AdminPanel() {
                             <div className="flex items-center gap-2.5">
                               {t.photo_url
                                 ? <img src={t.photo_url} alt={t.name} className="w-8 h-8 rounded-sm object-cover" />
-                                : <div className="w-8 h-8 rounded-sm bg-[#E8E0D0]/60 flex items-center justify-center text-xs font-semibold text-[#728156]">{t.name?.[0]}</div>
+                                : <div className="w-8 h-8 rounded-sm bg-lino-oscuro/60 flex items-center justify-center text-xs font-semibold text-salvia-oscuro">{t.name?.[0]}</div>
                               }
                               <div>
-                                <p className="font-medium text-[#2C2C2C]">{t.name}</p>
-                                <p className="text-xs text-[#5D5D5D]">{t.email}</p>
+                                <p className="font-medium text-bosque">{t.name}</p>
+                                <p className="text-xs text-musgo">{t.email}</p>
                               </div>
                             </div>
                           </td>
-                          <td className="px-5 py-4 text-[#5D5D5D]">{t.discipline || "—"}</td>
-                          <td className="px-5 py-4 text-[#5D5D5D]">{t.location || "—"}</td>
+                          <td className="px-5 py-4 text-musgo">{t.discipline || "—"}</td>
+                          <td className="px-5 py-4 text-musgo">{t.location || "—"}</td>
                           <td className="px-5 py-4">
                             <span className={t.plan_active ? badge.green : badge.gray}>{t.plan || "ninguno"}</span>
                           </td>
@@ -501,7 +502,7 @@ export function AdminPanel() {
                               <button onClick={() => toggleTeacherStatus(t.id, t.status)} className={btn.icon} title={t.status === "activo" ? "Desactivar" : "Activar"}>
                                 {t.status === "activo" ? <EyeOff size={14} /> : <Eye size={14} />}
                               </button>
-                              <button onClick={() => deleteTeacher(t.id)} className="p-2 rounded-sm hover:bg-red-50 text-[#5D5D5D] hover:text-red-500 transition-colors" title="Eliminar">
+                              <button onClick={() => deleteTeacher(t.id)} className="p-2 rounded-full hover:bg-red-50 text-musgo hover:text-red-500 transition-colors" title="Eliminar">
                                 <Trash2 size={14} />
                               </button>
                             </div>
@@ -524,13 +525,13 @@ export function AdminPanel() {
 
               {/* Search */}
               <div className="relative">
-                <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#98A77C]" />
+                <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-salvia-oscuro" />
                 <input
                   type="text"
                   placeholder="Buscar por nombre o categoría…"
                   value={searchProducts}
                   onChange={e => setSearchProducts(e.target.value)}
-                  className="w-full max-w-sm border border-[#E8E0D0] rounded-xl pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:border-[#88976C] focus:ring-1 focus:ring-[#88976C]/30 bg-white placeholder:text-[#5D5D5D]/50"
+                  className="w-full max-w-sm border border-lino-oscuro rounded-xl pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:border-salvia focus:ring-1 focus:ring-salvia/30 bg-white placeholder:text-musgo/50"
                 />
               </div>
 
@@ -538,7 +539,7 @@ export function AdminPanel() {
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="bg-[#f4f7f1] border-b border-[#E5E5E5]">
+                      <tr className="bg-niebla border-b border-lino-oscuro">
                         {["Producto", "Categoría", "Precio", "Stock", "Estado", "Acciones"].map(h => (
                           <th key={h} className={thCls}>{h}</th>
                         ))}
@@ -546,32 +547,32 @@ export function AdminPanel() {
                     </thead>
                     <tbody>
                       {filteredProducts.length === 0 && (
-                        <tr><td colSpan={6} className="px-5 py-10 text-center text-[#5D5D5D] text-sm">Sin productos registrados</td></tr>
+                        <tr><td colSpan={6} className="px-5 py-10 text-center text-musgo text-sm">Sin productos registrados</td></tr>
                       )}
                       {filteredProducts.map(p => (
                         <tr key={p.id} className={trCls}>
                           <td className="px-5 py-4">
                             <div className="flex items-center gap-2.5">
                               {p.images?.[0]
-                                ? <img src={p.images[0]} alt={p.name} className="w-9 h-9 rounded-xl object-cover border border-[#E5E5E5]" />
-                                : <div className="w-9 h-9 rounded-xl bg-[#f4f7f1] flex items-center justify-center border border-[#E5E5E5]"><Package size={14} className="text-[#98A77C]" /></div>
+                                ? <img src={p.images[0]} alt={p.name} className="w-9 h-9 rounded-xl object-cover border border-lino-oscuro" />
+                                : <div className="w-9 h-9 rounded-xl bg-niebla flex items-center justify-center border border-lino-oscuro"><Package size={14} className="text-salvia-oscuro" /></div>
                               }
                               <div>
-                                <p className="font-medium text-[#2C2C2C]">{p.name}</p>
-                                <p className="text-xs text-[#5D5D5D] max-w-[180px] truncate">{p.description}</p>
+                                <p className="font-medium text-bosque">{p.name}</p>
+                                <p className="text-xs text-musgo max-w-[180px] truncate">{p.description}</p>
                               </div>
                             </div>
                           </td>
-                          <td className="px-5 py-4 text-[#5D5D5D] capitalize">{p.category}</td>
-                          <td className="px-5 py-4 font-medium text-[#2C2C2C]">${Number(p.price).toLocaleString("es-AR")}</td>
-                          <td className="px-5 py-4 text-[#5D5D5D]">{p.stock}</td>
+                          <td className="px-5 py-4 text-musgo capitalize">{p.category}</td>
+                          <td className="px-5 py-4 font-medium text-bosque">${Number(p.price).toLocaleString("es-AR")}</td>
+                          <td className="px-5 py-4 text-musgo">{p.stock}</td>
                           <td className="px-5 py-4">
                             <span className={p.active ? badge.green : badge.red}>{p.active ? "Activo" : "Inactivo"}</span>
                           </td>
                           <td className="px-5 py-4">
                             <div className="flex items-center gap-1">
                               <button onClick={() => setEditingProduct(p)} className={btn.icon} title="Editar"><Edit2 size={14} /></button>
-                              <button onClick={() => deleteProduct(p.id)} className="p-2 rounded-sm hover:bg-red-50 text-[#5D5D5D] hover:text-red-500 transition-colors" title="Desactivar"><Trash2 size={14} /></button>
+                              <button onClick={() => deleteProduct(p.id)} className="p-2 rounded-full hover:bg-red-50 text-musgo hover:text-red-500 transition-colors" title="Desactivar"><Trash2 size={14} /></button>
                             </div>
                           </td>
                         </tr>
@@ -588,13 +589,13 @@ export function AdminPanel() {
             <div className="space-y-4">
               {/* Search */}
               <div className="relative">
-                <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#98A77C]" />
+                <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-salvia-oscuro" />
                 <input
                   type="text"
                   placeholder="Buscar por nombre o email…"
                   value={searchUsers}
                   onChange={e => setSearchUsers(e.target.value)}
-                  className="w-full max-w-sm border border-[#E8E0D0] rounded-xl pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:border-[#88976C] focus:ring-1 focus:ring-[#88976C]/30 bg-white placeholder:text-[#5D5D5D]/50"
+                  className="w-full max-w-sm border border-lino-oscuro rounded-xl pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:border-salvia focus:ring-1 focus:ring-salvia/30 bg-white placeholder:text-musgo/50"
                 />
               </div>
 
@@ -619,8 +620,8 @@ export function AdminPanel() {
                   <div className="flex flex-wrap items-center gap-3">
                     {stats.map(([l, v]) => (
                       <div key={l as string} className={`${card} px-5 py-3`}>
-                        <p className="text-[10px] uppercase tracking-widest text-[#98A77C] font-semibold">{l}</p>
-                        <p className="text-2xl font-light text-[#2C2C2C]">{v}</p>
+                        <p className="text-[10px] uppercase tracking-widest text-salvia-oscuro font-semibold">{l}</p>
+                        <p className="text-2xl font-light text-bosque">{v}</p>
                       </div>
                     ))}
                     <button onClick={exportCsv} className={`${btn.secondary} ml-auto`}>Exportar CSV</button>
@@ -632,7 +633,7 @@ export function AdminPanel() {
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="bg-[#f4f7f1] border-b border-[#E5E5E5]">
+                      <tr className="bg-niebla border-b border-lino-oscuro">
                         {["Usuario", "Email", "Rol actual", "Registro", "Registrado", "Cambiar rol"].map(h => (
                           <th key={h} className={thCls}>{h}</th>
                         ))}
@@ -640,26 +641,26 @@ export function AdminPanel() {
                     </thead>
                     <tbody>
                       {filteredUsers.length === 0 && (
-                        <tr><td colSpan={6} className="px-5 py-10 text-center text-[#5D5D5D] text-sm">Sin usuarios registrados</td></tr>
+                        <tr><td colSpan={6} className="px-5 py-10 text-center text-musgo text-sm">Sin usuarios registrados</td></tr>
                       )}
                       {filteredUsers.map(u => (
                         <tr key={u.id} className={trCls}>
                           <td className="px-5 py-4">
                             <div className="flex items-center gap-2.5">
-                              <div className="w-8 h-8 rounded-sm bg-[#E8E0D0]/60 flex items-center justify-center text-xs font-semibold text-[#728156]">
+                              <div className="w-8 h-8 rounded-sm bg-lino-oscuro/60 flex items-center justify-center text-xs font-semibold text-salvia-oscuro">
                                 {initials(u.name, u.email)}
                               </div>
-                              <span className="font-medium text-[#2C2C2C]">{u.name || "Sin nombre"}</span>
+                              <span className="font-medium text-bosque">{u.name || "Sin nombre"}</span>
                             </div>
                           </td>
-                          <td className="px-5 py-4 text-[#5D5D5D]">{u.email}</td>
+                          <td className="px-5 py-4 text-musgo">{u.email}</td>
                           <td className="px-5 py-4">
                             <span className={u.role === "admin" ? badge.red : u.role === "profesor" ? badge.blue : badge.gray}>{u.role}</span>
                           </td>
                           <td className="px-5 py-4">
                             <span className={u.signup_method === "google" ? badge.blue : badge.gray}>{u.signup_method === "google" ? "Google" : "Mail"}</span>
                           </td>
-                          <td className="px-5 py-4 text-[#5D5D5D] text-xs">
+                          <td className="px-5 py-4 text-musgo text-xs">
                             {new Date(u.created_at).toLocaleDateString("es-AR")}
                             {u.terms_accepted_at && <div className="text-[10px]">Aceptó términos</div>}
                           </td>
@@ -667,7 +668,7 @@ export function AdminPanel() {
                             <select
                               value={u.role}
                               onChange={e => changeUserRole(u.id, e.target.value)}
-                              className="text-xs border border-[#E8E0D0] rounded-sm px-3 py-1.5 text-[#2C2C2C] focus:outline-none focus:border-[#88976C] bg-white cursor-pointer"
+                              className="text-xs border border-lino-oscuro rounded-sm px-3 py-1.5 text-bosque focus:outline-none focus:border-salvia bg-white cursor-pointer"
                             >
                               <option value="alumno">Alumno</option>
                               <option value="profesor">Profesor</option>
@@ -688,13 +689,13 @@ export function AdminPanel() {
             <div className="space-y-4">
               {/* Search */}
               <div className="relative">
-                <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#98A77C]" />
+                <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-salvia-oscuro" />
                 <input
                   type="text"
                   placeholder="Buscar por alumno o profesor…"
                   value={searchBookings}
                   onChange={e => setSearchBookings(e.target.value)}
-                  className="w-full max-w-sm border border-[#E8E0D0] rounded-xl pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:border-[#88976C] focus:ring-1 focus:ring-[#88976C]/30 bg-white placeholder:text-[#5D5D5D]/50"
+                  className="w-full max-w-sm border border-lino-oscuro rounded-xl pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:border-salvia focus:ring-1 focus:ring-salvia/30 bg-white placeholder:text-musgo/50"
                 />
               </div>
 
@@ -702,7 +703,7 @@ export function AdminPanel() {
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="bg-[#f4f7f1] border-b border-[#E5E5E5]">
+                      <tr className="bg-niebla border-b border-lino-oscuro">
                         {["Alumno", "Profesor", "Fecha", "Precio", "Estado", "Acciones"].map(h => (
                           <th key={h} className={thCls}>{h}</th>
                         ))}
@@ -710,22 +711,22 @@ export function AdminPanel() {
                     </thead>
                     <tbody>
                       {filteredBookings.length === 0 && (
-                        <tr><td colSpan={6} className="px-5 py-10 text-center text-[#5D5D5D] text-sm">Sin reservas aún</td></tr>
+                        <tr><td colSpan={6} className="px-5 py-10 text-center text-musgo text-sm">Sin reservas aún</td></tr>
                       )}
                       {filteredBookings.map(b => (
                         <tr key={b.id} className={trCls}>
                           <td className="px-5 py-4">
-                            <p className="font-medium text-[#2C2C2C]">{b.profiles?.name || "—"}</p>
-                            <p className="text-xs text-[#5D5D5D]">{b.profiles?.email}</p>
+                            <p className="font-medium text-bosque">{b.profiles?.name || "—"}</p>
+                            <p className="text-xs text-musgo">{b.profiles?.email}</p>
                           </td>
-                          <td className="px-5 py-4 text-[#5D5D5D]">{b.teachers?.name || "—"}</td>
-                          <td className="px-5 py-4 text-xs text-[#5D5D5D]">{b.booking_date ? new Date(b.booking_date).toLocaleDateString("es-AR") : new Date(b.created_at).toLocaleDateString("es-AR")}</td>
-                          <td className="px-5 py-4 font-medium text-[#2C2C2C]">{b.price ? `$${Number(b.price).toLocaleString("es-AR")}` : "—"}</td>
+                          <td className="px-5 py-4 text-musgo">{b.teachers?.name || "—"}</td>
+                          <td className="px-5 py-4 text-xs text-musgo">{b.booking_date ? new Date(b.booking_date).toLocaleDateString("es-AR") : new Date(b.created_at).toLocaleDateString("es-AR")}</td>
+                          <td className="px-5 py-4 font-medium text-bosque">{b.price ? `$${Number(b.price).toLocaleString("es-AR")}` : "—"}</td>
                           <td className="px-5 py-4">
                             <select
                               value={b.status || "pendiente"}
                               onChange={e => updateBookingStatus(b.id, e.target.value)}
-                              className="text-xs border border-[#E8E0D0] rounded-sm px-3 py-1.5 text-[#2C2C2C] focus:outline-none focus:border-[#88976C] bg-white cursor-pointer"
+                              className="text-xs border border-lino-oscuro rounded-sm px-3 py-1.5 text-bosque focus:outline-none focus:border-salvia bg-white cursor-pointer"
                             >
                               <option value="pendiente">Pendiente</option>
                               <option value="confirmada">Confirmada</option>
@@ -734,7 +735,7 @@ export function AdminPanel() {
                             </select>
                           </td>
                           <td className="px-5 py-4">
-                            <button onClick={() => deleteBooking(b.id)} className="p-2 rounded-sm hover:bg-red-50 text-[#5D5D5D] hover:text-red-500 transition-colors" title="Eliminar">
+                            <button onClick={() => deleteBooking(b.id)} className="p-2 rounded-full hover:bg-red-50 text-musgo hover:text-red-500 transition-colors" title="Eliminar">
                               <Trash2 size={14} />
                             </button>
                           </td>
@@ -751,29 +752,29 @@ export function AdminPanel() {
           {tab === "reviews" && (
             <div className="grid gap-3">
               {reviews.length === 0 && (
-                <div className={`${card} p-10 text-center text-[#5D5D5D] text-sm`}>Sin reseñas publicadas</div>
+                <div className={`${card} p-10 text-center text-musgo text-sm`}>Sin reseñas publicadas</div>
               )}
               {reviews.map(r => (
                 <div key={r.id} className={`${card} p-5 flex items-start justify-between gap-4`}>
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
-                      <div className="w-8 h-8 rounded-sm bg-[#E8E0D0]/60 flex items-center justify-center text-xs font-semibold text-[#728156]">
+                      <div className="w-8 h-8 rounded-sm bg-lino-oscuro/60 flex items-center justify-center text-xs font-semibold text-salvia-oscuro">
                         {(r.profiles?.name || r.user_name || "?")?.[0]?.toUpperCase()}
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-[#2C2C2C]">{r.profiles?.name || r.user_name || "Anónimo"}</p>
-                        <p className="text-xs text-[#5D5D5D]">sobre <span className="text-[#88976C] font-medium">{r.teachers?.name || r.teacher_name || "—"}</span></p>
+                        <p className="text-sm font-medium text-bosque">{r.profiles?.name || r.user_name || "Anónimo"}</p>
+                        <p className="text-xs text-musgo">sobre <span className="text-salvia-oscuro font-medium">{r.teachers?.name || r.teacher_name || "—"}</span></p>
                       </div>
                       <div className="flex items-center gap-0.5 ml-2">
                         {Array.from({ length: 5 }).map((_, i) => (
-                          <Star key={i} size={12} className={i < (r.rating || 0) ? "text-amber-400 fill-amber-400" : "text-[#E5E5E5]"} />
+                          <Star key={i} size={12} className={i < (r.rating || 0) ? "text-amber-400 fill-amber-400" : "text-lino-oscuro"} />
                         ))}
                       </div>
                     </div>
-                    <p className="text-sm text-[#5D5D5D] leading-relaxed">{r.comment || r.text || "Sin comentario."}</p>
-                    <p className="text-xs text-[#5D5D5D]/60 mt-2">{new Date(r.created_at).toLocaleDateString("es-AR", { day: "numeric", month: "long", year: "numeric" })}</p>
+                    <p className="text-sm text-musgo leading-relaxed">{r.comment || r.text || "Sin comentario."}</p>
+                    <p className="text-xs text-musgo/60 mt-2">{new Date(r.created_at).toLocaleDateString("es-AR", { day: "numeric", month: "long", year: "numeric" })}</p>
                   </div>
-                  <button onClick={() => deleteReview(r.id)} className="p-2 rounded-sm hover:bg-red-50 text-[#5D5D5D] hover:text-red-500 transition-colors shrink-0" title="Eliminar reseña">
+                  <button onClick={() => deleteReview(r.id)} className="p-2 rounded-full hover:bg-red-50 text-musgo hover:text-red-500 transition-colors shrink-0" title="Eliminar reseña">
                     <Trash2 size={14} />
                   </button>
                 </div>
@@ -792,13 +793,13 @@ export function AdminPanel() {
             <div className="space-y-4">
               {/* Search */}
               <div className="relative">
-                <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#98A77C]" />
+                <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-salvia-oscuro" />
                 <input
                   type="text"
                   placeholder="Buscar por usuario o descripción…"
                   value={searchTransactions}
                   onChange={e => setSearchTransactions(e.target.value)}
-                  className="w-full max-w-sm border border-[#E8E0D0] rounded-xl pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:border-[#88976C] focus:ring-1 focus:ring-[#88976C]/30 bg-white placeholder:text-[#5D5D5D]/50"
+                  className="w-full max-w-sm border border-lino-oscuro rounded-xl pl-9 pr-4 py-2.5 text-sm focus:outline-none focus:border-salvia focus:ring-1 focus:ring-salvia/30 bg-white placeholder:text-musgo/50"
                 />
               </div>
 
@@ -806,7 +807,7 @@ export function AdminPanel() {
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="bg-[#f4f7f1] border-b border-[#E5E5E5]">
+                      <tr className="bg-niebla border-b border-lino-oscuro">
                         {["Usuario", "Tipo", "Descripción", "Monto", "Estado", "Fecha"].map(h => (
                           <th key={h} className={thCls}>{h}</th>
                         ))}
@@ -814,22 +815,22 @@ export function AdminPanel() {
                     </thead>
                     <tbody>
                       {filteredTransactions.length === 0 && (
-                        <tr><td colSpan={6} className="px-5 py-10 text-center text-[#5D5D5D] text-sm">Sin transacciones aún</td></tr>
+                        <tr><td colSpan={6} className="px-5 py-10 text-center text-musgo text-sm">Sin transacciones aún</td></tr>
                       )}
                       {filteredTransactions.map(t => (
                         <tr key={t.id} className={trCls}>
-                          <td className="px-5 py-4 text-[#5D5D5D]">{t.user_name || "—"}</td>
+                          <td className="px-5 py-4 text-musgo">{t.user_name || "—"}</td>
                           <td className="px-5 py-4">
                             <span className={t.type === "subscription" ? badge.purple : t.type === "booking" ? badge.blue : badge.yellow}>
                               {t.type === "subscription" ? "Membresía" : t.type === "booking" ? "Reserva" : "Tienda"}
                             </span>
                           </td>
-                          <td className="px-5 py-4 text-[#5D5D5D] text-xs max-w-[220px] truncate">{t.description || "—"}</td>
-                          <td className="px-5 py-4 font-medium text-[#2C2C2C]">${Number(t.amount || 0).toLocaleString("es-AR")}</td>
+                          <td className="px-5 py-4 text-musgo text-xs max-w-[220px] truncate">{t.description || "—"}</td>
+                          <td className="px-5 py-4 font-medium text-bosque">${Number(t.amount || 0).toLocaleString("es-AR")}</td>
                           <td className="px-5 py-4">
                             <span className={t.status === "aprobado" ? badge.green : t.status === "rechazado" ? badge.red : badge.yellow}>{t.status}</span>
                           </td>
-                          <td className="px-5 py-4 text-[#5D5D5D] text-xs">{new Date(t.created_at).toLocaleDateString("es-AR")}</td>
+                          <td className="px-5 py-4 text-musgo text-xs">{new Date(t.created_at).toLocaleDateString("es-AR")}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -844,14 +845,14 @@ export function AdminPanel() {
             <div className="space-y-4">
               <div className={card}>
                 {config.length === 0 && (
-                  <div className="p-10 text-center text-[#5D5D5D] text-sm">Sin configuraciones disponibles</div>
+                  <div className="p-10 text-center text-musgo text-sm">Sin configuraciones disponibles</div>
                 )}
                 {config.map((item, idx) => (
-                  <div key={item.key} className={`px-6 py-5 flex items-center justify-between gap-4 ${idx < config.length - 1 ? "border-b border-[#E5E5E5]" : ""}`}>
+                  <div key={item.key} className={`px-6 py-5 flex items-center justify-between gap-4 ${idx < config.length - 1 ? "border-b border-lino-oscuro" : ""}`}>
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-[#2C2C2C]">{item.label || item.key}</p>
+                      <p className="text-sm font-medium text-bosque">{item.label || item.key}</p>
                       {editingConfig !== item.key && (
-                        <p className="text-sm text-[#88976C] font-medium mt-0.5">
+                        <p className="text-sm text-salvia-oscuro font-medium mt-0.5">
                           {item.key.includes("price") ? `$${Number(item.value).toLocaleString("es-AR")} ARS` : item.value}
                         </p>
                       )}
@@ -865,8 +866,8 @@ export function AdminPanel() {
                             onChange={e => setConfigValues(v => ({ ...v, [item.key]: e.target.value }))}
                             autoFocus
                           />
-                          <button onClick={() => saveConfig(item.key)} className="p-2 bg-[#E8E0D0]/50 text-[#728156] rounded-sm hover:bg-[#E8E0D0] transition-colors"><Check size={15} /></button>
-                          <button onClick={() => setEditingConfig(null)} className="p-2 bg-[#E5E5E5] text-[#5D5D5D] rounded-sm hover:bg-gray-200 transition-colors"><X size={15} /></button>
+                          <button onClick={() => saveConfig(item.key)} className="p-2 bg-lino-oscuro/50 text-salvia-oscuro rounded-full hover:bg-lino-oscuro transition-colors"><Check size={15} /></button>
+                          <button onClick={() => setEditingConfig(null)} className="p-2 bg-lino-oscuro text-musgo rounded-full hover:bg-gray-200 transition-colors"><X size={15} /></button>
                         </>
                       ) : (
                         <button onClick={() => setEditingConfig(item.key)} className={btn.ghost}>
@@ -903,26 +904,26 @@ function TeacherForm({ teacher, onSave, onCancel }: { teacher: any; onSave: (t: 
   ];
 
   return (
-    <div className="bg-[#f4f7f1] border border-[#E8E0D0] rounded-2xl p-6">
-      <h3 className="font-medium text-[#2C2C2C] mb-5 text-base">{teacher?.id ? "Editar profesor" : "Nuevo profesor"}</h3>
+    <div className="bg-niebla border border-lino-oscuro rounded-2xl p-6">
+      <h3 className="font-medium text-bosque mb-5 text-base">{teacher?.id ? "Editar profesor" : "Nuevo profesor"}</h3>
       <div className="grid md:grid-cols-2 gap-4">
         {col1Fields.map(f => (
           <div key={f.key}>
-            <label className="block text-xs font-medium text-[#5D5D5D] mb-1.5">{f.label}</label>
-            <input type={f.type} value={form[f.key] || ""} onChange={e => set(f.key, e.target.value)} className={`w-full border border-[#E8E0D0] rounded-xl px-4 py-2.5 text-sm text-[#2C2C2C] focus:outline-none focus:border-[#88976C] focus:ring-1 focus:ring-[#88976C]/30 bg-white`} />
+            <label className="block text-xs font-medium text-musgo mb-1.5">{f.label}</label>
+            <input type={f.type} value={form[f.key] || ""} onChange={e => set(f.key, e.target.value)} className={`w-full border border-lino-oscuro rounded-xl px-4 py-2.5 text-sm text-bosque focus:outline-none focus:border-salvia focus:ring-1 focus:ring-salvia/30 bg-white`} />
           </div>
         ))}
         <div className="md:col-span-2">
-          <label className="block text-xs font-medium text-[#5D5D5D] mb-1.5">URL foto de perfil</label>
-          <input type="text" value={form.photo_url || ""} onChange={e => set("photo_url", e.target.value)} className={`w-full border border-[#E8E0D0] rounded-xl px-4 py-2.5 text-sm text-[#2C2C2C] focus:outline-none focus:border-[#88976C] focus:ring-1 focus:ring-[#88976C]/30 bg-white`} placeholder="https://…" />
+          <label className="block text-xs font-medium text-musgo mb-1.5">URL foto de perfil</label>
+          <input type="text" value={form.photo_url || ""} onChange={e => set("photo_url", e.target.value)} className={`w-full border border-lino-oscuro rounded-xl px-4 py-2.5 text-sm text-bosque focus:outline-none focus:border-salvia focus:ring-1 focus:ring-salvia/30 bg-white`} placeholder="https://…" />
         </div>
         <div className="md:col-span-2">
-          <label className="block text-xs font-medium text-[#5D5D5D] mb-1.5">Biografía</label>
-          <textarea value={form.bio || ""} onChange={e => set("bio", e.target.value)} className={`w-full border border-[#E8E0D0] rounded-xl px-4 py-2.5 text-sm text-[#2C2C2C] focus:outline-none focus:border-[#88976C] focus:ring-1 focus:ring-[#88976C]/30 bg-white`} rows={3} />
+          <label className="block text-xs font-medium text-musgo mb-1.5">Biografía</label>
+          <textarea value={form.bio || ""} onChange={e => set("bio", e.target.value)} className={`w-full border border-lino-oscuro rounded-xl px-4 py-2.5 text-sm text-bosque focus:outline-none focus:border-salvia focus:ring-1 focus:ring-salvia/30 bg-white`} rows={3} />
         </div>
         <div>
-          <label className="block text-xs font-medium text-[#5D5D5D] mb-1.5">Plan</label>
-          <select value={form.plan || "ninguno"} onChange={e => set("plan", e.target.value)} className={`w-full border border-[#E8E0D0] rounded-xl px-4 py-2.5 text-sm text-[#2C2C2C] focus:outline-none focus:border-[#88976C] bg-white`}>
+          <label className="block text-xs font-medium text-musgo mb-1.5">Plan</label>
+          <select value={form.plan || "ninguno"} onChange={e => set("plan", e.target.value)} className={`w-full border border-lino-oscuro rounded-xl px-4 py-2.5 text-sm text-bosque focus:outline-none focus:border-salvia bg-white`}>
             <option value="ninguno">Sin plan</option>
             <option value="inicial">Inicial</option>
             <option value="destacado">Destacado</option>
@@ -930,18 +931,18 @@ function TeacherForm({ teacher, onSave, onCancel }: { teacher: any; onSave: (t: 
           </select>
         </div>
         <div>
-          <label className="block text-xs font-medium text-[#5D5D5D] mb-1.5">Estado</label>
-          <select value={form.status || "activo"} onChange={e => set("status", e.target.value)} className={`w-full border border-[#E8E0D0] rounded-xl px-4 py-2.5 text-sm text-[#2C2C2C] focus:outline-none focus:border-[#88976C] bg-white`}>
+          <label className="block text-xs font-medium text-musgo mb-1.5">Estado</label>
+          <select value={form.status || "activo"} onChange={e => set("status", e.target.value)} className={`w-full border border-lino-oscuro rounded-xl px-4 py-2.5 text-sm text-bosque focus:outline-none focus:border-salvia bg-white`}>
             <option value="activo">Activo</option>
             <option value="inactivo">Inactivo</option>
           </select>
         </div>
       </div>
       <div className="flex gap-3 mt-5">
-        <button onClick={() => onSave(form)} className="inline-flex items-center gap-2 bg-[#88976C] hover:bg-[#728156] text-white px-5 py-2.5 rounded-sm text-sm font-medium transition-colors">
+        <button onClick={() => onSave(form)} className="inline-flex items-center gap-2 bg-bosque hover:bg-bosque-profundo text-lino px-5 py-2.5 rounded-full text-sm font-medium transition-colors">
           <Save size={15} /> {teacher?.id ? "Guardar cambios" : "Crear profesor"}
         </button>
-        <button onClick={onCancel} className="inline-flex items-center gap-2 bg-white border border-[#9DB085] hover:border-[#88976C] text-[#2C2C2C] px-5 py-2.5 rounded-sm text-sm font-medium transition-colors">
+        <button onClick={onCancel} className="inline-flex items-center gap-2 bg-white border border-salvia hover:border-salvia text-bosque px-5 py-2.5 rounded-full text-sm font-medium transition-colors">
           <X size={15} /> Cancelar
         </button>
       </div>
@@ -955,8 +956,8 @@ function ProductForm({ product, onSave, onCancel }: { product: any; onSave: (p: 
   const set = (key: string, val: any) => setForm((p: any) => ({ ...p, [key]: val }));
 
   return (
-    <div className="bg-[#f4f7f1] border border-[#E8E0D0] rounded-2xl p-6">
-      <h3 className="font-medium text-[#2C2C2C] mb-5 text-base">{product?.id ? "Editar producto" : "Nuevo producto"}</h3>
+    <div className="bg-niebla border border-lino-oscuro rounded-2xl p-6">
+      <h3 className="font-medium text-bosque mb-5 text-base">{product?.id ? "Editar producto" : "Nuevo producto"}</h3>
       <div className="grid md:grid-cols-2 gap-4">
         {[
           { label: "Nombre", key: "name", type: "text" },
@@ -965,30 +966,30 @@ function ProductForm({ product, onSave, onCancel }: { product: any; onSave: (p: 
           { label: "Stock", key: "stock", type: "number" },
         ].map(f => (
           <div key={f.key}>
-            <label className="block text-xs font-medium text-[#5D5D5D] mb-1.5">{f.label}</label>
-            <input type={f.type} value={form[f.key] || ""} onChange={e => set(f.key, e.target.value)} className={`w-full border border-[#E8E0D0] rounded-xl px-4 py-2.5 text-sm text-[#2C2C2C] focus:outline-none focus:border-[#88976C] focus:ring-1 focus:ring-[#88976C]/30 bg-white`} />
+            <label className="block text-xs font-medium text-musgo mb-1.5">{f.label}</label>
+            <input type={f.type} value={form[f.key] || ""} onChange={e => set(f.key, e.target.value)} className={`w-full border border-lino-oscuro rounded-xl px-4 py-2.5 text-sm text-bosque focus:outline-none focus:border-salvia focus:ring-1 focus:ring-salvia/30 bg-white`} />
           </div>
         ))}
         <div className="md:col-span-2">
-          <label className="block text-xs font-medium text-[#5D5D5D] mb-1.5">Descripción</label>
-          <textarea value={form.description || ""} onChange={e => set("description", e.target.value)} className={`w-full border border-[#E8E0D0] rounded-xl px-4 py-2.5 text-sm text-[#2C2C2C] focus:outline-none focus:border-[#88976C] focus:ring-1 focus:ring-[#88976C]/30 bg-white`} rows={3} />
+          <label className="block text-xs font-medium text-musgo mb-1.5">Descripción</label>
+          <textarea value={form.description || ""} onChange={e => set("description", e.target.value)} className={`w-full border border-lino-oscuro rounded-xl px-4 py-2.5 text-sm text-bosque focus:outline-none focus:border-salvia focus:ring-1 focus:ring-salvia/30 bg-white`} rows={3} />
         </div>
         <div className="md:col-span-2">
-          <label className="block text-xs font-medium text-[#5D5D5D] mb-1.5">URL de imagen principal</label>
-          <input value={form.images?.[0] || ""} onChange={e => set("images", [e.target.value])} className={`w-full border border-[#E8E0D0] rounded-xl px-4 py-2.5 text-sm text-[#2C2C2C] focus:outline-none focus:border-[#88976C] focus:ring-1 focus:ring-[#88976C]/30 bg-white`} placeholder="https://…" />
+          <label className="block text-xs font-medium text-musgo mb-1.5">URL de imagen principal</label>
+          <input value={form.images?.[0] || ""} onChange={e => set("images", [e.target.value])} className={`w-full border border-lino-oscuro rounded-xl px-4 py-2.5 text-sm text-bosque focus:outline-none focus:border-salvia focus:ring-1 focus:ring-salvia/30 bg-white`} placeholder="https://…" />
         </div>
         <div>
           <label className="flex items-center gap-2 cursor-pointer">
-            <input type="checkbox" checked={form.active ?? true} onChange={e => set("active", e.target.checked)} className="rounded border-[#E8E0D0] text-[#88976C] focus:ring-[#88976C]" />
-            <span className="text-sm text-[#2C2C2C]">Producto activo (visible en tienda)</span>
+            <input type="checkbox" checked={form.active ?? true} onChange={e => set("active", e.target.checked)} className="rounded border-lino-oscuro text-salvia-oscuro focus:ring-salvia" />
+            <span className="text-sm text-bosque">Producto activo (visible en tienda)</span>
           </label>
         </div>
       </div>
       <div className="flex gap-3 mt-5">
-        <button onClick={() => onSave(form)} className="inline-flex items-center gap-2 bg-[#88976C] hover:bg-[#728156] text-white px-5 py-2.5 rounded-sm text-sm font-medium transition-colors">
+        <button onClick={() => onSave(form)} className="inline-flex items-center gap-2 bg-bosque hover:bg-bosque-profundo text-lino px-5 py-2.5 rounded-full text-sm font-medium transition-colors">
           <Save size={15} /> {product?.id ? "Guardar cambios" : "Crear producto"}
         </button>
-        <button onClick={onCancel} className="inline-flex items-center gap-2 bg-white border border-[#9DB085] hover:border-[#88976C] text-[#2C2C2C] px-5 py-2.5 rounded-sm text-sm font-medium transition-colors">
+        <button onClick={onCancel} className="inline-flex items-center gap-2 bg-white border border-salvia hover:border-salvia text-bosque px-5 py-2.5 rounded-full text-sm font-medium transition-colors">
           <X size={15} /> Cancelar
         </button>
       </div>

@@ -40,23 +40,23 @@ export function News() {
         keywords="noticias de yoga, blog de pilates, bienestar, consejos de yoga"
         canonicalUrl="/noticias"
       />
-      <p className="text-xs font-bold tracking-widest text-[#98A77C] uppercase mb-3">Noticias</p>
-      <h1 className="text-4xl md:text-5xl font-serif font-light text-[#1C3829] mb-12">Novedades del mundo del yoga y el pilates</h1>
+      <p className="text-xs font-bold tracking-widest text-salvia-oscuro uppercase mb-3">Noticias</p>
+      <h1 className="text-4xl md:text-5xl font-serif font-light text-bosque mb-12">Novedades del mundo del yoga y el pilates</h1>
 
       {articles === null ? (
-        <p className="text-[#5D5D5D]">Cargando…</p>
+        <p className="text-musgo">Cargando…</p>
       ) : articles.length === 0 ? (
-        <p className="text-[#5D5D5D]">Todavía no publicamos notas. ¡Volvé pronto!</p>
+        <p className="text-musgo">Todavía no publicamos notas. ¡Volvé pronto!</p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {articles.map((a) => (
-            <Link key={a.id} to={`/noticias/${a.slug}`} className="group bg-white border border-[#E8E0D0] rounded-2xl overflow-hidden hover:shadow-md transition-shadow flex flex-col">
+            <Link key={a.id} to={`/noticias/${a.slug}`} className="group bg-white border border-lino-oscuro rounded-2xl overflow-hidden hover:shadow-md transition-shadow flex flex-col">
               {a.image && <img src={a.image} alt="" loading="lazy" className="h-48 w-full object-cover" />}
               <div className="p-6 flex flex-col gap-2 flex-1">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-[#98A77C]">{a.category}</span>
-                <h2 className="text-xl font-serif text-[#1C3829] group-hover:text-[#6f8656] transition-colors">{a.title}</h2>
-                {a.excerpt && <p className="text-sm text-[#5D5D5D] leading-relaxed line-clamp-3">{a.excerpt}</p>}
-                <span className="text-xs text-[#5D5D5D] mt-auto pt-3">{formatDate(a.published_at)}</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-salvia-oscuro">{a.category}</span>
+                <h2 className="text-xl font-serif text-bosque group-hover:text-salvia-oscuro transition-colors">{a.title}</h2>
+                {a.excerpt && <p className="text-sm text-musgo leading-relaxed line-clamp-3">{a.excerpt}</p>}
+                <span className="text-xs text-musgo mt-auto pt-3">{formatDate(a.published_at)}</span>
               </div>
             </Link>
           ))}
@@ -78,7 +78,7 @@ export function Article() {
       .catch(() => setArticle(null));
   }, [slug]);
 
-  if (article === undefined) return <div className="pt-40 text-center text-[#5D5D5D]">Cargando…</div>;
+  if (article === undefined) return <div className="pt-40 text-center text-musgo">Cargando…</div>;
   if (article === null) return <NotFound />;
 
   return (
@@ -101,12 +101,12 @@ export function Article() {
           mainEntityOfPage: absoluteUrl(`/noticias/${article.slug}`),
         }}
       />
-      <Link to="/noticias" className="text-sm text-[#6f8656] hover:underline">← Todas las noticias</Link>
-      <span className="block text-[10px] font-bold uppercase tracking-wider text-[#98A77C] mt-6">{article.category}</span>
-      <h1 className="text-4xl md:text-5xl font-serif font-light text-[#1C3829] mt-2 mb-3 leading-tight">{article.title}</h1>
-      <p className="text-sm text-[#5D5D5D] mb-8">{article.author} · {formatDate(article.published_at)}</p>
+      <Link to="/noticias" className="text-sm text-salvia-oscuro hover:underline">← Todas las noticias</Link>
+      <span className="block text-[10px] font-bold uppercase tracking-wider text-salvia-oscuro mt-6">{article.category}</span>
+      <h1 className="text-4xl md:text-5xl font-serif font-light text-bosque mt-2 mb-3 leading-tight">{article.title}</h1>
+      <p className="text-sm text-musgo mb-8">{article.author} · {formatDate(article.published_at)}</p>
       {article.image && <img src={article.image} alt="" className="w-full rounded-2xl mb-8 max-h-[420px] object-cover" />}
-      <div className="space-y-5 text-[16px] leading-relaxed text-[#3d3d3d] [&_h2]:text-2xl [&_h2]:font-serif [&_h2]:text-[#1C3829] [&_h2]:mt-8 [&_h3]:text-xl [&_h3]:font-semibold [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_a]:text-[#6f8656] [&_a]:underline [&_blockquote]:border-l-4 [&_blockquote]:border-[#98A77C] [&_blockquote]:pl-4 [&_blockquote]:italic">
+      <div className="space-y-5 text-[16px] leading-relaxed text-[#3d3d3d] [&_h2]:text-2xl [&_h2]:font-serif [&_h2]:text-bosque [&_h2]:mt-8 [&_h3]:text-xl [&_h3]:font-semibold [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_a]:text-salvia-oscuro [&_a]:underline [&_blockquote]:border-l-4 [&_blockquote]:border-salvia [&_blockquote]:pl-4 [&_blockquote]:italic">
         <ReactMarkdown>{article.body}</ReactMarkdown>
       </div>
     </article>

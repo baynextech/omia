@@ -316,9 +316,9 @@ const escapeHtml = (s: unknown): string =>
 
 function emailLayout(title: string, bodyHtml: string, cta?: { label: string; url: string }): string {
   const button = cta
-    ? `<p style="margin:28px 0"><a href="${escapeHtml(cta.url)}" style="background:#98A77C;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600">${escapeHtml(cta.label)}</a></p>`
+    ? `<p style="margin:28px 0"><a href="${escapeHtml(cta.url)}" style="background:#1C3829;color:#F4EFE4;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600">${escapeHtml(cta.label)}</a></p>`
     : '';
-  return `<div style="font-family:Arial,Helvetica,sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#2C2C2C">
+  return `<div style="font-family:Arial,Helvetica,sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#1C3829">
 <h2 style="font-weight:500;margin:0 0 16px">${escapeHtml(title)}</h2>${bodyHtml}${button}
 <p style="color:#888;font-size:12px;margin-top:32px">Omia · Yoga &amp; Pilates · <a href="${APP_URL}" style="color:#888">${APP_URL.replace(/^https?:\/\//, '')}</a></p></div>`;
 }

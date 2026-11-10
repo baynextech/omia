@@ -54,13 +54,13 @@ export function ReviewModal({ teacher, onClose, onSubmitSuccess }: ReviewModalPr
       <div className="relative w-full max-w-lg bg-white rounded-3xl p-8 shadow-2xl animate-in zoom-in-95 duration-200">
         <button 
           onClick={onClose}
-          className="absolute top-6 right-6 text-[#5D5D5D] hover:text-[#2C2C2C] transition-colors p-2 rounded-sm hover:bg-black/5"
+          className="absolute top-6 right-6 text-musgo hover:text-bosque transition-colors p-2 rounded-full hover:bg-black/5"
         >
           <X className="w-5 h-5" />
         </button>
         
-        <h2 className="text-2xl font-medium text-[#2C2C2C] mb-2">Dejar reseña</h2>
-        <p className="text-[#5D5D5D] mb-6">Compartí tu experiencia con {teacher.name}.</p>
+        <h2 className="text-2xl font-medium text-bosque mb-2">Dejar reseña</h2>
+        <p className="text-musgo mb-6">Compartí tu experiencia con {teacher.name}.</p>
 
         <form onSubmit={handleSubmit}>
           <div className="mb-6 flex gap-2">
@@ -76,8 +76,8 @@ export function ReviewModal({ teacher, onClose, onSubmitSuccess }: ReviewModalPr
                 <Star 
                   className={`w-8 h-8 transition-colors ${
                     star <= (hoverRating || rating) 
-                      ? "fill-[#98A77C] text-[#98A77C]" 
-                      : "text-[#E5E5E5] fill-[#F4EFE4]"
+                      ? "fill-salvia text-salvia" 
+                      : "text-lino-oscuro fill-lino"
                   }`} 
                 />
               </button>
@@ -89,7 +89,7 @@ export function ReviewModal({ teacher, onClose, onSubmitSuccess }: ReviewModalPr
               placeholder="¿Qué te pareció la clase? Contanos un poco sobre tu experiencia..."
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              className="w-full bg-[#F4EFE4] border border-[#E8E0D0] focus:border-[#98A77C] focus:ring-1 focus:ring-[#98A77C] text-[#2C2C2C] rounded-2xl p-4 outline-none transition-all placeholder:text-[#5D5D5D]/50 h-32 resize-none"
+              className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-2xl p-4 outline-none transition-all placeholder:text-musgo/50 h-32 resize-none"
               required
             />
           </div>
@@ -98,14 +98,14 @@ export function ReviewModal({ teacher, onClose, onSubmitSuccess }: ReviewModalPr
             <button 
               type="button"
               onClick={onClose}
-              className="flex-1 bg-transparent hover:bg-black/5 text-[#2C2C2C] border border-[#E8E0D0] hover:border-transparent py-3 rounded-sm font-medium transition-colors"
+              className="flex-1 bg-transparent hover:bg-black/5 text-bosque border border-lino-oscuro hover:border-transparent py-3 rounded-full font-medium transition-colors"
             >
               Cancelar
             </button>
             <button 
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 bg-[#98A77C] hover:bg-[#88976C] text-white py-3 rounded-sm font-medium transition-colors disabled:opacity-70 flex items-center justify-center gap-2"
+              className="flex-1 bg-bosque hover:bg-bosque-profundo text-lino py-3 rounded-full font-medium transition-colors disabled:opacity-70 flex items-center justify-center gap-2"
             >
               {isSubmitting ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-sm animate-spin" />

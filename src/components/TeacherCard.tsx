@@ -48,7 +48,7 @@ export function TeacherCard({ teacher, onToggleFavoriteOverride }: { teacher: Te
   return (
     <>
       <motion.div
-        className="group relative overflow-hidden rounded-sm bg-[#1C3829] cursor-pointer"
+        className="group relative overflow-hidden rounded-sm bg-bosque cursor-pointer"
         initial={{ opacity: 0, y: 24 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-60px" }}
@@ -62,18 +62,18 @@ export function TeacherCard({ teacher, onToggleFavoriteOverride }: { teacher: Te
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
           />
           {/* Dark gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#1C3829] via-[#1C3829]/20 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-bosque via-bosque/20 to-transparent" />
 
           {/* Top badges */}
           <div className="absolute top-4 left-4 right-4 flex items-start justify-between z-10">
             {localTeacher.discipline && (
-              <span className="text-[10px] font-bold px-2.5 py-1 rounded-sm uppercase tracking-wider bg-[#1C3829]/80 backdrop-blur-sm text-[#C8D8B0] border border-[#98A77C]/30">
+              <span className="text-[10px] font-bold px-2.5 py-1 rounded-sm uppercase tracking-wider bg-bosque/80 backdrop-blur-sm text-salvia-claro border border-salvia/30">
                 {localTeacher.discipline}
               </span>
             )}
             <div className="flex items-center gap-1.5 ml-auto">
               <motion.button
-                className="bg-[#1C3829]/70 backdrop-blur-sm p-2 rounded-sm cursor-pointer hover:bg-[#1C3829] transition-colors"
+                className="bg-bosque/70 backdrop-blur-sm p-2 rounded-full cursor-pointer hover:bg-bosque transition-colors"
                 onClick={handleFavorite}
                 animate={heartPop ? { scale: [1, 1.35, 1] } : {}}
                 transition={{ duration: 0.3, ease: "easeInOut" }}
@@ -88,30 +88,30 @@ export function TeacherCard({ teacher, onToggleFavoriteOverride }: { teacher: Te
             <div className="flex items-start justify-between gap-2 mb-1">
               <h3 className="text-xl font-serif font-medium text-white leading-tight">{localTeacher.name}</h3>
               <div className="flex items-center gap-1 shrink-0 mt-0.5">
-                <Star className="w-3.5 h-3.5 fill-[#98A77C] text-[#98A77C]" />
+                <Star className="w-3.5 h-3.5 fill-salvia text-salvia" />
                 <span className="text-sm font-medium text-white">{localTeacher.rating}</span>
               </div>
             </div>
-            <p className="text-[#9DB085] text-sm font-medium">{localTeacher.specialty}</p>
+            <p className="text-salvia text-sm font-medium">{localTeacher.specialty}</p>
           </div>
         </div>
 
         {/* Card body */}
         <div className="p-5">
           <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-1.5 text-[#9DB085] text-xs">
+            <div className="flex items-center gap-1.5 text-salvia text-xs">
               <MapPin className="w-3.5 h-3.5" />
               <span>{localTeacher.location}</span>
               <span className="opacity-40">·</span>
               <span>{localTeacher.reviews} reseñas</span>
             </div>
-            <span className="text-[#C8D8B0] text-sm font-semibold">{localTeacher.price}</span>
+            <span className="text-salvia-claro text-sm font-semibold">{localTeacher.price}</span>
           </div>
 
           {localTeacher.availableDays && localTeacher.availableDays.length > 0 && (
             <div className="flex flex-wrap gap-1.5 mb-4">
               {localTeacher.availableDays.map(day => (
-                <span key={day} className="px-2 py-0.5 bg-[#2a4d38] text-[#9DB085] text-xs font-medium rounded-sm border border-[#3a6048]/40">
+                <span key={day} className="px-2 py-0.5 bg-[#2a4d38] text-salvia text-xs font-medium rounded-sm border border-[#3a6048]/40">
                   {day}
                 </span>
               ))}
@@ -123,14 +123,14 @@ export function TeacherCard({ teacher, onToggleFavoriteOverride }: { teacher: Te
           <div className="flex gap-2">
             <Link
               to={`/profesor/${localTeacher.id}`}
-              className="flex-1 bg-[#98A77C] hover:bg-[#88976C] active:scale-[0.97] text-white py-3 rounded-sm font-medium transition-all text-center text-sm"
+              className="flex-1 bg-bosque hover:bg-bosque-profundo active:scale-[0.97] text-lino py-3 rounded-full font-medium transition-all text-center text-sm"
             >
               Ver Perfil
             </Link>
             <motion.button
               onClick={(e) => { e.preventDefault(); setIsReviewOpen(true); }}
               title="Dejar Reseña"
-              className="px-4 bg-[#2a4d38] border border-[#3a6048]/50 hover:border-[#98A77C] text-[#9DB085] hover:text-[#98A77C] rounded-sm transition-colors flex items-center justify-center"
+              className="px-4 bg-[#2a4d38] border border-[#3a6048]/50 hover:border-salvia text-salvia hover:text-salvia rounded-full transition-colors flex items-center justify-center"
               whileTap={{ scale: 0.92 }}
             >
               <Star className="w-4 h-4" />

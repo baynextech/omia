@@ -86,53 +86,53 @@ export function BookingModal({ teacher, onClose, onSuccess }: BookingModalProps)
       <div className="relative w-full max-w-md bg-white rounded-3xl p-8 shadow-2xl animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
         <button 
           onClick={onClose}
-          className="absolute top-6 right-6 text-[#5D5D5D] hover:text-[#2C2C2C] transition-colors p-2 rounded-sm hover:bg-black/5"
+          className="absolute top-6 right-6 text-musgo hover:text-bosque transition-colors p-2 rounded-full hover:bg-black/5"
         >
           <X className="w-5 h-5" />
         </button>
         
         {contact ? (
           <div className="text-center py-4">
-            <h2 className="text-2xl font-medium text-[#2C2C2C] mb-2">¡Solicitud enviada!</h2>
-            <p className="text-[#5D5D5D] text-sm mb-6">
+            <h2 className="text-2xl font-medium text-bosque mb-2">¡Solicitud enviada!</h2>
+            <p className="text-musgo text-sm mb-6">
               Le avisamos a {teacher.name} por mail. Para <b>confirmar la clase y acordar el pago</b> escribile directo (el pago es entre ustedes, Omia no cobra comisión):
             </p>
             <div className="flex flex-col gap-3 mb-6">
               {contact.phone && (
                 <a href={`https://wa.me/${contact.phone.replace(/\D/g, "")}?text=${encodeURIComponent(`Hola ${teacher.name}, te escribo desde Omia para reservar una clase el ${date} a las ${time}.`)}`} target="_blank" rel="noopener noreferrer"
-                  className="bg-[#25D366] hover:bg-[#1fb857] text-white py-3 rounded-sm font-medium">Escribir por WhatsApp</a>
+                  className="bg-[#25D366] hover:bg-[#1fb857] text-white py-3 rounded-full font-medium">Escribir por WhatsApp</a>
               )}
-              {contact.email && <a href={`mailto:${contact.email}`} className="border border-[#E8E0D0] hover:bg-[#F4EFE4] py-3 rounded-sm font-medium text-[#2C2C2C]">{contact.email}</a>}
-              {contact.instagram && <a href={`https://instagram.com/${contact.instagram.replace(/^@/, "")}`} target="_blank" rel="noopener noreferrer" className="border border-[#E8E0D0] hover:bg-[#F4EFE4] py-3 rounded-sm font-medium text-[#2C2C2C]">Instagram {contact.instagram}</a>}
-              {!contact.phone && !contact.email && !contact.instagram && <p className="text-sm text-[#5D5D5D]">Te va a contactar al mail con el que te registraste.</p>}
+              {contact.email && <a href={`mailto:${contact.email}`} className="border border-lino-oscuro hover:bg-lino py-3 rounded-full font-medium text-bosque">{contact.email}</a>}
+              {contact.instagram && <a href={`https://instagram.com/${contact.instagram.replace(/^@/, "")}`} target="_blank" rel="noopener noreferrer" className="border border-lino-oscuro hover:bg-lino py-3 rounded-full font-medium text-bosque">Instagram {contact.instagram}</a>}
+              {!contact.phone && !contact.email && !contact.instagram && <p className="text-sm text-musgo">Te va a contactar al mail con el que te registraste.</p>}
             </div>
-            <button onClick={onSuccess} className="w-full bg-[#2C2C2C] hover:bg-black text-white py-3 rounded-sm font-medium">Listo</button>
+            <button onClick={onSuccess} className="w-full bg-bosque hover:bg-bosque-profundo text-lino py-3 rounded-full font-medium">Listo</button>
           </div>
         ) : (<>
-        <h2 className="text-2xl font-medium text-[#2C2C2C] mb-2">Solicitar clase</h2>
-        <p className="text-[#5D5D5D] mb-6">con {teacher.name}</p>
+        <h2 className="text-2xl font-medium text-bosque mb-2">Solicitar clase</h2>
+        <p className="text-musgo mb-6">con {teacher.name}</p>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           <div className="flex flex-col gap-3">
-            <label className="text-sm font-medium text-[#2C2C2C] flex items-center gap-2">
-              <CalendarIcon className="w-4 h-4 text-[#98A77C]" />
+            <label className="text-sm font-medium text-bosque flex items-center gap-2">
+              <CalendarIcon className="w-4 h-4 text-salvia-oscuro" />
               Fecha
             </label>
-            <div className="bg-[#F4EFE4] border border-[#E8E0D0] rounded-2xl p-4">
+            <div className="bg-lino border border-lino-oscuro rounded-2xl p-4">
               <div className="flex justify-between items-center mb-4">
-                <button type="button" onClick={handlePrevMonth} className="p-1 hover:bg-[#E5E5E5] rounded-sm transition-colors text-[#5D5D5D]">
+                <button type="button" onClick={handlePrevMonth} className="p-1 hover:bg-lino-oscuro rounded-full transition-colors text-musgo">
                   <ChevronLeft className="w-5 h-5" />
                 </button>
-                <div className="font-medium text-[#2C2C2C]">
+                <div className="font-medium text-bosque">
                   {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
                 </div>
-                <button type="button" onClick={handleNextMonth} className="p-1 hover:bg-[#E5E5E5] rounded-sm transition-colors text-[#5D5D5D]">
+                <button type="button" onClick={handleNextMonth} className="p-1 hover:bg-lino-oscuro rounded-full transition-colors text-musgo">
                   <ChevronRight className="w-5 h-5" />
                 </button>
               </div>
               <div className="grid grid-cols-7 gap-1 mb-2">
                 {weekDays.map(d => (
-                  <div key={d} className="text-center text-xs font-medium text-[#5D5D5D] py-1">{d}</div>
+                  <div key={d} className="text-center text-xs font-medium text-musgo py-1">{d}</div>
                 ))}
               </div>
               <div className="grid grid-cols-7 gap-1">
@@ -156,8 +156,8 @@ export function BookingModal({ teacher, onClose, onSuccess }: BookingModalProps)
                       disabled={isPast}
                       onClick={() => handleDateSelect(day)}
                       className={`h-8 w-full flex items-center justify-center rounded-sm text-sm transition-all
-                        ${isPast ? "text-[#E5E5E5] cursor-not-allowed" : "hover:bg-[#E5E5E5]"}
-                        ${isSelected ? "bg-[#98A77C] text-white hover:bg-[#88976C]" : "text-[#2C2C2C]"}
+                        ${isPast ? "text-lino-oscuro cursor-not-allowed" : "hover:bg-lino-oscuro"}
+                        ${isSelected ? "bg-bosque text-lino hover:bg-bosque-profundo" : "text-bosque"}
                       `}
                     >
                       {day}
@@ -169,7 +169,7 @@ export function BookingModal({ teacher, onClose, onSuccess }: BookingModalProps)
           </div>
 
           <div className="flex flex-col gap-3">
-            <label className="text-sm font-medium text-[#2C2C2C]">Horario</label>
+            <label className="text-sm font-medium text-bosque">Horario</label>
             <div className="grid grid-cols-3 gap-2">
               {timeSlots.map(t => (
                 <button
@@ -178,8 +178,8 @@ export function BookingModal({ teacher, onClose, onSuccess }: BookingModalProps)
                   onClick={() => setTime(t)}
                   className={`py-2 px-3 rounded-xl border text-sm font-medium transition-all ${
                     time === t 
-                      ? "bg-[#98A77C] border-[#98A77C] text-white shadow-sm" 
-                      : "bg-[#F4EFE4] border-[#E8E0D0] text-[#5D5D5D] hover:border-[#98A77C]"
+                      ? "bg-bosque border-salvia text-lino shadow-sm" 
+                      : "bg-lino border-lino-oscuro text-musgo hover:border-salvia"
                   }`}
                 >
                   {t}
@@ -191,7 +191,7 @@ export function BookingModal({ teacher, onClose, onSuccess }: BookingModalProps)
           <button 
             type="submit"
             disabled={isSubmitting || !date || !time}
-            className="w-full bg-[#2C2C2C] hover:bg-black disabled:bg-[#E5E5E5] disabled:text-[#5D5D5D] disabled:cursor-not-allowed text-white py-4 rounded-sm font-medium transition-colors mt-2"
+            className="w-full bg-bosque hover:bg-bosque-profundo disabled:bg-lino-oscuro disabled:text-musgo disabled:cursor-not-allowed text-lino py-4 rounded-full font-medium transition-colors mt-2"
           >
             {isSubmitting ? "Enviando..." : "Enviar solicitud"}
           </button>

@@ -59,7 +59,7 @@ export function TeacherProfile() {
   if (isLoading) {
     return (
       <div className="py-24 px-6 max-w-7xl mx-auto flex justify-center items-center min-h-[60vh]">
-        <div className="w-8 h-8 border-4 border-[#98A77C]/30 border-t-[#98A77C] rounded-sm animate-spin" />
+        <div className="w-8 h-8 border-4 border-salvia/30 border-t-salvia rounded-sm animate-spin" />
       </div>
     );
   }
@@ -67,8 +67,8 @@ export function TeacherProfile() {
   if (!teacher) {
     return (
       <div className="py-24 px-6 max-w-7xl mx-auto text-center min-h-[60vh] flex flex-col items-center justify-center">
-        <h2 className="text-2xl font-medium text-[#2C2C2C] mb-4">Profesor no encontrado</h2>
-        <Link to="/directorio" className="text-[#98A77C] hover:underline">
+        <h2 className="text-2xl font-medium text-bosque mb-4">Profesor no encontrado</h2>
+        <Link to="/directorio" className="text-salvia-oscuro hover:underline">
           Volver al directorio
         </Link>
       </div>
@@ -123,11 +123,11 @@ export function TeacherProfile() {
           }
         }}
       />
-      <Link to="/directorio" className="inline-flex items-center gap-2 text-[#5D5D5D] hover:text-[#2C2C2C] mb-8 transition-colors">
+      <Link to="/directorio" className="inline-flex items-center gap-2 text-musgo hover:text-bosque mb-8 transition-colors">
         <ArrowLeft className="w-4 h-4" /> Volver al directorio
       </Link>
 
-      <div className="bg-white border border-[#E8E0D0] rounded-3xl overflow-hidden shadow-sm mb-8">
+      <div className="bg-white border border-lino-oscuro rounded-3xl overflow-hidden shadow-sm mb-8">
         
         {/* GALERÍA DE IMÁGENES TIPO AIRBNB */}
         <div className="relative">
@@ -276,9 +276,9 @@ export function TeacherProfile() {
 
                 <button 
                   onClick={() => setActivePhotoIndex(0)}
-                  className="absolute bottom-6 right-6 bg-white hover:bg-neutral-100 text-[#2C2C2C] border border-[#E8E0D0] px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 shadow-md transition-all active:scale-95 cursor-pointer"
+                  className="absolute bottom-6 right-6 bg-white hover:bg-neutral-100 text-bosque border border-lino-oscuro px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 shadow-md transition-all active:scale-95 cursor-pointer"
                 >
-                  <ImageIcon className="w-4 h-4 text-[#5D5D5D]" />
+                  <ImageIcon className="w-4 h-4 text-musgo" />
                   <span>Ver todas las fotos ({galleryImages.length})</span>
                 </button>
               </div>
@@ -293,9 +293,9 @@ export function TeacherProfile() {
                 handleShare();
               }}
               title="Compartir perfil"
-              className="bg-white/90 backdrop-blur-sm p-2.5 rounded-sm hover:bg-white transition-colors shadow-sm cursor-pointer"
+              className="bg-white/90 backdrop-blur-sm p-2.5 rounded-full hover:bg-white transition-colors shadow-sm cursor-pointer"
             >
-              <Share2 className="w-5 h-5 text-[#5D5D5D]" />
+              <Share2 className="w-5 h-5 text-musgo" />
             </button>
             <button 
               onClick={(e) => {
@@ -303,9 +303,9 @@ export function TeacherProfile() {
                 toggleFavorite(teacher.id);
               }}
               title={favorited ? "Quitar de favoritos" : "Agregar a favoritos"}
-              className="bg-white/90 backdrop-blur-sm p-2.5 rounded-sm hover:bg-white transition-colors shadow-sm cursor-pointer"
+              className="bg-white/90 backdrop-blur-sm p-2.5 rounded-full hover:bg-white transition-colors shadow-sm cursor-pointer"
             >
-              <Heart className={`w-5 h-5 transition-colors ${favorited ? "fill-red-400 text-red-400" : "text-[#5D5D5D]"}`} />
+              <Heart className={`w-5 h-5 transition-colors ${favorited ? "fill-red-400 text-red-400" : "text-musgo"}`} />
             </button>
           </div>
         </div>
@@ -313,22 +313,22 @@ export function TeacherProfile() {
         <div className="p-8 sm:p-12">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-6">
             <div>
-              <h1 className="text-3xl sm:text-4xl font-medium text-[#2C2C2C] mb-2">{teacher.name}</h1>
-              <p className="text-[#98A77C] text-xl font-medium">{teacher.specialty}</p>
+              <h1 className="font-serif text-3xl sm:text-4xl font-medium text-bosque mb-2">{teacher.name}</h1>
+              <p className="text-salvia-oscuro text-xl font-medium">{teacher.specialty}</p>
             </div>
             <div className="flex flex-col items-start sm:items-end gap-2">
-              <span className="text-lg font-medium text-[#2C2C2C] bg-[#F4EFE4] px-4 py-2 rounded-xl border border-[#E8E0D0]">
+              <span className="text-lg font-medium text-bosque bg-lino px-4 py-2 rounded-xl border border-lino-oscuro">
                 {teacher.price}
               </span>
-              <div className="flex items-center gap-1.5 text-[#5D5D5D]">
-                <Star className="w-5 h-5 fill-[#98A77C] text-[#98A77C]" />
-                <span className="font-medium text-[#2C2C2C]">{teacher.rating}</span>
+              <div className="flex items-center gap-1.5 text-musgo">
+                <Star className="w-5 h-5 fill-salvia text-salvia" />
+                <span className="font-medium text-bosque">{teacher.rating}</span>
                 <span className="text-sm">({teacher.reviews} {teacher.reviews === 1 ? "reseña" : "reseñas"})</span>
               </div>
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-4 text-[#5D5D5D] mb-8">
+          <div className="flex flex-wrap items-center gap-4 text-musgo mb-8">
             <div className="flex items-center gap-2">
               <MapPin className="w-5 h-5" />
               <span>{teacher.location}</span>
@@ -337,10 +337,10 @@ export function TeacherProfile() {
 
           {teacher.availableDays && teacher.availableDays.length > 0 && (
             <div className="mb-8">
-              <h3 className="text-lg font-medium text-[#2C2C2C] mb-3">Días disponibles</h3>
+              <h3 className="text-lg font-medium text-bosque mb-3">Días disponibles</h3>
               <div className="flex flex-wrap gap-2">
                 {teacher.availableDays.map(day => (
-                  <span key={day} className="px-3 py-1 bg-[#F4EFE4] text-[#98A77C] border border-[#E8E0D0] text-sm font-medium rounded-lg">
+                  <span key={day} className="px-3 py-1 bg-lino text-salvia-oscuro border border-lino-oscuro text-sm font-medium rounded-lg">
                     {day}
                   </span>
                 ))}
@@ -349,19 +349,19 @@ export function TeacherProfile() {
           )}
 
           <div className="mb-8">
-            <h3 className="text-lg font-medium text-[#2C2C2C] mb-3">Sobre mí</h3>
-            <p className="text-[#5D5D5D] leading-relaxed text-lg whitespace-pre-line">{teacher.bio}</p>
+            <h3 className="text-lg font-medium text-bosque mb-3">Sobre mí</h3>
+            <p className="text-musgo leading-relaxed text-lg whitespace-pre-line">{teacher.bio}</p>
           </div>
 
           {/* SECCIÓN DE CONTACTO DIRECTO (EMAIL Y WHATSAPP) */}
-          <div className="mb-10 p-6 sm:p-8 bg-[#F4EFE4] rounded-[24px] border border-[#E8E0D0] shadow-sm">
+          <div className="mb-10 p-6 sm:p-8 bg-lino rounded-[24px] border border-lino-oscuro shadow-sm">
             <div className="flex items-start gap-4 mb-4">
-              <div className="p-3 bg-[#98A77C]/10 text-[#98A77C] rounded-2xl shrink-0">
+              <div className="p-3 bg-salvia/10 text-salvia-oscuro rounded-2xl shrink-0">
                 <Sparkles className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-[#2C2C2C]">Contactá directamente</h3>
-                <p className="text-sm text-[#5D5D5D] mt-0.5">
+                <h3 className="text-lg font-semibold text-bosque">Contactá directamente</h3>
+                <p className="text-sm text-musgo mt-0.5">
                   ¿Tenés consultas antes de reservar? Contactá a {teacher.name} por e-mail o WhatsApp.
                 </p>
               </div>
@@ -370,16 +370,16 @@ export function TeacherProfile() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-5">
               <a 
                 href={`mailto:${teacher.email || `profe_${teacher.id}@omiayoga.com`}?subject=Consulta sobre clases de yoga - Omia&body=Hola ${teacher.name}, vi tu perfil en Omia y quería hacerte una consulta.`}
-                className="flex items-center justify-center gap-2.5 py-3.5 px-4 bg-white hover:bg-[#F4EFE4]/50 text-[#2C2C2C] rounded-sm font-semibold border border-[#E8E0D0] transition-all text-sm shadow-sm active:scale-98"
+                className="flex items-center justify-center gap-2.5 py-3.5 px-4 bg-white hover:bg-lino/50 text-bosque rounded-full font-semibold border border-lino-oscuro transition-all text-sm shadow-sm active:scale-98"
               >
-                <Mail className="w-4 h-4 text-[#98A77C]" />
+                <Mail className="w-4 h-4 text-salvia-oscuro" />
                 <span className="truncate">Enviar E-mail ({teacher.email || `profe_${teacher.id}@omiayoga.com`})</span>
               </a>
               <a 
                 href={`https://wa.me/${teacher.phone ? teacher.phone.replace(/\D/g, '') : '5491133445566'}?text=Hola%20${encodeURIComponent(teacher.name)}!%20Vi%20tu%20perfil%20en%20Omia%20y%20me%20gustaría%20hacerte%20una%20consulta%20por%20tus%20clases.%20Gracias!`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2.5 py-3.5 px-4 bg-[#25D366] hover:bg-[#20ba5a] text-white rounded-sm font-semibold transition-all text-sm shadow-sm active:scale-98 cursor-pointer"
+                className="flex items-center justify-center gap-2.5 py-3.5 px-4 bg-[#25D366] hover:bg-[#20ba5a] text-white rounded-full font-semibold transition-all text-sm shadow-sm active:scale-98 cursor-pointer"
               >
                 <Phone className="w-4 h-4" />
                 <span className="truncate">WhatsApp ({teacher.phone || "+54 9 11 3344-5566"})</span>
@@ -387,55 +387,55 @@ export function TeacherProfile() {
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-4 pt-8 border-t border-[#E8E0D0]">
+          <div className="flex flex-col sm:flex-row gap-4 pt-8 border-t border-lino-oscuro">
             <button 
               onClick={() => setIsBookingOpen(true)}
-              className="flex-1 bg-[#2C2C2C] hover:bg-black text-white py-4 rounded-sm font-medium transition-colors text-lg cursor-pointer"
+              className="flex-1 bg-bosque hover:bg-bosque-profundo text-lino py-4 rounded-full font-medium transition-colors text-lg cursor-pointer"
             >
               Reservar Sesión
             </button>
             <button 
               onClick={() => setIsReviewOpen(true)}
-              className="flex-1 bg-transparent hover:bg-black/5 text-[#2C2C2C] border border-[#E8E0D0] hover:border-transparent py-4 rounded-sm font-medium transition-colors text-lg flex items-center justify-center gap-2 cursor-pointer"
+              className="flex-1 bg-transparent hover:bg-black/5 text-bosque border border-lino-oscuro hover:border-transparent py-4 rounded-full font-medium transition-colors text-lg flex items-center justify-center gap-2 cursor-pointer"
             >
               <Star className="w-5 h-5" /> Dejar Reseña
             </button>
           </div>
 
           {/* RESEÑAS Y COMENTARIOS */}
-          <div className="pt-10 mt-10 border-t border-[#E8E0D0]">
-            <h2 className="text-2xl font-medium text-[#2C2C2C] mb-6">
-              Reseñas {reviewList.length > 0 && <span className="text-[#5D5D5D] text-lg">({reviewList.length})</span>}
+          <div className="pt-10 mt-10 border-t border-lino-oscuro">
+            <h2 className="text-2xl font-medium text-bosque mb-6">
+              Reseñas {reviewList.length > 0 && <span className="text-musgo text-lg">({reviewList.length})</span>}
             </h2>
             {reviewList.length > 0 ? (
               <div className="flex flex-col gap-5">
                 {reviewList.map((review) => (
-                  <div key={review.id} className="bg-[#F4EFE4] border border-[#E8E0D0] rounded-2xl p-5">
+                  <div key={review.id} className="bg-lino border border-lino-oscuro rounded-2xl p-5">
                     <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
                       <div className="flex items-center gap-2">
-                        <span className="font-semibold text-[#2C2C2C]">{review.userName}</span>
+                        <span className="font-semibold text-bosque">{review.userName}</span>
                         {review.verified && (
-                          <span className="text-[10px] uppercase tracking-wider font-bold bg-[#98A77C]/15 text-[#5f7046] px-2 py-0.5 rounded-sm">Tomó clases</span>
+                          <span className="text-[10px] uppercase tracking-wider font-bold bg-salvia/15 text-salvia-oscuro px-2 py-0.5 rounded-sm">Tomó clases</span>
                         )}
                       </div>
-                      <span className="text-xs text-[#5D5D5D]">{new Date(review.date).toLocaleDateString("es-AR")}</span>
+                      <span className="text-xs text-musgo">{new Date(review.date).toLocaleDateString("es-AR")}</span>
                     </div>
                     <div className="flex items-center gap-0.5 mb-2" aria-label={`${review.rating} de 5`}>
                       {[1, 2, 3, 4, 5].map((n) => (
-                        <Star key={n} className={`w-4 h-4 ${n <= review.rating ? "fill-[#98A77C] text-[#98A77C]" : "text-[#D8D0C0]"}`} />
+                        <Star key={n} className={`w-4 h-4 ${n <= review.rating ? "fill-salvia text-salvia" : "text-[#D8D0C0]"}`} />
                       ))}
                     </div>
-                    {review.comment && <p className="text-[#2C2C2C] leading-relaxed">{review.comment}</p>}
+                    {review.comment && <p className="text-bosque leading-relaxed">{review.comment}</p>}
                     {review.reply && (
-                      <p className="mt-3 ml-4 text-sm text-[#5D5D5D] border-l-2 border-[#98A77C] pl-4">
-                        <strong className="text-[#2C2C2C]">Respuesta de {teacher.name}:</strong> {review.reply}
+                      <p className="mt-3 ml-4 text-sm text-musgo border-l-2 border-salvia pl-4">
+                        <strong className="text-bosque">Respuesta de {teacher.name}:</strong> {review.reply}
                       </p>
                     )}
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-[#5D5D5D]">Todavía no tiene reseñas. ¡Sé la primera persona en dejar una!</p>
+              <p className="text-musgo">Todavía no tiene reseñas. ¡Sé la primera persona en dejar una!</p>
             )}
           </div>
         </div>
@@ -450,7 +450,7 @@ export function TeacherProfile() {
           {/* Botón cerrar */}
           <button 
             onClick={() => setActivePhotoIndex(null)}
-            className="absolute top-6 right-6 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 p-2.5 rounded-sm transition-all cursor-pointer"
+            className="absolute top-6 right-6 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 p-2.5 rounded-full transition-all cursor-pointer"
           >
             <X className="w-6 h-6" />
           </button>
@@ -459,7 +459,7 @@ export function TeacherProfile() {
           {galleryImages.length > 1 && (
             <button 
               onClick={handlePrevPhoto}
-              className="absolute left-6 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 p-3 rounded-sm transition-all cursor-pointer"
+              className="absolute left-6 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 p-3 rounded-full transition-all cursor-pointer"
             >
               <ChevronLeft className="w-8 h-8" />
             </button>
@@ -487,7 +487,7 @@ export function TeacherProfile() {
           {galleryImages.length > 1 && (
             <button 
               onClick={handleNextPhoto}
-              className="absolute right-6 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 p-3 rounded-sm transition-all cursor-pointer"
+              className="absolute right-6 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 p-3 rounded-full transition-all cursor-pointer"
             >
               <ChevronRight className="w-8 h-8" />
             </button>
@@ -516,7 +516,7 @@ export function TeacherProfile() {
       )}
 
       {bookingSuccess && (
-        <div className="fixed bottom-6 right-6 z-50 bg-[#98A77C] text-white px-6 py-4 rounded-2xl shadow-lg animate-in slide-in-from-bottom-5 duration-300 flex items-center gap-2">
+        <div className="fixed bottom-6 right-6 z-50 bg-bosque text-lino px-6 py-4 rounded-2xl shadow-lg animate-in slide-in-from-bottom-5 duration-300 flex items-center gap-2">
           <Star className="w-5 h-5 fill-white text-white" />
           <span className="font-medium">¡Solicitud enviada! Coordiná la clase directo con el profe.</span>
         </div>

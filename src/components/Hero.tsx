@@ -16,7 +16,7 @@ export function Hero() {
   }, []);
 
   return (
-    <section className="relative w-full min-h-screen flex items-center justify-center bg-[#1C3829] overflow-hidden">
+    <section className="relative w-full min-h-screen flex items-center justify-center bg-bosque overflow-hidden">
       <video
         autoPlay
         muted
@@ -28,8 +28,8 @@ export function Hero() {
         <source src={mediaUrl(t("home.hero.video") || "/videos/hero_1.mp4")} type="video/mp4" />
       </video>
 
-      <div className="absolute inset-0 bg-gradient-to-b from-[#0d1f14]/75 via-[#1C3829]/50 to-[#0d1f14]/70 z-10" />
-      <div className="absolute inset-0 bg-gradient-to-r from-[#0d1f14]/60 via-transparent to-transparent z-10" />
+      <div className="absolute inset-0 bg-gradient-to-b from-bosque-profundo/75 via-bosque/50 to-bosque-profundo/70 z-10" />
+      <div className="absolute inset-0 bg-gradient-to-r from-bosque-profundo/60 via-transparent to-transparent z-10" />
 
       <motion.div
         className="relative z-20 w-full max-w-7xl mx-auto px-6 lg:px-12 flex flex-col items-start justify-center py-32"
@@ -37,13 +37,9 @@ export function Hero() {
         initial="hidden"
         animate="visible"
       >
-        <motion.span variants={item} className="inline-flex items-center gap-2 text-xs font-bold tracking-widest text-[#98A77C] uppercase mb-8 border border-[#98A77C]/40 px-4 py-2 rounded-sm bg-[#98A77C]/10 backdrop-blur-sm">
-          <span className="w-1.5 h-1.5 rounded-sm bg-[#98A77C]" />
-          {t("home.hero.eyebrow")}
-        </motion.span>
 
         <motion.h1 variants={item} className="text-4xl sm:text-5xl md:text-6xl font-serif font-light tracking-tight text-white max-w-2xl leading-[1.1] mb-6">
-          <Rich text={t("home.hero.title")} em="italic text-[#C8D8B0]" />
+          <Rich text={t("home.hero.title")} em="text-salvia-claro" />
         </motion.h1>
 
         <motion.p variants={item} className="text-base md:text-lg text-white/70 max-w-xl font-light leading-relaxed mb-10">
@@ -51,12 +47,12 @@ export function Hero() {
         </motion.p>
 
         <motion.div variants={item} className="flex flex-wrap items-center gap-3">
-          <Link to="/directorio" className="group flex items-center gap-3 bg-[#98A77C] hover:bg-[#88976C] active:scale-[0.97] text-white px-7 py-4 rounded-sm font-semibold transition-all shadow-lg">
+          <Link to="/directorio" className="group flex items-center gap-3 bg-lino hover:bg-white active:scale-[0.97] text-bosque px-7 py-4 rounded-full font-semibold transition-all shadow-lg">
             <Search className="w-4 h-4" />
             <span>{t("home.hero.cta1")}</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Link>
-          <Link to="/estudios" className="flex items-center gap-2 bg-white/10 border border-white/25 hover:bg-white/20 active:scale-[0.97] text-white px-6 py-4 rounded-sm font-medium transition-all backdrop-blur-sm">
+          <Link to="/estudios" className="flex items-center gap-2 bg-white/10 border border-white/25 hover:bg-white/20 active:scale-[0.97] text-white px-6 py-4 rounded-full font-medium transition-all backdrop-blur-sm">
             {t("home.hero.cta2")}
           </Link>
         </motion.div>
@@ -64,7 +60,7 @@ export function Hero() {
         <motion.div variants={item} className="mt-16 flex flex-wrap items-center gap-8">
           {[{ n: stats.teachers, label: "Profesores" }, { n: stats.institutes, label: "Institutos" }, { n: stats.zones, label: "Barrios" }].filter(({ n }) => n > 0).map(({ n, label }) => (
             <div key={label} className="flex flex-col">
-              <span className="text-2xl font-serif italic text-[#C8D8B0] leading-none">{n}</span>
+              <span className="text-2xl font-serif text-salvia-claro leading-none">{n}</span>
               <span className="text-xs text-white/50 font-medium mt-1 uppercase tracking-wider">{label}</span>
             </div>
           ))}

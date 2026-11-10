@@ -7,6 +7,7 @@ import { Analytics } from "../components/Analytics";
 import { UserMenu, UserAvatar } from "../components/UserMenu";
 import { useContent } from "../contexts/ContentContext";
 import { safeHref } from "../lib/content";
+import { Logo } from "../components/Logo";
 import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -64,9 +65,9 @@ export function RootLayout() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F4EFE4] font-sans text-[#2C2C2C]">
+    <div className="min-h-screen bg-lino font-sans text-bosque">
       {showAnnouncement && (
-        <div className="fixed top-0 left-0 right-0 z-50 h-9 bg-[#1C3829] text-[#F4EFE4] text-xs sm:text-sm flex items-center justify-center px-10 text-center">
+        <div className="fixed top-0 left-0 right-0 z-50 h-9 bg-bosque text-lino text-xs sm:text-sm flex items-center justify-center px-10 text-center">
           {announcementHref ? (
             <a href={announcementHref} className="hover:underline truncate">{announcement}</a>
           ) : (
@@ -85,12 +86,12 @@ export function RootLayout() {
       {/* Navigation */}
       <nav className={`${isPanel ? "hidden " : ""}fixed ${showAnnouncement ? "top-9" : "top-0"} left-0 right-0 z-40 transition-all duration-300 ${
         scrolled
-          ? "bg-[#F4EFE4]/95 backdrop-blur-md shadow-sm border-b border-[#E0D8CC]"
+          ? "bg-lino/95 backdrop-blur-md shadow-sm border-b border-[#E0D8CC]"
           : "bg-transparent"
       }`}>
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <Link to="/" className={`text-2xl font-serif italic font-medium tracking-tight transition-colors ${scrolled ? "text-[#1C3829]" : "text-white"}`}>
-            Omia
+          <Link to="/" aria-label="Omia" className={`transition-colors ${scrolled ? "text-bosque" : "text-lino"}`}>
+            <Logo className="h-7 w-auto" />
           </Link>
 
           {/* Desktop links */}
@@ -106,13 +107,13 @@ export function RootLayout() {
               <Link
                 key={to}
                 to={to}
-                className={`text-sm font-medium transition-colors hover:text-[#98A77C] ${scrolled ? "text-[#2C2C2C]" : "text-white/90"}`}
+                className={`text-sm font-medium transition-colors ${scrolled ? "text-bosque hover:text-salvia-oscuro" : "text-white/90 hover:text-salvia-claro"}`}
               >
                 {label}
               </Link>
             ))}
             {isAuthenticated && (
-              <Link to="/favoritos" className={`text-sm font-medium transition-colors hover:text-[#98A77C] ${scrolled ? "text-[#2C2C2C]" : "text-white/90"}`}>
+              <Link to="/favoritos" className={`text-sm font-medium transition-colors ${scrolled ? "text-bosque hover:text-salvia-oscuro" : "text-white/90 hover:text-salvia-claro"}`}>
                 Favoritos
               </Link>
             )}
@@ -124,15 +125,15 @@ export function RootLayout() {
               <UserMenu scrolled={scrolled} />
             ) : (
               <>
-                <button onClick={() => openAuth("login")} className={`text-sm font-medium hover:opacity-70 transition-opacity cursor-pointer ${scrolled ? "text-[#2C2C2C]" : "text-white/90"}`}>
+                <button onClick={() => openAuth("login")} className={`text-sm font-medium hover:opacity-70 transition-opacity cursor-pointer ${scrolled ? "text-bosque" : "text-white/90"}`}>
                   Ingresá
                 </button>
                 <button
                   onClick={() => openAuth("register")}
-                  className={`px-5 py-2.5 rounded-sm text-sm font-medium transition-all cursor-pointer ${
+                  className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all cursor-pointer ${
                     scrolled
-                      ? "bg-[#1C3829] hover:bg-[#152e1f] text-white"
-                      : "bg-white text-[#1C3829] hover:bg-[#F4EFE4]"
+                      ? "bg-bosque hover:bg-bosque-profundo text-lino"
+                      : "bg-white text-bosque hover:bg-lino"
                   }`}
                 >
                   Registrate
@@ -148,8 +149,8 @@ export function RootLayout() {
             )}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className={`p-2 transition-colors rounded-sm border w-10 h-10 flex items-center justify-center cursor-pointer ${
-                scrolled ? "text-[#2C2C2C] border-[#E0D8CC] bg-white" : "text-white border-white/30 bg-white/10"
+              className={`p-2 transition-colors rounded-full border w-10 h-10 flex items-center justify-center cursor-pointer ${
+                scrolled ? "text-bosque border-[#E0D8CC] bg-white" : "text-white border-white/30 bg-white/10"
               }`}
               aria-label="Menu principal"
             >
@@ -166,7 +167,7 @@ export function RootLayout() {
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.2, ease: "easeInOut" }}
-              className="md:hidden border-b border-[#E8E0D0] bg-[#F4EFE4] overflow-hidden shadow-lg"
+              className="md:hidden border-b border-lino-oscuro bg-lino overflow-hidden shadow-lg"
             >
               <div className="px-6 py-6 flex flex-col gap-5">
                 {[
@@ -180,32 +181,32 @@ export function RootLayout() {
                     key={to}
                     to={to}
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="text-base font-semibold py-2 px-3 hover:bg-[#E8E0D0]/40 rounded-sm transition-all flex items-center justify-between text-[#2C2C2C]"
+                    className="text-base font-semibold py-2 px-3 hover:bg-lino-oscuro/40 rounded-sm transition-all flex items-center justify-between text-bosque"
                   >
                     <span>{label}</span>
-                    <span className="text-xs font-medium text-[#98A77C]">{sub}</span>
+                    <span className="text-xs font-medium text-salvia-oscuro">{sub}</span>
                   </Link>
                 ))}
                 {isAuthenticated && (
                   <Link
                     to="/favoritos"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="text-base font-semibold py-2 px-3 hover:bg-[#E8E0D0]/40 rounded-sm transition-all flex items-center justify-between text-[#2C2C2C]"
+                    className="text-base font-semibold py-2 px-3 hover:bg-lino-oscuro/40 rounded-sm transition-all flex items-center justify-between text-bosque"
                   >
                     <span>Mis Favoritos</span>
                     <span className="text-xs font-medium text-red-400">♥</span>
                   </Link>
                 )}
 
-                <div className="border-t border-[#E8E0D0] pt-5 mt-2 flex flex-col gap-3">
+                <div className="border-t border-lino-oscuro pt-5 mt-2 flex flex-col gap-3">
                   {isAuthenticated ? (
                     <div className="flex items-center justify-between px-3">
-                      <span className="text-sm text-[#5D5D5D] truncate max-w-[150px]">
+                      <span className="text-sm text-musgo truncate max-w-[150px]">
                         Hola, {profile?.name || profile?.email}
                       </span>
                       <button
                         onClick={() => { setIsMobileMenuOpen(false); logout(); }}
-                        className="text-sm font-semibold text-red-500 hover:text-red-600 py-2 px-4 rounded-sm hover:bg-red-50/50 transition-all cursor-pointer"
+                        className="text-sm font-semibold text-red-500 hover:text-red-600 py-2 px-4 rounded-full hover:bg-red-50/50 transition-all cursor-pointer"
                       >
                         Cerrar sesión
                       </button>
@@ -214,13 +215,13 @@ export function RootLayout() {
                     <div className="grid grid-cols-2 gap-3">
                       <button
                         onClick={() => { setIsMobileMenuOpen(false); openAuth("login"); }}
-                        className="py-3 px-4 text-center rounded-sm text-sm font-semibold border border-[#E0D8CC] hover:bg-[#E8E0D0]/40 transition-all cursor-pointer"
+                        className="py-3 px-4 text-center rounded-full text-sm font-semibold border border-[#E0D8CC] hover:bg-lino-oscuro/40 transition-all cursor-pointer"
                       >
                         Ingresá
                       </button>
                       <button
                         onClick={() => { setIsMobileMenuOpen(false); openAuth("register"); }}
-                        className="py-3 px-4 text-center bg-[#1C3829] hover:bg-[#152e1f] text-white rounded-sm text-sm font-semibold transition-all cursor-pointer"
+                        className="py-3 px-4 text-center bg-bosque hover:bg-bosque-profundo text-lino rounded-full text-sm font-semibold transition-all cursor-pointer"
                       >
                         Registrate
                       </button>
@@ -237,45 +238,45 @@ export function RootLayout() {
         <Outlet />
       </main>
 
-      <footer className={`${isPanel ? "hidden " : ""}bg-[#1C3829] py-16 px-6`}>
+      <footer className={`${isPanel ? "hidden " : ""}bg-bosque py-16 px-6`}>
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row items-start justify-between gap-10 mb-12">
             <div>
-              <span className="text-3xl font-serif italic text-[#F4EFE4]">Omia</span>
-              <p className="text-[#9DB085] text-sm mt-3 max-w-xs leading-relaxed">
+              <Logo className="h-9 w-auto text-lino" />
+              <p className="text-salvia text-sm mt-3 max-w-xs leading-relaxed">
                 {t("footer.tagline")}
               </p>
             </div>
             <div className="flex flex-wrap gap-12">
               <div className="flex flex-col gap-3">
-                <span className="text-[#F4EFE4] text-xs font-bold uppercase tracking-widest">Plataforma</span>
-                <Link to="/directorio" className="text-[#9DB085] text-sm hover:text-[#F4EFE4] transition-colors">Directorio</Link>
-                <Link to="/estudios" className="text-[#9DB085] text-sm hover:text-[#F4EFE4] transition-colors">Estudios</Link>
-                <Link to="/ranking" className="text-[#9DB085] text-sm hover:text-[#F4EFE4] transition-colors">Ranking</Link>
-                <Link to="/tienda" className="text-[#9DB085] text-sm hover:text-[#F4EFE4] transition-colors">Tienda</Link>
-                <Link to="/noticias" className="text-[#9DB085] text-sm hover:text-[#F4EFE4] transition-colors">Noticias</Link>
+                <span className="text-lino text-xs font-bold uppercase tracking-widest">Plataforma</span>
+                <Link to="/directorio" className="text-salvia text-sm hover:text-lino transition-colors">Directorio</Link>
+                <Link to="/estudios" className="text-salvia text-sm hover:text-lino transition-colors">Estudios</Link>
+                <Link to="/ranking" className="text-salvia text-sm hover:text-lino transition-colors">Ranking</Link>
+                <Link to="/tienda" className="text-salvia text-sm hover:text-lino transition-colors">Tienda</Link>
+                <Link to="/noticias" className="text-salvia text-sm hover:text-lino transition-colors">Noticias</Link>
               </div>
               <div className="flex flex-col gap-3">
-                <span className="text-[#F4EFE4] text-xs font-bold uppercase tracking-widest">Profesionales</span>
-                <Link to="/para-profes" className="text-[#9DB085] text-sm hover:text-[#F4EFE4] transition-colors">Para Profes</Link>
-                <Link to="/para-profes" className="text-[#9DB085] text-sm hover:text-[#F4EFE4] transition-colors">Membresías</Link>
+                <span className="text-lino text-xs font-bold uppercase tracking-widest">Profesionales</span>
+                <Link to="/para-profes" className="text-salvia text-sm hover:text-lino transition-colors">Para Profes</Link>
+                <Link to="/para-profes" className="text-salvia text-sm hover:text-lino transition-colors">Membresías</Link>
               </div>
               <div className="flex flex-col gap-3">
-                <span className="text-[#F4EFE4] text-xs font-bold uppercase tracking-widest">Legal</span>
-                <Link to="/nosotros" className="text-[#9DB085] text-sm hover:text-[#F4EFE4] transition-colors">Nosotros</Link>
-                <Link to="/contacto" className="text-[#9DB085] text-sm hover:text-[#F4EFE4] transition-colors">Contacto</Link>
-                <Link to="/terminos" className="text-[#9DB085] text-sm hover:text-[#F4EFE4] transition-colors">Términos</Link>
-                <Link to="/privacidad" className="text-[#9DB085] text-sm hover:text-[#F4EFE4] transition-colors">Privacidad</Link>
-                <Link to="/arrepentimiento" className="text-[#9DB085] text-sm hover:text-[#F4EFE4] transition-colors">Botón de arrepentimiento</Link>
-                <Link to="/contacto?tipo=baja" className="text-[#9DB085] text-sm hover:text-[#F4EFE4] transition-colors">Botón de baja</Link>
+                <span className="text-lino text-xs font-bold uppercase tracking-widest">Legal</span>
+                <Link to="/nosotros" className="text-salvia text-sm hover:text-lino transition-colors">Nosotros</Link>
+                <Link to="/contacto" className="text-salvia text-sm hover:text-lino transition-colors">Contacto</Link>
+                <Link to="/terminos" className="text-salvia text-sm hover:text-lino transition-colors">Términos</Link>
+                <Link to="/privacidad" className="text-salvia text-sm hover:text-lino transition-colors">Privacidad</Link>
+                <Link to="/arrepentimiento" className="text-salvia text-sm hover:text-lino transition-colors">Botón de arrepentimiento</Link>
+                <Link to="/contacto?tipo=baja" className="text-salvia text-sm hover:text-lino transition-colors">Botón de baja</Link>
               </div>
             </div>
           </div>
           <div className="border-t border-[#2a4d38] pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-[#6B8C78] text-sm">© {new Date().getFullYear()} {t("legal.name")}. Todos los derechos reservados.</p>
             <p className="text-[#6B8C78] text-xs flex items-center gap-4">
-              {t("contact.instagram") && <a href={`https://instagram.com/${t("contact.instagram").replace(/^@/, "")}`} target="_blank" rel="noopener noreferrer" className="hover:text-[#F4EFE4]">Instagram</a>}
-              {t("contact.whatsapp") && <a href={`https://wa.me/${t("contact.whatsapp").replace(/\D/g, "")}`} target="_blank" rel="noopener noreferrer" className="hover:text-[#F4EFE4]">WhatsApp</a>}
+              {t("contact.instagram") && <a href={`https://instagram.com/${t("contact.instagram").replace(/^@/, "")}`} target="_blank" rel="noopener noreferrer" className="hover:text-lino">Instagram</a>}
+              {t("contact.whatsapp") && <a href={`https://wa.me/${t("contact.whatsapp").replace(/\D/g, "")}`} target="_blank" rel="noopener noreferrer" className="hover:text-lino">WhatsApp</a>}
               <span>{t("footer.bottom")}</span>
             </p>
           </div>

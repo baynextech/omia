@@ -70,8 +70,8 @@ export function useContent(): ContentApi {
   return ctx;
 }
 
-// Texto con *cursiva* y saltos de línea: <Rich text="Hola *mundo*" />. Todo se escribe como texto, nunca como HTML.
-export function Rich({ text, em = "italic" }: { text: string; em?: string }) {
+// Texto con *énfasis* (color Salvia, sin cursiva: Gloock no la tiene) y saltos de línea: <Rich text="Hola *mundo*" />. Todo se escribe como texto, nunca como HTML.
+export function Rich({ text, em = "text-salvia-oscuro" }: { text: string; em?: string }) {
   const lines = text.split("\n");
   return (
     <>

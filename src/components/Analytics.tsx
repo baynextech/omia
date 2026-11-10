@@ -70,14 +70,14 @@ export function Analytics() {
   // Sin herramientas de analítica configuradas no hay nada que consentir.
   if (!tracked || choice) return null;
   return (
-    <div className="fixed bottom-4 left-4 right-4 md:left-6 md:right-auto md:max-w-md z-[60] bg-white border border-[#E8E0D0] shadow-xl rounded-2xl p-5 text-sm text-[#3d3d3d]">
+    <div className="fixed bottom-4 left-4 right-4 md:left-6 md:right-auto md:max-w-md z-[60] bg-white border border-lino-oscuro shadow-xl rounded-2xl p-5 text-sm text-[#3d3d3d]">
       <p className="mb-4 leading-relaxed">
         Usamos cookies para medir el uso del sitio y mejorar Omia. Podés aceptarlas o rechazarlas; más info en la{" "}
-        <Link to="/privacidad" className="text-[#6f8656] underline">Política de privacidad</Link>.
+        <Link to="/privacidad" className="text-salvia-oscuro underline">Política de privacidad</Link>.
       </p>
       <div className="flex gap-3">
-        <button onClick={() => decide("accepted")} className="flex-1 bg-[#98A77C] hover:bg-[#88976C] text-white py-2.5 rounded-xl font-medium">Aceptar</button>
-        <button onClick={() => decide("rejected")} className="flex-1 border border-[#E8E0D0] hover:bg-[#F4EFE4] py-2.5 rounded-xl font-medium">Rechazar</button>
+        <button onClick={() => decide("accepted")} className="flex-1 bg-bosque hover:bg-bosque-profundo text-lino py-2.5 rounded-xl font-medium">Aceptar</button>
+        <button onClick={() => decide("rejected")} className="flex-1 border border-lino-oscuro hover:bg-lino py-2.5 rounded-xl font-medium">Rechazar</button>
       </div>
     </div>
   );

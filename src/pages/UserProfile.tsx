@@ -7,6 +7,7 @@ import { useFavorites } from "../hooks/useFavorites";
 import { Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { UserAvatar } from "../components/UserMenu";
+import { Logo } from "../components/Logo";
 
 const convertToWebP = (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
@@ -431,10 +432,10 @@ export function UserProfile() {
   if (!isAuthenticated && !isLoading) {
     return (
       <div className="py-24 px-6 max-w-7xl mx-auto flex flex-col justify-center items-center h-[60vh] text-center gap-6">
-        <User className="w-16 h-16 text-[#E5E5E5]" />
-        <h2 className="text-2xl font-medium text-[#2C2C2C]">Iniciá sesión para ver tu perfil</h2>
-        <p className="text-[#5D5D5D] max-w-sm">Creá una cuenta o ingresá para acceder a tus solicitudes, favoritos y configuración.</p>
-        <Link to="/" className="px-6 py-3 bg-[#98A77C] hover:bg-[#88976C] text-white rounded-sm font-medium transition-colors">
+        <User className="w-16 h-16 text-lino-oscuro" />
+        <h2 className="text-2xl font-medium text-bosque">Iniciá sesión para ver tu perfil</h2>
+        <p className="text-musgo max-w-sm">Creá una cuenta o ingresá para acceder a tus solicitudes, favoritos y configuración.</p>
+        <Link to="/" className="px-6 py-3 bg-bosque hover:bg-bosque-profundo text-lino rounded-full font-medium transition-colors">
           Volver al inicio
         </Link>
       </div>
@@ -444,7 +445,7 @@ export function UserProfile() {
   if (isLoading) {
     return (
       <div className="py-24 px-6 max-w-7xl mx-auto flex justify-center items-center h-[60vh]">
-        <div className="w-8 h-8 border-4 border-[#98A77C]/30 border-t-[#98A77C] rounded-sm animate-spin" />
+        <div className="w-8 h-8 border-4 border-salvia/30 border-t-salvia rounded-sm animate-spin" />
       </div>
     );
   }
@@ -467,21 +468,21 @@ export function UserProfile() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#f4f7f1] flex">
+    <div className="min-h-screen bg-niebla flex">
       {/* SIDEBAR */}
-      <aside className="fixed left-0 top-0 h-screen w-60 bg-white border-r border-[#E5E5E5] flex flex-col z-30">
+      <aside className="fixed left-0 top-0 h-screen w-60 bg-white border-r border-lino-oscuro flex flex-col z-30">
         {/* Logo */}
-        <div className="px-6 pt-8 pb-6 border-b border-[#E5E5E5]">
-          <Link to="/" className="text-xl font-serif italic text-[#2C2C2C]">Omia</Link>
-          <p className="text-xs text-[#98A77C]/70 mt-0.5">Panel de Usuario</p>
+        <div className="px-6 pt-8 pb-6 border-b border-lino-oscuro">
+          <Link to="/" aria-label="Omia" className="block text-bosque"><Logo className="h-6 w-auto" /></Link>
+          <p className="text-xs text-salvia-oscuro/70 mt-0.5">Panel de Usuario</p>
         </div>
         {/* User info */}
-        <div className="px-6 py-5 border-b border-[#E5E5E5]">
+        <div className="px-6 py-5 border-b border-lino-oscuro">
           <div className="flex items-center gap-3">
             <UserAvatar size={40} />
             <div className="min-w-0">
-              <p className="text-sm font-medium text-[#2C2C2C] truncate">{profile.name || "Usuario"}</p>
-              <p className="text-xs text-[#98A77C]/70 truncate">{authProfile?.role || "alumno"}</p>
+              <p className="text-sm font-medium text-bosque truncate">{profile.name || "Usuario"}</p>
+              <p className="text-xs text-salvia-oscuro/70 truncate">{authProfile?.role || "alumno"}</p>
             </div>
           </div>
         </div>
@@ -492,7 +493,7 @@ export function UserProfile() {
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all text-left ${
                 activeTab === t.id
                   ? "bg-[#1a2a1a] text-white rounded-lg border-none"
-                  : "text-[#5D5D5D] hover:bg-[#f4f7f1] hover:text-[#2C2C2C]"
+                  : "text-musgo hover:bg-niebla hover:text-bosque"
               }`}>
               <t.icon size={16} className="shrink-0" />
               {t.label}
@@ -501,7 +502,7 @@ export function UserProfile() {
         </nav>
         {/* Bottom */}
         <div className="px-6 pb-6">
-          <Link to="/" className="text-xs text-[#5D5D5D] hover:text-[#98A77C] transition-colors flex items-center gap-1.5">
+          <Link to="/" className="text-xs text-musgo hover:text-salvia-oscuro transition-colors flex items-center gap-1.5">
             ← Ver sitio
           </Link>
         </div>
@@ -510,20 +511,20 @@ export function UserProfile() {
       {/* MAIN */}
       <div className="ml-60 flex-1 min-h-screen">
         {/* Top bar */}
-        <header className="bg-white border-b border-[#E5E5E5] px-8 py-4 sticky top-0 z-20 flex items-center justify-between">
-          <h1 className="text-lg font-light text-[#2C2C2C]">{TABS_FOR_ROLE.find(t => t.id === activeTab)?.label || "Panel"}</h1>
-          <button onClick={logout} className="text-sm text-[#5D5D5D] hover:text-red-500 transition-colors">Cerrar sesión</button>
+        <header className="bg-white border-b border-lino-oscuro px-8 py-4 sticky top-0 z-20 flex items-center justify-between">
+          <h1 className="text-lg font-light text-bosque">{TABS_FOR_ROLE.find(t => t.id === activeTab)?.label || "Panel"}</h1>
+          <button onClick={logout} className="text-sm text-musgo hover:text-red-500 transition-colors">Cerrar sesión</button>
         </header>
         <div className="px-8 py-6">
 
         {paymentResult && (
-          <div className="mb-8 p-5 bg-[#98A77C]/10 border-2 border-[#98A77C] rounded-3xl flex items-start gap-4 animate-in slide-in-from-top-5 duration-300">
-            <CheckCircle2 className="w-6 h-6 text-[#98A77C] shrink-0 mt-0.5" />
+          <div className="mb-8 p-5 bg-salvia/10 border-2 border-salvia rounded-3xl flex items-start gap-4 animate-in slide-in-from-top-5 duration-300">
+            <CheckCircle2 className="w-6 h-6 text-salvia-oscuro shrink-0 mt-0.5" />
             <div>
-              <h3 className="font-semibold text-[#2C2C2C] mb-1">{paymentResult.success ? "¡Pago aprobado con Mercado Pago!" : "Pago sin confirmar"}</h3>
-              <p className="text-sm text-[#5D5D5D]">{paymentResult.message}</p>
+              <h3 className="font-semibold text-bosque mb-1">{paymentResult.success ? "¡Pago aprobado con Mercado Pago!" : "Pago sin confirmar"}</h3>
+              <p className="text-sm text-musgo">{paymentResult.message}</p>
             </div>
-            <button onClick={() => setPaymentResult(null)} className="ml-auto text-[#5D5D5D] hover:text-[#2C2C2C] text-sm font-medium">Cerrar</button>
+            <button onClick={() => setPaymentResult(null)} className="ml-auto text-musgo hover:text-bosque text-sm font-medium">Cerrar</button>
           </div>
         )}
 
@@ -537,22 +538,22 @@ export function UserProfile() {
                 { label: "Favoritos", value: favoriteTeachers.length, icon: Heart, bars: [60,40,70,50,80,45,75,55,85,70] },
                 { label: "Reseñas", value: reviews.length, icon: Star, bars: [20,40,30,60,45,70,55,80,65,75] },
               ].map(stat => (
-                <div key={stat.label} className="bg-white rounded-2xl border border-[#E5E5E5] p-5 shadow-sm">
+                <div key={stat.label} className="bg-white rounded-2xl border border-lino-oscuro p-5 shadow-sm">
                   <div className="flex items-start justify-between mb-2">
-                    <p className="text-xs text-[#5D5D5D] uppercase tracking-widest font-medium">{stat.label}</p>
-                    <stat.icon size={15} className="text-[#98A77C]" />
+                    <p className="text-xs text-musgo uppercase tracking-widest font-medium">{stat.label}</p>
+                    <stat.icon size={15} className="text-salvia-oscuro" />
                   </div>
-                  <p className="text-3xl font-light text-[#2C2C2C]">{stat.value}</p>
+                  <p className="text-3xl font-light text-bosque">{stat.value}</p>
                 </div>
               ))}
             </div>
 
             <div className="flex justify-between items-center">
-              <h1 className="text-3xl font-light tracking-tight text-[#2C2C2C]">Perfil y Configuración</h1>
+              <h1 className="text-3xl font-light tracking-tight text-bosque">Perfil y Configuración</h1>
               {!isEditing ? (
                 <button 
                   onClick={() => setIsEditing(true)}
-                  className="flex items-center gap-2 px-4 py-2 bg-[#F4EFE4] border border-[#E8E0D0] hover:border-[#2C2C2C] rounded-sm text-sm font-medium transition-colors text-[#2C2C2C]"
+                  className="flex items-center gap-2 px-4 py-2 bg-lino border border-lino-oscuro hover:border-bosque rounded-full text-sm font-medium transition-colors text-bosque"
                 >
                   <Edit2 className="w-4 h-4" /> Editar Datos
                 </button>
@@ -563,13 +564,13 @@ export function UserProfile() {
                       setIsEditing(false);
                       setEditForm(profile);
                     }}
-                    className="px-4 py-2 bg-transparent text-[#5D5D5D] hover:text-[#2C2C2C] rounded-sm text-sm font-medium transition-colors"
+                    className="px-4 py-2 bg-transparent text-musgo hover:text-bosque rounded-full text-sm font-medium transition-colors"
                   >
                     Cancelar
                   </button>
                   <button 
                     onClick={handleSaveProfile}
-                    className="flex items-center gap-2 px-4 py-2 bg-[#98A77C] hover:bg-[#88976C] text-white rounded-sm text-sm font-medium transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 bg-bosque hover:bg-bosque-profundo text-lino rounded-full text-sm font-medium transition-colors"
                   >
                     <Save className="w-4 h-4" /> Guardar
                   </button>
@@ -577,15 +578,15 @@ export function UserProfile() {
               )}
             </div>
 
-            <div className="bg-white border border-[#E8E0D0] rounded-3xl p-8 shadow-sm">
+            <div className="bg-white border border-lino-oscuro rounded-3xl p-8 shadow-sm">
               <div className="flex flex-col gap-6">
                 {isEditing && (
-                  <div className="flex items-center gap-6 pb-6 border-b border-[#E8E0D0]">
+                  <div className="flex items-center gap-6 pb-6 border-b border-lino-oscuro">
                     <div className="relative group w-20 h-20">
                       <img 
                         src={editForm.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(editForm.name)}&background=8CAE99&color=fff`} 
                         alt="Avatar preview" 
-                        className="w-full h-full rounded-full object-cover border border-[#E8E0D0]" referrerPolicy="no-referrer"
+                        className="w-full h-full rounded-full object-cover border border-lino-oscuro" referrerPolicy="no-referrer"
                       />
                       <button 
                         onClick={() => fileInputRef.current?.click()}
@@ -602,80 +603,80 @@ export function UserProfile() {
                       />
                     </div>
                     <div>
-                      <p className="font-medium text-[#2C2C2C]">Foto de perfil</p>
-                      <p className="text-sm text-[#5D5D5D]">Hacé clic en la imagen para cambiarla. Usá un JPG o PNG o URL de avatar.</p>
+                      <p className="font-medium text-bosque">Foto de perfil</p>
+                      <p className="text-sm text-musgo">Hacé clic en la imagen para cambiarla. Usá un JPG o PNG o URL de avatar.</p>
                     </div>
                   </div>
                 )}
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-[#5D5D5D] mb-2">Nombre completo</label>
+                    <label className="block text-sm font-medium text-musgo mb-2">Nombre completo</label>
                     {isEditing ? (
                       <input 
                         type="text" 
                         value={editForm.name}
                         onChange={e => setEditForm({...editForm, name: e.target.value})}
-                        className="w-full bg-[#F4EFE4] border border-[#E8E0D0] focus:border-[#98A77C] focus:ring-1 focus:ring-[#98A77C] text-[#2C2C2C] rounded-xl px-4 py-3 outline-none transition-all"
+                        className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-xl px-4 py-3 outline-none transition-all"
                       />
                     ) : (
-                      <p className="text-[#2C2C2C] font-medium p-3 bg-[#F4EFE4] rounded-xl border border-transparent">{profile.name}</p>
+                      <p className="text-bosque font-medium p-3 bg-lino rounded-xl border border-transparent">{profile.name}</p>
                     )}
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-[#5D5D5D] mb-2">Correo electrónico</label>
+                    <label className="block text-sm font-medium text-musgo mb-2">Correo electrónico</label>
                     {isEditing ? (
                       <input 
                         type="email" 
                         value={editForm.email}
                         onChange={e => setEditForm({...editForm, email: e.target.value})}
-                        className="w-full bg-[#F4EFE4] border border-[#E8E0D0] focus:border-[#98A77C] focus:ring-1 focus:ring-[#98A77C] text-[#2C2C2C] rounded-xl px-4 py-3 outline-none transition-all"
+                        className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-xl px-4 py-3 outline-none transition-all"
                       />
                     ) : (
-                      <p className="text-[#2C2C2C] font-medium p-3 bg-[#F4EFE4] rounded-xl border border-transparent">{profile.email}</p>
+                      <p className="text-bosque font-medium p-3 bg-lino rounded-xl border border-transparent">{profile.email}</p>
                     )}
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-[#5D5D5D] mb-2">Rol / Tipo de cuenta</label>
+                    <label className="block text-sm font-medium text-musgo mb-2">Rol / Tipo de cuenta</label>
                     {isEditing ? (
                       <select 
                         value={editForm.role}
                         onChange={e => setEditForm({...editForm, role: e.target.value as any})}
-                        className="w-full bg-[#F4EFE4] border border-[#E8E0D0] focus:border-[#98A77C] focus:ring-1 focus:ring-[#98A77C] text-[#2C2C2C] rounded-xl px-4 py-3 outline-none transition-all cursor-pointer"
+                        className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-xl px-4 py-3 outline-none transition-all cursor-pointer"
                       >
                         <option value="alumno">Alumno / Alumna</option>
                         <option value="profesor">Profesor / Profesora</option>
                         <option value="instituto">Instituto o Estudio de Yoga</option>
                       </select>
                     ) : (
-                      <p className="text-[#2C2C2C] font-medium p-3 bg-[#F4EFE4] rounded-xl border border-transparent capitalize">
+                      <p className="text-bosque font-medium p-3 bg-lino rounded-xl border border-transparent capitalize">
                         {({ alumno: "Alumno", profesor: "Profesor", instituto: "Instituto", admin: "Administrador" } as Record<string, string>)[profile.role] || profile.role}
                       </p>
                     )}
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-[#5D5D5D] mb-2">ID de Profesor Vinculado</label>
-                    <p className="text-[#5D5D5D] text-sm p-3 bg-[#F4EFE4] rounded-xl border border-transparent font-mono">
+                    <label className="block text-sm font-medium text-musgo mb-2">ID de Profesor Vinculado</label>
+                    <p className="text-musgo text-sm p-3 bg-lino rounded-xl border border-transparent font-mono">
                       {profile.teacherId ? profile.teacherId : "Ninguno (Suscripción inactiva)"}
                     </p>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-[#5D5D5D] mb-2">Biografía</label>
+                  <label className="block text-sm font-medium text-musgo mb-2">Biografía</label>
                   {isEditing ? (
                     <textarea 
                       value={editForm.bio}
                       onChange={e => setEditForm({...editForm, bio: e.target.value})}
                       rows={4}
-                      className="w-full bg-[#F4EFE4] border border-[#E8E0D0] focus:border-[#98A77C] focus:ring-1 focus:ring-[#98A77C] text-[#2C2C2C] rounded-xl px-4 py-3 outline-none transition-all resize-none"
+                      className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-xl px-4 py-3 outline-none transition-all resize-none"
                     />
                   ) : (
-                    <div className="p-4 bg-[#F4EFE4] rounded-xl border border-transparent min-h-[100px]">
-                      <p className="text-[#2C2C2C]">{profile.bio || <span className="text-[#5D5D5D] italic">No hay biografía. Hacé clic en editar para agregar algo sobre vos.</span>}</p>
+                    <div className="p-4 bg-lino rounded-xl border border-transparent min-h-[100px]">
+                      <p className="text-bosque">{profile.bio || <span className="text-musgo italic">No hay biografía. Hacé clic en editar para agregar algo sobre vos.</span>}</p>
                     </div>
                   )}
                 </div>
@@ -687,12 +688,12 @@ export function UserProfile() {
         {/* TAB 2b: RESERVAS RECIBIDAS (PROFESOR / INSTITUTO) */}
         {activeTab === "bookings" && isTeacherOrInstitute && (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
-            <h1 className="text-3xl font-light tracking-tight text-[#2C2C2C] mb-6">Solicitudes de clase recibidas</h1>
+            <h1 className="text-3xl font-light tracking-tight text-bosque mb-6">Solicitudes de clase recibidas</h1>
             {bookings.length > 0 ? (
-              <div className="bg-white border border-[#E8E0D0] rounded-3xl overflow-hidden shadow-sm">
+              <div className="bg-white border border-lino-oscuro rounded-3xl overflow-hidden shadow-sm">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="text-left text-xs uppercase tracking-wider text-[#5D5D5D] border-b border-[#E8E0D0]">
+                    <tr className="text-left text-xs uppercase tracking-wider text-musgo border-b border-lino-oscuro">
                       <th className="px-6 py-4">Alumno/a</th>
                       <th className="px-6 py-4">Fecha</th>
                       <th className="px-6 py-4">Hora</th>
@@ -702,10 +703,10 @@ export function UserProfile() {
                   </thead>
                   <tbody>
                     {bookings.map((booking: any) => (
-                      <tr key={booking.id} className="border-b border-[#E8E0D0] last:border-0">
+                      <tr key={booking.id} className="border-b border-lino-oscuro last:border-0">
                         <td className="px-6 py-4">
-                          <p className="font-medium text-[#2C2C2C]">{booking.studentName || "Alumno/a"}</p>
-                          {booking.studentEmail && <a href={`mailto:${booking.studentEmail}`} className="text-xs text-[#98A77C] hover:underline">{booking.studentEmail}</a>}
+                          <p className="font-medium text-bosque">{booking.studentName || "Alumno/a"}</p>
+                          {booking.studentEmail && <a href={`mailto:${booking.studentEmail}`} className="text-xs text-salvia-oscuro hover:underline">{booking.studentEmail}</a>}
                         </td>
                         <td className="px-6 py-4">{formatDate(booking.date)}</td>
                         <td className="px-6 py-4">{booking.time} hs</td>
@@ -717,10 +718,10 @@ export function UserProfile() {
                 </table>
               </div>
             ) : (
-              <div className="bg-[#F4EFE4] rounded-3xl border border-[#E8E0D0] py-20 px-6 text-center">
-                <Calendar className="w-12 h-12 text-[#E5E5E5] mx-auto mb-4" />
-                <h2 className="text-xl font-medium text-[#2C2C2C] mb-2">Todavía no recibiste solicitudes</h2>
-                <p className="text-[#5D5D5D] max-w-sm mx-auto">Cuando alguien reserve una clase desde tu perfil, la vas a ver acá con sus datos de contacto.</p>
+              <div className="bg-lino rounded-3xl border border-lino-oscuro py-20 px-6 text-center">
+                <Calendar className="w-12 h-12 text-lino-oscuro mx-auto mb-4" />
+                <h2 className="text-xl font-medium text-bosque mb-2">Todavía no recibiste solicitudes</h2>
+                <p className="text-musgo max-w-sm mx-auto">Cuando alguien reserve una clase desde tu perfil, la vas a ver acá con sus datos de contacto.</p>
               </div>
             )}
           </div>
@@ -729,44 +730,44 @@ export function UserProfile() {
         {/* TAB 2: RESERVAS (SOLO ALUMNO) */}
         {activeTab === "bookings" && !isTeacherOrInstitute && (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
-            <h1 className="text-3xl font-light tracking-tight text-[#2C2C2C] mb-6">Mis solicitudes de clase</h1>
+            <h1 className="text-3xl font-light tracking-tight text-bosque mb-6">Mis solicitudes de clase</h1>
             {bookings.length > 0 ? (
               <div className="flex flex-col gap-6">
                 {bookings.map((booking) => (
-                  <div key={booking.id} className="bg-white border border-[#E8E0D0] rounded-3xl p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6 hover:shadow-md transition-shadow">
+                  <div key={booking.id} className="bg-white border border-lino-oscuro rounded-3xl p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6 hover:shadow-md transition-shadow">
                     <div className="flex items-start gap-4">
-                      <div className="p-3.5 bg-[#98A77C]/10 text-[#98A77C] rounded-2xl">
+                      <div className="p-3.5 bg-salvia/10 text-salvia-oscuro rounded-2xl">
                         <Calendar className="w-6 h-6" />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-[#2C2C2C] text-lg">Sesión con {booking.teacherName}</h3>
-                        <p className="text-sm text-[#5D5D5D] mt-1 flex items-center gap-1">
+                        <h3 className="font-semibold text-bosque text-lg">Sesión con {booking.teacherName}</h3>
+                        <p className="text-sm text-musgo mt-1 flex items-center gap-1">
                           <span>Fecha: <strong>{formatDate(booking.date)}</strong></span>
                           <span className="mx-1">•</span>
                           <span>Hora: <strong>{booking.time} hs</strong></span>
                         </p>
-                        <p className="text-xs text-[#5D5D5D] mt-1">Precio: <strong className="text-[#2C2C2C]">{booking.price}</strong></p>
+                        <p className="text-xs text-musgo mt-1">Precio: <strong className="text-bosque">{booking.price}</strong></p>
                       </div>
                     </div>
                     
-                    <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center gap-3 pt-4 md:pt-0 border-t md:border-t-0 border-[#E8E0D0]">
+                    <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center gap-3 pt-4 md:pt-0 border-t md:border-t-0 border-lino-oscuro">
                       <div className="flex flex-col items-start md:items-end gap-1 max-w-[220px]">
-                        <span className="text-xs text-[#5D5D5D]">Pago y confirmación:</span>
-                        <span className="px-3 py-1 rounded-sm text-xs font-semibold bg-[#98A77C]/15 text-[#5f7348]">
+                        <span className="text-xs text-musgo">Pago y confirmación:</span>
+                        <span className="px-3 py-1 rounded-sm text-xs font-semibold bg-salvia/15 text-salvia-oscuro">
                           A coordinar con el profesional
                         </span>
-                        <span className="text-[11px] text-[#5D5D5D] md:text-right">Contactalo para confirmar la clase y acordar el pago.</span>
+                        <span className="text-[11px] text-musgo md:text-right">Contactalo para confirmar la clase y acordar el pago.</span>
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="bg-[#F4EFE4] rounded-3xl border border-[#E8E0D0] py-20 px-6 text-center flex flex-col items-center">
-                <Calendar className="w-12 h-12 text-[#E5E5E5] mb-4" />
-                <h2 className="text-xl font-medium text-[#2C2C2C] mb-2">No pediste clases todavía</h2>
-                <p className="text-[#5D5D5D] mb-6 max-w-sm mx-auto">Encontrá el profesor que mejor se adapte a tu estilo y agendá una clase.</p>
-                <Link to="/directorio" className="px-6 py-3 bg-[#98A77C] hover:bg-[#88976C] text-white rounded-sm font-medium transition-colors">
+              <div className="bg-lino rounded-3xl border border-lino-oscuro py-20 px-6 text-center flex flex-col items-center">
+                <Calendar className="w-12 h-12 text-lino-oscuro mb-4" />
+                <h2 className="text-xl font-medium text-bosque mb-2">No pediste clases todavía</h2>
+                <p className="text-musgo mb-6 max-w-sm mx-auto">Encontrá el profesor que mejor se adapte a tu estilo y agendá una clase.</p>
+                <Link to="/directorio" className="px-6 py-3 bg-bosque hover:bg-bosque-profundo text-lino rounded-full font-medium transition-colors">
                   Buscar Profesores
                 </Link>
               </div>
@@ -777,7 +778,7 @@ export function UserProfile() {
         {/* TAB 3: FAVORITOS (SOLO ALUMNO) */}
         {activeTab === "favoritos" && !isTeacherOrInstitute && (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
-            <h1 className="text-3xl font-light tracking-tight text-[#2C2C2C] mb-6">Mis Favoritos</h1>
+            <h1 className="text-3xl font-light tracking-tight text-bosque mb-6">Mis Favoritos</h1>
             {favoriteTeachers.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {favoriteTeachers.map(teacher => (
@@ -785,11 +786,11 @@ export function UserProfile() {
                 ))}
               </div>
             ) : (
-              <div className="bg-[#F4EFE4] rounded-3xl border border-[#E8E0D0] py-20 px-6 text-center flex flex-col items-center">
-                <Heart className="w-12 h-12 text-[#E5E5E5] mb-4" />
-                <h2 className="text-xl font-medium text-[#2C2C2C] mb-2">No agregaste a nadie todavía</h2>
-                <p className="text-[#5D5D5D] mb-6 max-w-sm mx-auto">Cuando encuentres profes que te gusten en el directorio, tocales el corazón para guardarlos acá.</p>
-                <Link to="/directorio" className="px-6 py-3 bg-[#98A77C] hover:bg-[#88976C] text-white rounded-sm font-medium transition-colors">
+              <div className="bg-lino rounded-3xl border border-lino-oscuro py-20 px-6 text-center flex flex-col items-center">
+                <Heart className="w-12 h-12 text-lino-oscuro mb-4" />
+                <h2 className="text-xl font-medium text-bosque mb-2">No agregaste a nadie todavía</h2>
+                <p className="text-musgo mb-6 max-w-sm mx-auto">Cuando encuentres profes que te gusten en el directorio, tocales el corazón para guardarlos acá.</p>
+                <Link to="/directorio" className="px-6 py-3 bg-bosque hover:bg-bosque-profundo text-lino rounded-full font-medium transition-colors">
                   Ir al Directorio
                 </Link>
               </div>
@@ -800,38 +801,38 @@ export function UserProfile() {
         {/* TAB 4: PROFESORES VISTOS (SOLO ALUMNO) */}
         {activeTab === "visited" && !isTeacherOrInstitute && (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
-            <h1 className="text-3xl font-light tracking-tight text-[#2C2C2C] mb-6">Profesores que ya viste el perfil</h1>
-            <p className="text-[#5D5D5D] mb-8">Un historial de los profesionales y centros de yoga que estuviste explorando. Podés contactarlos directamente desde aquí.</p>
+            <h1 className="text-3xl font-light tracking-tight text-bosque mb-6">Profesores que ya viste el perfil</h1>
+            <p className="text-musgo mb-8">Un historial de los profesionales y centros de yoga que estuviste explorando. Podés contactarlos directamente desde aquí.</p>
             
             {visitedTeachers.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {visitedTeachers.map((teacher) => (
-                  <div key={teacher.id} className="bg-white border border-[#E8E0D0] rounded-3xl p-6 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between">
+                  <div key={teacher.id} className="bg-white border border-lino-oscuro rounded-3xl p-6 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between">
                     <div>
                       <div className="flex gap-4 items-start mb-4">
                         <img 
                           src={teacher.image} 
                           alt={teacher.name} 
-                          className="w-16 h-16 rounded-2xl object-cover border border-[#E8E0D0]"
+                          className="w-16 h-16 rounded-2xl object-cover border border-lino-oscuro"
                         />
                         <div>
-                          <h3 className="font-semibold text-[#2C2C2C] text-lg">{teacher.name}</h3>
-                          <p className="text-sm text-[#98A77C] font-medium">{teacher.specialty}</p>
-                          <p className="text-xs text-[#5D5D5D] mt-0.5">{teacher.location}</p>
+                          <h3 className="font-semibold text-bosque text-lg">{teacher.name}</h3>
+                          <p className="text-sm text-salvia-oscuro font-medium">{teacher.specialty}</p>
+                          <p className="text-xs text-musgo mt-0.5">{teacher.location}</p>
                         </div>
                       </div>
-                      <p className="text-sm text-[#5D5D5D] line-clamp-2 mb-6">
+                      <p className="text-sm text-musgo line-clamp-2 mb-6">
                         {teacher.bio}
                       </p>
                     </div>
 
-                    <div className="flex flex-col gap-2.5 pt-4 border-t border-[#E8E0D0]">
+                    <div className="flex flex-col gap-2.5 pt-4 border-t border-lino-oscuro">
                       <div className="grid grid-cols-2 gap-2">
                         <a 
                           href={`mailto:profe_${teacher.id}@omiayoga.com?subject=Consulta sobre clases de yoga - Omia&body=Hola ${teacher.name}, vi tu perfil en Omia y quería hacerte una consulta.`}
-                          className="flex items-center justify-center gap-1.5 py-2.5 bg-[#F4EFE4] hover:bg-black/5 text-[#2C2C2C] rounded-xl text-xs font-semibold border border-[#E8E0D0] transition-all"
+                          className="flex items-center justify-center gap-1.5 py-2.5 bg-lino hover:bg-black/5 text-bosque rounded-xl text-xs font-semibold border border-lino-oscuro transition-all"
                         >
-                          <Mail className="w-3.5 h-3.5 text-[#5D5D5D]" />
+                          <Mail className="w-3.5 h-3.5 text-musgo" />
                           <span>Enviar Mail</span>
                         </a>
                         <a 
@@ -846,7 +847,7 @@ export function UserProfile() {
                       </div>
                       <Link 
                         to={`/profesor/${teacher.id}`}
-                        className="w-full text-center py-2.5 bg-[#2C2C2C] hover:bg-black text-white rounded-xl text-xs font-semibold transition-all"
+                        className="w-full text-center py-2.5 bg-bosque hover:bg-bosque-profundo text-lino rounded-xl text-xs font-semibold transition-all"
                       >
                         Ver Perfil Completo
                       </Link>
@@ -855,11 +856,11 @@ export function UserProfile() {
                 ))}
               </div>
             ) : (
-              <div className="bg-[#F4EFE4] rounded-3xl border border-[#E8E0D0] py-20 px-6 text-center flex flex-col items-center">
-                <Eye className="w-12 h-12 text-[#E5E5E5] mb-4" />
-                <h2 className="text-xl font-medium text-[#2C2C2C] mb-2">No viste ningún perfil todavía</h2>
-                <p className="text-[#5D5D5D] mb-6 max-w-sm mx-auto">Explorá los perfiles del directorio. Los profes que visites se guardarán automáticamente acá para que no los pierdas.</p>
-                <Link to="/directorio" className="px-6 py-3 bg-[#98A77C] hover:bg-[#88976C] text-white rounded-sm font-medium transition-colors">
+              <div className="bg-lino rounded-3xl border border-lino-oscuro py-20 px-6 text-center flex flex-col items-center">
+                <Eye className="w-12 h-12 text-lino-oscuro mb-4" />
+                <h2 className="text-xl font-medium text-bosque mb-2">No viste ningún perfil todavía</h2>
+                <p className="text-musgo mb-6 max-w-sm mx-auto">Explorá los perfiles del directorio. Los profes que visites se guardarán automáticamente acá para que no los pierdas.</p>
+                <Link to="/directorio" className="px-6 py-3 bg-bosque hover:bg-bosque-profundo text-lino rounded-full font-medium transition-colors">
                   Ver Profesores
                 </Link>
               </div>
@@ -870,113 +871,113 @@ export function UserProfile() {
         {/* TAB 5: ESTADÍSTICAS / DASHBOARD (SOLO PROFESOR / INSTITUTO) */}
         {activeTab === "stats" && isTeacherOrInstitute && (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
-            <h1 className="text-3xl font-light tracking-tight text-[#2C2C2C] mb-2">Panel de Control Profesional</h1>
-            <p className="text-[#5D5D5D] mb-8">Hacé el seguimiento del rendimiento de tu página y de las solicitudes de clase que recibís.</p>
+            <h1 className="text-3xl font-light tracking-tight text-bosque mb-2">Panel de Control Profesional</h1>
+            <p className="text-musgo mb-8">Hacé el seguimiento del rendimiento de tu página y de las solicitudes de clase que recibís.</p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
               {/* Card 1: Impresiones */}
-              <div className="bg-white border border-[#E8E0D0] rounded-3xl p-6 shadow-sm">
+              <div className="bg-white border border-lino-oscuro rounded-3xl p-6 shadow-sm">
                 <div className="flex justify-between items-start mb-4">
-                  <span className="p-3 bg-[#98A77C]/10 text-[#98A77C] rounded-2xl">
+                  <span className="p-3 bg-salvia/10 text-salvia-oscuro rounded-2xl">
                     <Eye className="w-5 h-5" />
                   </span>
                 </div>
-                <p className="text-sm text-[#5D5D5D] font-medium uppercase tracking-wider">Apariciones en Búsqueda</p>
-                <h3 className="text-3xl font-mono font-bold text-[#2C2C2C] mt-1">{teacherStats.impressions}</h3>
-                <p className="text-xs text-[#5D5D5D] mt-2">Veces que apareció tu perfil</p>
+                <p className="text-sm text-musgo font-medium uppercase tracking-wider">Apariciones en Búsqueda</p>
+                <h3 className="text-3xl font-mono font-bold text-bosque mt-1">{teacherStats.impressions}</h3>
+                <p className="text-xs text-musgo mt-2">Veces que apareció tu perfil</p>
               </div>
 
               {/* Card 2: Visitas directas */}
-              <div className="bg-white border border-[#E8E0D0] rounded-3xl p-6 shadow-sm">
+              <div className="bg-white border border-lino-oscuro rounded-3xl p-6 shadow-sm">
                 <div className="flex justify-between items-start mb-4">
                   <span className="p-3 bg-blue-50 text-blue-500 rounded-2xl">
                     <User className="w-5 h-5" />
                   </span>
                 </div>
-                <p className="text-sm text-[#5D5D5D] font-medium uppercase tracking-wider">Visitas al Perfil</p>
-                <h3 className="text-3xl font-mono font-bold text-[#2C2C2C] mt-1">{teacherStats.visitors.length}</h3>
-                <p className="text-xs text-[#5D5D5D] mt-2">Gente que ingresó a tu landing</p>
+                <p className="text-sm text-musgo font-medium uppercase tracking-wider">Visitas al Perfil</p>
+                <h3 className="text-3xl font-mono font-bold text-bosque mt-1">{teacherStats.visitors.length}</h3>
+                <p className="text-xs text-musgo mt-2">Gente que ingresó a tu landing</p>
               </div>
 
               {/* Card 3: Solicitudes de clase */}
-              <div className="bg-white border border-[#E8E0D0] rounded-3xl p-6 shadow-sm">
+              <div className="bg-white border border-lino-oscuro rounded-3xl p-6 shadow-sm">
                 <div className="flex justify-between items-start mb-4">
                   <span className="p-3 bg-amber-50 text-amber-600 rounded-2xl">
                     <Calendar className="w-5 h-5" />
                   </span>
-                  <span className="text-xs text-white bg-[#98A77C] font-semibold px-2 py-0.5 rounded-sm">100% Tuyo</span>
+                  <span className="text-xs text-lino bg-bosque font-semibold px-2 py-0.5 rounded-sm">100% Tuyo</span>
                 </div>
-                <p className="text-sm text-[#5D5D5D] font-medium uppercase tracking-wider">Solicitudes de clase</p>
-                <h3 className="text-3xl font-mono font-bold text-[#2C2C2C] mt-1">{teacherStats.bookings}</h3>
-                <p className="text-xs text-[#5D5D5D] mt-2">Cobrás tus clases directo, sin comisión</p>
+                <p className="text-sm text-musgo font-medium uppercase tracking-wider">Solicitudes de clase</p>
+                <h3 className="text-3xl font-mono font-bold text-bosque mt-1">{teacherStats.bookings}</h3>
+                <p className="text-xs text-musgo mt-2">Cobrás tus clases directo, sin comisión</p>
               </div>
 
               {/* Card 4: Valoración */}
-              <div className="bg-white border border-[#E8E0D0] rounded-3xl p-6 shadow-sm">
+              <div className="bg-white border border-lino-oscuro rounded-3xl p-6 shadow-sm">
                 <div className="flex justify-between items-start mb-4">
                   <span className="p-3 bg-emerald-50 text-emerald-600 rounded-2xl">
                     <Star className="w-5 h-5" />
                   </span>
                 </div>
-                <p className="text-sm text-[#5D5D5D] font-medium uppercase tracking-wider">Valoración</p>
-                <h3 className="text-3xl font-mono font-bold text-[#98A77C] mt-1">{teacherStats.reviews ? teacherStats.rating.toFixed(1) : "—"}</h3>
-                <p className="text-xs text-[#5D5D5D] mt-2">{teacherStats.reviews} {teacherStats.reviews === 1 ? "reseña" : "reseñas"} de alumnos</p>
+                <p className="text-sm text-musgo font-medium uppercase tracking-wider">Valoración</p>
+                <h3 className="text-3xl font-mono font-bold text-salvia-oscuro mt-1">{teacherStats.reviews ? teacherStats.rating.toFixed(1) : "—"}</h3>
+                <p className="text-xs text-musgo mt-2">{teacherStats.reviews} {teacherStats.reviews === 1 ? "reseña" : "reseñas"} de alumnos</p>
               </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {/* Gente que vio tu perfil */}
-              <div className="lg:col-span-2 bg-white border border-[#E8E0D0] rounded-3xl p-8 shadow-sm">
-                <h3 className="text-xl font-medium text-[#2C2C2C] mb-6 flex items-center gap-2">
-                  <User className="w-5 h-5 text-[#98A77C]" />
+              <div className="lg:col-span-2 bg-white border border-lino-oscuro rounded-3xl p-8 shadow-sm">
+                <h3 className="text-xl font-medium text-bosque mb-6 flex items-center gap-2">
+                  <User className="w-5 h-5 text-salvia-oscuro" />
                   <span>Gente que vio tu perfil</span>
                 </h3>
 
                 {teacherStats.visitors.length > 0 ? (
-                  <div className="divide-y divide-[#E5E5E5]">
+                  <div className="divide-y divide-lino-oscuro">
                     {teacherStats.visitors.map((visitor, idx) => (
                       <div key={idx} className="py-4 flex items-center justify-between first:pt-0 last:pb-0">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-sm bg-[#98A77C]/15 text-[#98A77C] flex items-center justify-center font-bold text-sm uppercase">
+                          <div className="w-10 h-10 rounded-sm bg-salvia/15 text-salvia-oscuro flex items-center justify-center font-bold text-sm uppercase">
                             {visitor.name.slice(0, 2)}
                           </div>
                           <div>
-                            <p className="font-semibold text-[#2C2C2C] text-sm">{visitor.name}</p>
-                            <p className="text-xs text-[#98A77C]">Visita registrada en Omia</p>
+                            <p className="font-semibold text-bosque text-sm">{visitor.name}</p>
+                            <p className="text-xs text-salvia-oscuro">Visita registrada en Omia</p>
                           </div>
                         </div>
-                        <span className="text-xs text-[#5D5D5D] font-mono">
+                        <span className="text-xs text-musgo font-mono">
                           {new Date(visitor.date).toLocaleDateString("es-AR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })} hs
                         </span>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <div className="py-12 text-center text-[#5D5D5D]">
+                  <div className="py-12 text-center text-musgo">
                     <p className="italic">Todavía no se registraron visitas identificadas en tu perfil.</p>
                   </div>
                 )}
               </div>
 
               {/* Explicación del modelo de cobro */}
-              <div className="bg-[#F4EFE4] border border-[#E8E0D0] rounded-3xl p-8 shadow-sm flex flex-col justify-between">
+              <div className="bg-lino border border-lino-oscuro rounded-3xl p-8 shadow-sm flex flex-col justify-between">
                 <div>
-                  <h3 className="text-lg font-semibold text-[#2C2C2C] mb-4 flex items-center gap-2">
-                    <AlertCircle className="w-5 h-5 text-[#98A77C]" />
+                  <h3 className="text-lg font-semibold text-bosque mb-4 flex items-center gap-2">
+                    <AlertCircle className="w-5 h-5 text-salvia-oscuro" />
                     <span>Modelo de Pauta Transparente</span>
                   </h3>
-                  <p className="text-sm text-[#5D5D5D] leading-relaxed mb-6">
+                  <p className="text-sm text-musgo leading-relaxed mb-6">
                     Omia opera bajo un esquema de <strong>comisión cero</strong> para los profesionales de yoga. 
                     Cobrás tus clases de forma directa con cada alumno, sin retenciones ni comisiones del sitio.
                   </p>
-                  <p className="text-sm text-[#5D5D5D] leading-relaxed">
+                  <p className="text-sm text-musgo leading-relaxed">
                     Lo único que abonás para mantener tu landing page activa y recibir tráfico continuo es la <strong>membresía fija mensual</strong>.
                   </p>
                 </div>
-                <div className="mt-8 pt-6 border-t border-[#E8E0D0]">
+                <div className="mt-8 pt-6 border-t border-lino-oscuro">
                   <Link 
                     to="/" 
-                    className="text-xs text-[#98A77C] hover:underline font-semibold flex items-center gap-1"
+                    className="text-xs text-salvia-oscuro hover:underline font-semibold flex items-center gap-1"
                   >
                     <span>Ver tabla de precios en la Home</span>
                     <ArrowUpRight className="w-3.5 h-3.5" />
@@ -992,14 +993,14 @@ export function UserProfile() {
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
             <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6">
               <div>
-                <h1 className="text-3xl font-light tracking-tight text-[#2C2C2C]">Mi Publicación / Landing Page</h1>
-                <p className="text-[#5D5D5D] text-sm mt-1">Configurá la landing page pública que verán tus futuros alumnos.</p>
+                <h1 className="text-3xl font-light tracking-tight text-bosque">Mi Publicación / Landing Page</h1>
+                <p className="text-musgo text-sm mt-1">Configurá la landing page pública que verán tus futuros alumnos.</p>
               </div>
               {profile.teacherId && (
                 <Link 
                   to={`/profesor/${profile.teacherId}`}
                   target="_blank"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#2C2C2C] hover:bg-black text-white text-sm font-medium rounded-sm transition-colors shrink-0"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-bosque hover:bg-bosque-profundo text-lino text-sm font-medium rounded-full transition-colors shrink-0"
                 >
                   <span>Ver mi Landing Page</span>
                   <ArrowUpRight className="w-4 h-4" />
@@ -1008,8 +1009,8 @@ export function UserProfile() {
             </div>
 
             {saveLandingSuccess && (
-              <div className="mb-8 p-5 bg-green-50 border-2 border-[#98A77C] rounded-3xl flex items-start gap-4 animate-in slide-in-from-top-5 duration-300">
-                <CheckCircle2 className="w-6 h-6 text-[#98A77C] shrink-0 mt-0.5" />
+              <div className="mb-8 p-5 bg-green-50 border-2 border-salvia rounded-3xl flex items-start gap-4 animate-in slide-in-from-top-5 duration-300">
+                <CheckCircle2 className="w-6 h-6 text-salvia-oscuro shrink-0 mt-0.5" />
                 <div>
                   <h3 className="font-semibold text-green-900 mb-1">
                     {profile.teacherStatus === "activo" ? "¡Cambios publicados!" : "¡Perfil guardado!"}
@@ -1018,7 +1019,7 @@ export function UserProfile() {
                     {profile.teacherStatus === "activo"
                       ? "Tu publicación está online. Podés compartir este enlace: "
                       : "Para que aparezca en el directorio, activá tu plan en la pestaña Plan Premium. Así se va a ver: "}
-                    <Link to={`/profesor/${profile.teacherId}`} className="font-bold underline text-[#2C2C2C]">
+                    <Link to={`/profesor/${profile.teacherId}`} className="font-bold underline text-bosque">
                       {window.location.origin}/profesor/{profile.teacherId}
                     </Link>
                   </p>
@@ -1026,27 +1027,27 @@ export function UserProfile() {
               </div>
             )}
 
-            <form onSubmit={handleSaveLanding} className="bg-white border border-[#E8E0D0] rounded-3xl p-8 shadow-sm flex flex-col gap-6">
+            <form onSubmit={handleSaveLanding} className="bg-white border border-lino-oscuro rounded-3xl p-8 shadow-sm flex flex-col gap-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-semibold text-[#5D5D5D] mb-2">Nombre del Profesor o Instituto *</label>
+                  <label className="block text-sm font-semibold text-musgo mb-2">Nombre del Profesor o Instituto *</label>
                   <input 
                     type="text" 
                     value={landingForm.name}
                     onChange={e => setLandingForm({...landingForm, name: e.target.value})}
                     placeholder="Ej. Estudio de Yoga Serene, Profe Lena"
-                    className="w-full bg-[#F4EFE4] border border-[#E8E0D0] focus:border-[#98A77C] focus:ring-1 focus:ring-[#98A77C] text-[#2C2C2C] rounded-xl px-4 py-3 outline-none transition-all"
+                    className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-xl px-4 py-3 outline-none transition-all"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-[#5D5D5D] mb-2">Especialidad / Estilos de Yoga *</label>
+                  <label className="block text-sm font-semibold text-musgo mb-2">Especialidad / Estilos de Yoga *</label>
                   <input 
                     type="text" 
                     value={landingForm.specialty}
                     onChange={e => setLandingForm({...landingForm, specialty: e.target.value})}
                     placeholder="Ej. Vinyasa Flow, Ashtanga, Hatha, Yin Yoga"
-                    className="w-full bg-[#F4EFE4] border border-[#E8E0D0] focus:border-[#98A77C] focus:ring-1 focus:ring-[#98A77C] text-[#2C2C2C] rounded-xl px-4 py-3 outline-none transition-all"
+                    className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-xl px-4 py-3 outline-none transition-all"
                     required
                   />
                 </div>
@@ -1054,11 +1055,11 @@ export function UserProfile() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-semibold text-[#5D5D5D] mb-2">Barrio / Zona *</label>
+                  <label className="block text-sm font-semibold text-musgo mb-2">Barrio / Zona *</label>
                   <select 
                     value={landingForm.location}
                     onChange={e => setLandingForm({...landingForm, location: e.target.value})}
-                    className="w-full bg-[#F4EFE4] border border-[#E8E0D0] focus:border-[#98A77C] focus:ring-1 focus:ring-[#98A77C] text-[#2C2C2C] rounded-xl px-4 py-3 outline-none transition-all cursor-pointer"
+                    className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-xl px-4 py-3 outline-none transition-all cursor-pointer"
                     required
                   >
                     <option value="Palermo">Palermo</option>
@@ -1068,13 +1069,13 @@ export function UserProfile() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-[#5D5D5D] mb-2">Precio sugerido por clase *</label>
+                  <label className="block text-sm font-semibold text-musgo mb-2">Precio sugerido por clase *</label>
                   <input 
                     type="text" 
                     value={landingForm.price}
                     onChange={e => setLandingForm({...landingForm, price: e.target.value})}
                     placeholder="Ej. $8.000/clase o Gratis"
-                    className="w-full bg-[#F4EFE4] border border-[#E8E0D0] focus:border-[#98A77C] focus:ring-1 focus:ring-[#98A77C] text-[#2C2C2C] rounded-xl px-4 py-3 outline-none transition-all"
+                    className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-xl px-4 py-3 outline-none transition-all"
                     required
                   />
                 </div>
@@ -1083,47 +1084,47 @@ export function UserProfile() {
               {profile.role === "instituto" && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-semibold text-[#5D5D5D] mb-2">Dirección</label>
-                    <input type="text" value={landingForm.address} onChange={e => setLandingForm({...landingForm, address: e.target.value})} placeholder="Ej. Humboldt 1942, Palermo" className="w-full bg-[#F4EFE4] border border-[#E8E0D0] focus:border-[#98A77C] focus:ring-1 focus:ring-[#98A77C] text-[#2C2C2C] rounded-xl px-4 py-3 outline-none" />
+                    <label className="block text-sm font-semibold text-musgo mb-2">Dirección</label>
+                    <input type="text" value={landingForm.address} onChange={e => setLandingForm({...landingForm, address: e.target.value})} placeholder="Ej. Humboldt 1942, Palermo" className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-xl px-4 py-3 outline-none" />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-[#5D5D5D] mb-2">Horarios de atención</label>
-                    <input type="text" value={landingForm.hours} onChange={e => setLandingForm({...landingForm, hours: e.target.value})} placeholder="Ej. Lun a Sáb 07:00 a 21:00 hs" className="w-full bg-[#F4EFE4] border border-[#E8E0D0] focus:border-[#98A77C] focus:ring-1 focus:ring-[#98A77C] text-[#2C2C2C] rounded-xl px-4 py-3 outline-none" />
+                    <label className="block text-sm font-semibold text-musgo mb-2">Horarios de atención</label>
+                    <input type="text" value={landingForm.hours} onChange={e => setLandingForm({...landingForm, hours: e.target.value})} placeholder="Ej. Lun a Sáb 07:00 a 21:00 hs" className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-xl px-4 py-3 outline-none" />
                   </div>
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-semibold text-[#5D5D5D] mb-2">Comodidades (separadas por coma)</label>
-                    <input type="text" value={landingForm.amenities.join(", ")} onChange={e => setLandingForm({...landingForm, amenities: e.target.value.split(",").map(a => a.trimStart()).filter((a, i, all) => a || i === all.length - 1)})} placeholder="Ej. Camas Reformer, Mat incluido, Duchas" className="w-full bg-[#F4EFE4] border border-[#E8E0D0] focus:border-[#98A77C] focus:ring-1 focus:ring-[#98A77C] text-[#2C2C2C] rounded-xl px-4 py-3 outline-none" />
+                    <label className="block text-sm font-semibold text-musgo mb-2">Comodidades (separadas por coma)</label>
+                    <input type="text" value={landingForm.amenities.join(", ")} onChange={e => setLandingForm({...landingForm, amenities: e.target.value.split(",").map(a => a.trimStart()).filter((a, i, all) => a || i === all.length - 1)})} placeholder="Ej. Camas Reformer, Mat incluido, Duchas" className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-xl px-4 py-3 outline-none" />
                   </div>
                 </div>
               )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-semibold text-[#5D5D5D] mb-2">E-mail de Contacto Público *</label>
+                  <label className="block text-sm font-semibold text-musgo mb-2">E-mail de Contacto Público *</label>
                   <input 
                     type="email" 
                     value={landingForm.email || ""}
                     onChange={e => setLandingForm({...landingForm, email: e.target.value})}
                     placeholder="Ej. mi.contacto@yogaestudio.com"
-                    className="w-full bg-[#F4EFE4] border border-[#E8E0D0] focus:border-[#98A77C] focus:ring-1 focus:ring-[#98A77C] text-[#2C2C2C] rounded-xl px-4 py-3 outline-none transition-all"
+                    className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-xl px-4 py-3 outline-none transition-all"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-[#5D5D5D] mb-2">Teléfono o WhatsApp de Contacto *</label>
+                  <label className="block text-sm font-semibold text-musgo mb-2">Teléfono o WhatsApp de Contacto *</label>
                   <input 
                     type="text" 
                     value={landingForm.phone || ""}
                     onChange={e => setLandingForm({...landingForm, phone: e.target.value})}
                     placeholder="Ej. 5491133445566 (Sólo números: código país + área + número)"
-                    className="w-full bg-[#F4EFE4] border border-[#E8E0D0] focus:border-[#98A77C] focus:ring-1 focus:ring-[#98A77C] text-[#2C2C2C] rounded-xl px-4 py-3 outline-none transition-all"
+                    className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-xl px-4 py-3 outline-none transition-all"
                     required
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-[#5D5D5D] mb-3">Días Disponibles *</label>
+                <label className="block text-sm font-semibold text-musgo mb-3">Días Disponibles *</label>
                 <div className="flex flex-wrap gap-2">
                   {["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"].map((day) => {
                     const isSelected = (landingForm.availableDays || []).includes(day);
@@ -1134,8 +1135,8 @@ export function UserProfile() {
                         onClick={() => toggleAvailableDay(day)}
                         className={`px-4 py-2 rounded-xl text-xs font-semibold border transition-all ${
                           isSelected
-                            ? "bg-[#98A77C] text-white border-[#98A77C]"
-                            : "bg-[#F4EFE4] text-[#5D5D5D] border-[#E8E0D0] hover:border-[#98A77C]/40"
+                            ? "bg-bosque text-lino border-salvia"
+                            : "bg-lino text-musgo border-lino-oscuro hover:border-salvia/40"
                         }`}
                       >
                         {day}
@@ -1146,19 +1147,19 @@ export function UserProfile() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-[#5D5D5D] mb-2">Imagen de Portada (URL de Foto) *</label>
+                <label className="block text-sm font-semibold text-musgo mb-2">Imagen de Portada (URL de Foto) *</label>
                 <input 
                   type="text" 
                   value={landingForm.image}
                   onChange={e => setLandingForm({...landingForm, image: e.target.value})}
                   placeholder="Ej. https://images.unsplash.com/..."
-                  className="w-full bg-[#F4EFE4] border border-[#E8E0D0] focus:border-[#98A77C] focus:ring-1 focus:ring-[#98A77C] text-[#2C2C2C] rounded-xl px-4 py-3 outline-none transition-all font-mono text-xs"
+                  className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-xl px-4 py-3 outline-none transition-all font-mono text-xs"
                   required
                 />
                 
                 {/* Atajos de fotos de portada hermosas */}
                 <div className="mt-3">
-                  <p className="text-[11px] text-[#5D5D5D] font-medium uppercase tracking-wider mb-2">Fotos recomendadas (Toca para seleccionar):</p>
+                  <p className="text-[11px] text-musgo font-medium uppercase tracking-wider mb-2">Fotos recomendadas (Toca para seleccionar):</p>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     {[
                       { label: "Yoga Mat y Espacio", url: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&q=80&w=600" },
@@ -1170,8 +1171,8 @@ export function UserProfile() {
                         type="button"
                         key={idx}
                         onClick={() => setLandingForm({ ...landingForm, image: preset.url })}
-                        className={`p-2 bg-[#F4EFE4] border rounded-lg text-[10px] font-medium text-left truncate transition-all ${
-                          landingForm.image === preset.url ? "border-[#98A77C] bg-[#98A77C]/5 font-bold" : "border-[#E8E0D0] hover:border-[#98A77C]/30"
+                        className={`p-2 bg-lino border rounded-lg text-[10px] font-medium text-left truncate transition-all ${
+                          landingForm.image === preset.url ? "border-salvia bg-salvia/5 font-bold" : "border-lino-oscuro hover:border-salvia/30"
                         }`}
                       >
                         {preset.label}
@@ -1182,24 +1183,24 @@ export function UserProfile() {
               </div>
 
               {/* SECCIÓN DE SUBIDA MULTI-IMAGEN CON CONVERSIÓN WEBP AUTOMÁTICA */}
-              <div className="border-t border-[#E8E0D0] pt-6">
+              <div className="border-t border-lino-oscuro pt-6">
                 <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 mb-4">
                   <div>
-                    <label className="block text-sm font-semibold text-[#5D5D5D]">Galería de Fotos de tu Estudio o Clases (Tipo Airbnb)</label>
-                    <p className="text-xs text-[#5D5D5D] mt-0.5">Sube varias fotos de alta calidad. Se optimizarán automáticamente a formato WebP.</p>
+                    <label className="block text-sm font-semibold text-musgo">Galería de Fotos de tu Estudio o Clases (Tipo Airbnb)</label>
+                    <p className="text-xs text-musgo mt-0.5">Sube varias fotos de alta calidad. Se optimizarán automáticamente a formato WebP.</p>
                   </div>
-                  <span className="self-start sm:self-center text-[11px] bg-[#98A77C]/15 text-[#98A77C] font-bold px-3 py-1 rounded-sm uppercase tracking-wider">
+                  <span className="self-start sm:self-center text-[11px] bg-salvia/15 text-salvia-oscuro font-bold px-3 py-1 rounded-sm uppercase tracking-wider">
                     Auto-WebP Activo
                   </span>
                 </div>
 
                 {/* Grid de fotos subidadas */}
                 {(landingForm.images || []).length > 0 && (
-                  <div className="mb-6 bg-[#F4EFE4]/50 p-4 rounded-2xl border border-[#E8E0D0]">
-                    <p className="text-xs text-[#5D5D5D] font-semibold mb-3">Tus imágenes en la Galería ({landingForm.images.length} fotos):</p>
+                  <div className="mb-6 bg-lino/50 p-4 rounded-2xl border border-lino-oscuro">
+                    <p className="text-xs text-musgo font-semibold mb-3">Tus imágenes en la Galería ({landingForm.images.length} fotos):</p>
                     <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
                       {(landingForm.images || []).map((img, idx) => (
-                        <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border border-[#E8E0D0] group/thumb bg-white">
+                        <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border border-lino-oscuro group/thumb bg-white">
                           <img 
                             src={img} 
                             alt={`Preview ${idx}`} 
@@ -1210,14 +1211,14 @@ export function UserProfile() {
                             <button
                               type="button"
                               onClick={() => handleRemoveGalleryImage(idx)}
-                              className="bg-red-500 hover:bg-red-600 text-white p-1.5 rounded-sm shadow-md transition-transform hover:scale-110 cursor-pointer"
+                              className="bg-red-500 hover:bg-red-600 text-white p-1.5 rounded-full shadow-md transition-transform hover:scale-110 cursor-pointer"
                               title="Eliminar foto"
                             >
                               <X className="w-4 h-4" />
                             </button>
                           </div>
                           {idx === 0 && (
-                            <span className="absolute bottom-1.5 left-1.5 bg-[#98A77C] text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow-sm">
+                            <span className="absolute bottom-1.5 left-1.5 bg-bosque text-lino text-[9px] font-bold px-1.5 py-0.5 rounded shadow-sm">
                               Portada
                             </span>
                           )}
@@ -1240,20 +1241,20 @@ export function UserProfile() {
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                     disabled={isUploadingGallery}
                   />
-                  <div className="border-2 border-dashed border-[#E8E0D0] hover:border-[#98A77C] rounded-2xl p-8 text-center transition-all bg-[#F4EFE4] flex flex-col items-center justify-center gap-3">
+                  <div className="border-2 border-dashed border-lino-oscuro hover:border-salvia rounded-2xl p-8 text-center transition-all bg-lino flex flex-col items-center justify-center gap-3">
                     {isUploadingGallery ? (
                       <div className="flex flex-col items-center gap-2">
-                        <div className="w-8 h-8 border-4 border-[#98A77C]/30 border-t-[#98A77C] rounded-sm animate-spin" />
-                        <p className="text-sm font-medium text-[#5D5D5D]">Optimizando y convirtiendo imágenes a WebP...</p>
+                        <div className="w-8 h-8 border-4 border-salvia/30 border-t-salvia rounded-sm animate-spin" />
+                        <p className="text-sm font-medium text-musgo">Optimizando y convirtiendo imágenes a WebP...</p>
                       </div>
                     ) : (
                       <>
-                        <div className="p-3 bg-white border border-[#E8E0D0] rounded-sm text-[#98A77C] shadow-sm">
+                        <div className="p-3 bg-white border border-lino-oscuro rounded-sm text-salvia-oscuro shadow-sm">
                           <UploadCloud className="w-6 h-6" />
                         </div>
                         <div>
-                          <p className="font-semibold text-[#2C2C2C] text-sm">Hace clic o arrastra múltiples fotos aquí</p>
-                          <p className="text-xs text-[#5D5D5D] mt-1">Soporta PNG, JPG, JPEG, etc. Todas se transformarán de inmediato a WebP.</p>
+                          <p className="font-semibold text-bosque text-sm">Hace clic o arrastra múltiples fotos aquí</p>
+                          <p className="text-xs text-musgo mt-1">Soporta PNG, JPG, JPEG, etc. Todas se transformarán de inmediato a WebP.</p>
                         </div>
                       </>
                     )}
@@ -1262,13 +1263,13 @@ export function UserProfile() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-[#5D5D5D] mb-2">Presentación / Biografía Pública *</label>
+                <label className="block text-sm font-semibold text-musgo mb-2">Presentación / Biografía Pública *</label>
                 <textarea 
                   value={landingForm.bio}
                   onChange={e => setLandingForm({...landingForm, bio: e.target.value})}
                   placeholder="Contanos sobre tu trayectoria, el estilo de tus clases, la dirección de tu estudio, qué tipo de alumnos recibís, etc."
                   rows={6}
-                  className="w-full bg-[#F4EFE4] border border-[#E8E0D0] focus:border-[#98A77C] focus:ring-1 focus:ring-[#98A77C] text-[#2C2C2C] rounded-xl px-4 py-3 outline-none transition-all resize-none text-sm"
+                  className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-xl px-4 py-3 outline-none transition-all resize-none text-sm"
                   required
                 />
               </div>
@@ -1276,7 +1277,7 @@ export function UserProfile() {
               <button 
                 type="submit"
                 disabled={saveLandingLoading}
-                className="w-full bg-[#2C2C2C] hover:bg-black text-white py-4 rounded-sm font-semibold transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                className="w-full bg-bosque hover:bg-bosque-profundo text-lino py-4 rounded-full font-semibold transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
               >
                 {saveLandingLoading ? (
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-sm animate-spin" />
@@ -1294,36 +1295,36 @@ export function UserProfile() {
         {/* TAB 7: PLAN DE PAUTA (Suscripciones de Profesores / Institutos) */}
         {activeTab === "premium" && isTeacherOrInstitute && (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
-            <h1 className="text-3xl font-light tracking-tight text-[#2C2C2C] mb-6">Mi Membresía de Pauta</h1>
+            <h1 className="text-3xl font-light tracking-tight text-bosque mb-6">Mi Membresía de Pauta</h1>
             
             {profile.isPremium ? (
               <div className="space-y-6">
-                <div className="bg-[#98A77C]/10 border-2 border-[#98A77C] rounded-3xl p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                <div className="bg-salvia/10 border-2 border-salvia rounded-3xl p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                   <div>
-                    <div className="flex items-center gap-2 mb-3 text-[#98A77C]">
+                    <div className="flex items-center gap-2 mb-3 text-salvia-oscuro">
                       <Sparkles className="w-6 h-6" />
                       <span className="font-semibold uppercase tracking-wider text-sm">Tu membresía está activa</span>
                     </div>
-                    <h2 className="text-2xl font-semibold text-[#2C2C2C] mb-2">
+                    <h2 className="text-2xl font-semibold text-bosque mb-2">
                       {profile.plan === "inicial" ? "Plan Inicial" : profile.plan === "institucional" ? "Plan Institucional" : "Plan Destacado"}
                     </h2>
-                    <p className="text-[#5D5D5D] max-w-xl text-sm leading-relaxed">
+                    <p className="text-musgo max-w-xl text-sm leading-relaxed">
                       Tu ficha está publicada en el directorio. Podés editar tu página en cualquier momento, ver tus estadísticas y recibir solicitudes de clase sin comisiones.
                     </p>
                   </div>
-                  <div className="bg-white/80 backdrop-blur border border-[#98A77C] rounded-2xl p-4 text-center shrink-0 w-full md:w-auto">
-                    <p className="text-xs text-[#5D5D5D] font-medium uppercase tracking-wider mb-1">Facturación</p>
+                  <div className="bg-white/80 backdrop-blur border border-salvia rounded-2xl p-4 text-center shrink-0 w-full md:w-auto">
+                    <p className="text-xs text-musgo font-medium uppercase tracking-wider mb-1">Facturación</p>
                     {subInfo.subscription?.status === "activa" ? (
                       <>
                         <p className="text-lg font-bold text-green-700">{formatPrice(subInfo.subscription.plan)}/mes · débito automático</p>
-                        <p className="text-xs text-[#5D5D5D] mt-1">
+                        <p className="text-xs text-musgo mt-1">
                           {subInfo.subscription.next_payment_at ? `Próximo cobro: ${new Date(subInfo.subscription.next_payment_at).toLocaleDateString("es-AR")}` : "Renovación mensual por Mercado Pago"}
                         </p>
                       </>
                     ) : (
                       <>
                         <p className="text-lg font-bold text-amber-700">{subInfo.subscription?.status === "cancelada" ? "Baja solicitada" : "Sin renovación automática"}</p>
-                        <p className="text-xs text-[#5D5D5D] mt-1">
+                        <p className="text-xs text-musgo mt-1">
                           {profile.planExpiresAt ? `Beneficios hasta el ${new Date(profile.planExpiresAt).toLocaleDateString("es-AR")}` : "Plan activo"}
                         </p>
                       </>
@@ -1332,22 +1333,22 @@ export function UserProfile() {
                 </div>
 
                 {subInfo.subscription?.status === "activa" && (
-                  <div className="bg-white border border-[#E8E0D0] rounded-3xl p-6 flex flex-col md:flex-row gap-4 md:items-center justify-between">
+                  <div className="bg-white border border-lino-oscuro rounded-3xl p-6 flex flex-col md:flex-row gap-4 md:items-center justify-between">
                     <div>
-                      <h3 className="font-semibold text-[#2C2C2C]">Cambiar de plan</h3>
-                      <p className="text-xs text-[#5D5D5D] mt-1">El nuevo importe rige desde el próximo cobro; los beneficios, desde ya.</p>
+                      <h3 className="font-semibold text-bosque">Cambiar de plan</h3>
+                      <p className="text-xs text-musgo mt-1">El nuevo importe rige desde el próximo cobro; los beneficios, desde ya.</p>
                     </div>
                     <div className="flex flex-wrap gap-2">
                       {(["inicial", "destacado", "institucional"] as const)
                         .filter((id) => id !== subInfo.subscription.plan && (id !== "institucional" || profile.role === "instituto"))
                         .map((id) => (
                           <button key={id} disabled={subBusy} onClick={() => handleChangePlan(id)}
-                            className="px-4 py-2 rounded-sm border border-[#98A77C] text-[#5f7348] hover:bg-[#98A77C]/10 text-xs font-semibold disabled:opacity-50">
+                            className="px-4 py-2 rounded-full border border-salvia text-salvia-oscuro hover:bg-salvia/10 text-xs font-semibold disabled:opacity-50">
                             Pasar a {id === "inicial" ? "Inicial" : id === "destacado" ? "Destacado" : "Institucional"} ({formatPrice(id)})
                           </button>
                         ))}
                       <button disabled={subBusy} onClick={handleCancelSubscription}
-                        className="px-4 py-2 rounded-sm border border-red-200 text-red-700 hover:bg-red-50 text-xs font-semibold disabled:opacity-50">
+                        className="px-4 py-2 rounded-full border border-red-200 text-red-700 hover:bg-red-50 text-xs font-semibold disabled:opacity-50">
                         Darme de baja
                       </button>
                     </div>
@@ -1355,9 +1356,9 @@ export function UserProfile() {
                 )}
 
                 {subInfo.payments.length > 0 && (
-                  <div className="bg-white border border-[#E8E0D0] rounded-3xl p-6">
-                    <h3 className="font-semibold text-[#2C2C2C] mb-3">Historial de pagos</h3>
-                    <ul className="divide-y divide-[#E8E0D0] text-sm">
+                  <div className="bg-white border border-lino-oscuro rounded-3xl p-6">
+                    <h3 className="font-semibold text-bosque mb-3">Historial de pagos</h3>
+                    <ul className="divide-y divide-lino-oscuro text-sm">
                       {subInfo.payments.map((pay) => (
                         <li key={pay.id} className="py-2 flex justify-between gap-4">
                           <span>{new Date(pay.created_at).toLocaleDateString("es-AR")} · {pay.description}</span>
@@ -1369,11 +1370,11 @@ export function UserProfile() {
                 )}
               </div>
             ) : (
-              <div className="bg-white border border-[#E8E0D0] rounded-3xl p-8 shadow-sm">
+              <div className="bg-white border border-lino-oscuro rounded-3xl p-8 shadow-sm">
                 <div className="text-center max-w-2xl mx-auto py-8">
-                  <AlertCircle className="w-12 h-12 text-[#98A77C] mx-auto mb-4" />
-                  <h2 className="text-2xl font-medium text-[#2C2C2C] mb-3">Pauta no activa</h2>
-                  <p className="text-[#5D5D5D] mb-8 leading-relaxed">
+                  <AlertCircle className="w-12 h-12 text-salvia-oscuro mx-auto mb-4" />
+                  <h2 className="text-2xl font-medium text-bosque mb-3">Pauta no activa</h2>
+                  <p className="text-musgo mb-8 leading-relaxed">
                     Para poder publicar tu landing page, subir tus datos, imágenes y figurar en las búsquedas inteligentes del directorio de Omia, debés contar con un plan de pauta mensual activo. El cobro es mensual y automático por Mercado Pago, sin comisiones sobre tus clases, y te podés dar de baja cuando quieras.
                   </p>
                   
@@ -1383,17 +1384,17 @@ export function UserProfile() {
                       { id: "destacado", name: "Plan Destacado (más elegido)", desc: "Prioridad en las búsquedas, insignia y estadísticas completas." },
                       { id: "institucional", name: "Plan Institucional", desc: "Para institutos y estudios con varios profesores." },
                     ] as const).filter(plan => plan.id !== "institucional" || profile.role === "instituto").map(plan => (
-                      <div key={plan.id} className="p-6 bg-[#F4EFE4] rounded-3xl border border-[#E8E0D0] flex flex-col sm:flex-row justify-between items-center gap-4 text-left">
+                      <div key={plan.id} className="p-6 bg-lino rounded-3xl border border-lino-oscuro flex flex-col sm:flex-row justify-between items-center gap-4 text-left">
                         <div>
-                          <h4 className="font-semibold text-[#2C2C2C]">{plan.name}</h4>
-                          <p className="text-xs text-[#5D5D5D] mt-0.5">{plan.desc}</p>
+                          <h4 className="font-semibold text-bosque">{plan.name}</h4>
+                          <p className="text-xs text-musgo mt-0.5">{plan.desc}</p>
                         </div>
                         <div className="flex items-center gap-4 shrink-0 w-full sm:w-auto justify-between sm:justify-start">
-                          <span className="text-2xl font-mono font-bold text-[#2C2C2C]">{formatPrice(plan.id)}<span className="text-xs text-[#5D5D5D] font-sans">/mes</span></span>
+                          <span className="text-2xl font-mono font-bold text-bosque">{formatPrice(plan.id)}<span className="text-xs text-musgo font-sans">/mes</span></span>
                           <button
                             onClick={() => handleSubscribe(plan.id)}
                             disabled={isPayingId !== null}
-                            className="px-5 py-3 bg-[#009EE3] hover:bg-[#008CD0] disabled:opacity-60 text-white rounded-sm text-xs font-bold transition-all shadow-sm"
+                            className="px-5 py-3 bg-[#009EE3] hover:bg-[#008CD0] disabled:opacity-60 text-white rounded-full text-xs font-bold transition-all shadow-sm"
                           >
                             {isPayingId === plan.id ? "Abriendo…" : "Suscribirme"}
                           </button>
@@ -1402,13 +1403,13 @@ export function UserProfile() {
                     ))}
                   </div>
                   {!profile.teacherId && (
-                    <p className="mt-6 text-sm text-[#5D5D5D]">
+                    <p className="mt-6 text-sm text-musgo">
                       Antes de abonar, completá y guardá tu perfil en la pestaña <strong>Mi Página</strong>.
                     </p>
                   )}
 
-                  <div className="mt-8 text-xs text-[#5D5D5D]">
-                    ¿Querés ver otros planes de precios? <Link to="/" className="text-[#98A77C] font-medium hover:underline">Ir a la tabla comparativa de 3 planes en la Home.</Link>
+                  <div className="mt-8 text-xs text-musgo">
+                    ¿Querés ver otros planes de precios? <Link to="/" className="text-salvia-oscuro font-medium hover:underline">Ir a la tabla comparativa de 3 planes en la Home.</Link>
                   </div>
                 </div>
               </div>
@@ -1419,41 +1420,41 @@ export function UserProfile() {
         {/* TAB 8: RESEÑAS */}
         {activeTab === "reseñas" && (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
-            <h1 className="text-3xl font-light tracking-tight text-[#2C2C2C] mb-6">
+            <h1 className="text-3xl font-light tracking-tight text-bosque mb-6">
               {isTeacherOrInstitute ? "Reseñas de mis Alumnos" : "Mis Reseñas de Clases"}
             </h1>
             {reviews.length > 0 ? (
               <div className="flex flex-col gap-6">
                 {reviews.map(review => (
-                  <div key={review.id} className="bg-white border border-[#E8E0D0] rounded-3xl p-6 shadow-sm hover:shadow-md transition-shadow">
+                  <div key={review.id} className="bg-white border border-lino-oscuro rounded-3xl p-6 shadow-sm hover:shadow-md transition-shadow">
                     <div className="flex justify-between items-start mb-4">
                       <div>
-                        <p className="text-sm text-[#5D5D5D] font-medium mb-1">
+                        <p className="text-sm text-musgo font-medium mb-1">
                           {isTeacherOrInstitute ? `Dejado por: ${review.userName || 'Alumno/a de Omia'}` : `Reseña para ${review.teacherName}`}
                         </p>
                         <div className="flex gap-1">
                           {[...Array(5)].map((_, i) => (
                             <Star 
                               key={i} 
-                              className={`w-4 h-4 ${i < review.rating ? "fill-[#98A77C] text-[#98A77C]" : "text-[#E5E5E5] fill-[#F4EFE4]"}`} 
+                              className={`w-4 h-4 ${i < review.rating ? "fill-salvia text-salvia" : "text-lino-oscuro fill-lino"}`} 
                             />
                           ))}
                         </div>
                       </div>
-                      <span className="text-sm text-[#5D5D5D] bg-[#F4EFE4] px-3 py-1 rounded-sm border border-[#E8E0D0]">
+                      <span className="text-sm text-musgo bg-lino px-3 py-1 rounded-sm border border-lino-oscuro">
                         {new Date(review.date).toLocaleDateString()}
                       </span>
                     </div>
-                    <p className="text-[#2C2C2C] bg-[#F4EFE4] p-4 rounded-2xl italic">
+                    <p className="text-bosque bg-lino p-4 rounded-2xl italic">
                       "{review.comment}"
                     </p>
                     {review.reply && (
-                      <p className="mt-3 ml-6 text-sm text-[#5D5D5D] border-l-2 border-[#98A77C] pl-4">
-                        <strong className="text-[#2C2C2C]">Respuesta del profesional:</strong> {review.reply}
+                      <p className="mt-3 ml-6 text-sm text-musgo border-l-2 border-salvia pl-4">
+                        <strong className="text-bosque">Respuesta del profesional:</strong> {review.reply}
                       </p>
                     )}
                     {isTeacherOrInstitute && (
-                      <button onClick={() => handleReplyReview(review)} className="mt-3 text-sm font-medium text-[#98A77C] hover:underline">
+                      <button onClick={() => handleReplyReview(review)} className="mt-3 text-sm font-medium text-salvia-oscuro hover:underline">
                         {review.reply ? "Editar respuesta" : "Responder"}
                       </button>
                     )}
@@ -1461,10 +1462,10 @@ export function UserProfile() {
                 ))}
               </div>
             ) : (
-              <div className="bg-[#F4EFE4] rounded-3xl border border-[#E8E0D0] py-20 px-6 text-center flex flex-col items-center">
-                <MessageSquare className="w-12 h-12 text-[#E5E5E5] mb-4" />
-                <h2 className="text-xl font-medium text-[#2C2C2C] mb-2">Aún no hay reseñas registradas</h2>
-                <p className="text-[#5D5D5D] max-w-sm mx-auto">
+              <div className="bg-lino rounded-3xl border border-lino-oscuro py-20 px-6 text-center flex flex-col items-center">
+                <MessageSquare className="w-12 h-12 text-lino-oscuro mb-4" />
+                <h2 className="text-xl font-medium text-bosque mb-2">Aún no hay reseñas registradas</h2>
+                <p className="text-musgo max-w-sm mx-auto">
                   {isTeacherOrInstitute 
                     ? "Los alumnos que tomen clases con vos podrán dejarte calificaciones aquí para que otros los vean." 
                     : "Calificá a tus profes después de las clases para ayudar a otros estudiantes a encontrarlos."}

@@ -10,11 +10,11 @@ import ReactMarkdown from "react-markdown";
 function LegalPage({ title, description, path, children, updated = true, override }: { title: string; description: string; path: string; children: ReactNode; updated?: boolean; override?: string }) {
   const { t } = useContent();
   return (
-    <div className="pt-32 pb-24 px-6 max-w-3xl mx-auto text-[#2C2C2C]">
+    <div className="pt-32 pb-24 px-6 max-w-3xl mx-auto text-bosque">
       <SEOMeta title={title} description={description} canonicalUrl={absoluteUrl(path)} />
-      <h1 className="text-4xl font-serif font-light text-[#1C3829] mb-3">{title}</h1>
-      {updated && <p className="text-xs text-[#5D5D5D] mb-10">Última actualización: {t("legal.updated")}</p>}
-      <div className="space-y-5 text-[15px] leading-relaxed text-[#3d3d3d] [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:text-[#1C3829] [&_h2]:mt-10 [&_h2]:mb-2 [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:space-y-1.5 [&_a]:text-[#6f8656] [&_a]:underline">
+      <h1 className="text-4xl font-serif font-light text-bosque mb-3">{title}</h1>
+      {updated && <p className="text-xs text-musgo mb-10">Última actualización: {t("legal.updated")}</p>}
+      <div className="space-y-5 text-[15px] leading-relaxed text-[#3d3d3d] [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:text-bosque [&_h2]:mt-10 [&_h2]:mb-2 [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:space-y-1.5 [&_a]:text-salvia-oscuro [&_a]:underline">
         {override && override.trim() ? <ReactMarkdown>{override}</ReactMarkdown> : children}
       </div>
     </div>
@@ -147,7 +147,7 @@ export function About() {
   const { t } = useContent();
   return (
     <LegalPage override={t("about.body")} title="Nosotros" path="/nosotros" updated={false} description="Omia conecta a alumnos con profesores e institutos de yoga y pilates en Argentina, sin comisiones por clase.">
-      <p className="text-lg text-[#1C3829]">Creamos Omia para que encontrar tu profe de yoga o pilates sea simple, y para que los profesionales vivan de lo que hacen sin pagar comisiones por cada clase.</p>
+      <p className="text-lg text-bosque">Creamos Omia para que encontrar tu profe de yoga o pilates sea simple, y para que los profesionales vivan de lo que hacen sin pagar comisiones por cada clase.</p>
       <h2>Cómo funciona</h2>
       <ul>
         <li><b>Si buscás clases:</b> explorá el directorio por barrio, disciplina y precio, leé reseñas de otros alumnos y contactá directo al profe o al instituto.</li>
@@ -183,16 +183,16 @@ function ContactForm({ kind: initialKind, lockKind = false }: { kind: Kind; lock
 
   if (state === "done") {
     return (
-      <div className="bg-white border border-[#E8E0D0] rounded-2xl p-8 text-center">
-        <p className="text-xl font-serif text-[#1C3829] mb-2">¡Recibimos tu mensaje!</p>
-        <p className="text-sm text-[#5D5D5D]">Te enviamos un mail de confirmación a {form.email}. Te respondemos dentro de las próximas 48 horas hábiles.</p>
+      <div className="bg-white border border-lino-oscuro rounded-2xl p-8 text-center">
+        <p className="text-xl font-serif text-bosque mb-2">¡Recibimos tu mensaje!</p>
+        <p className="text-sm text-musgo">Te enviamos un mail de confirmación a {form.email}. Te respondemos dentro de las próximas 48 horas hábiles.</p>
       </div>
     );
   }
 
-  const input = "w-full bg-[#F4EFE4] border border-[#E8E0D0] focus:border-[#98A77C] focus:ring-1 focus:ring-[#98A77C] rounded-xl px-4 py-3 outline-none text-sm";
+  const input = "w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia rounded-xl px-4 py-3 outline-none text-sm";
   return (
-    <form onSubmit={submit} className="bg-white border border-[#E8E0D0] rounded-2xl p-6 md:p-8 space-y-4 not-prose">
+    <form onSubmit={submit} className="bg-white border border-lino-oscuro rounded-2xl p-6 md:p-8 space-y-4 not-prose">
       {!lockKind && (
         <select value={kind} onChange={(e) => setKind(e.target.value as Kind)} className={input}>
           <option value="consulta">Consulta general</option>
@@ -207,7 +207,7 @@ function ContactForm({ kind: initialKind, lockKind = false }: { kind: Kind; lock
       )}
       <textarea className={`${input} min-h-[120px]`} placeholder={kind === "consulta" ? "Contanos en qué te podemos ayudar" : "Mensaje (opcional)"} value={form.message} onChange={set("message")} required={kind === "consulta"} />
       {error && <p className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl px-4 py-2">{error}</p>}
-      <button disabled={state === "sending"} className="w-full bg-[#98A77C] hover:bg-[#88976C] text-white py-3 rounded-xl font-medium transition-colors disabled:opacity-60">
+      <button disabled={state === "sending"} className="w-full bg-bosque hover:bg-bosque-profundo text-lino py-3 rounded-xl font-medium transition-colors disabled:opacity-60">
         {state === "sending" ? "Enviando…" : kind === "arrepentimiento" ? "Confirmar arrepentimiento" : kind === "baja" ? "Solicitar baja" : "Enviar mensaje"}
       </button>
     </form>
@@ -239,10 +239,10 @@ export function NotFound() {
   return (
     <div className="pt-40 pb-32 px-6 text-center">
       <SEOMeta title="Página no encontrada" description="La página que buscás no existe." noindex />
-      <p className="text-6xl font-serif italic text-[#98A77C] mb-4">404</p>
-      <h1 className="text-2xl text-[#1C3829] mb-3">No encontramos esta página</h1>
-      <p className="text-[#5D5D5D] mb-8">Puede que el enlace esté mal o que la ficha ya no esté publicada.</p>
-      <Link to="/directorio" className="inline-block bg-[#98A77C] hover:bg-[#88976C] text-white px-7 py-3 rounded-sm font-semibold">Ir al directorio</Link>
+      <p className="text-6xl font-serif text-salvia-oscuro mb-4">404</p>
+      <h1 className="font-serif text-2xl text-bosque mb-3">No encontramos esta página</h1>
+      <p className="text-musgo mb-8">Puede que el enlace esté mal o que la ficha ya no esté publicada.</p>
+      <Link to="/directorio" className="inline-block bg-bosque hover:bg-bosque-profundo text-lino px-7 py-3 rounded-full font-semibold">Ir al directorio</Link>
     </div>
   );
 }

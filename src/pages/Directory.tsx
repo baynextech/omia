@@ -72,28 +72,28 @@ export function Directory() {
     <div className="pt-32 pb-12 px-6 max-w-7xl mx-auto">
       <SEOMeta title={t("seo.directory.title")} description={t("seo.directory.description")} ogImage={img("seo.image")} keywords="directorio profesores yoga, instructores de pilates, pilates reformer, pilates mat, yoga buenos aires, profesores ashtanga, pilates postural" />
       <div className="mb-12">
-        <h1 className="text-4xl font-light tracking-tight mb-4 text-[#2C2C2C]">
+        <h1 className="font-serif text-4xl font-light tracking-tight mb-4 text-bosque">
           {t("directory.title")}
         </h1>
-        <p className="text-[#5D5D5D] max-w-2xl text-lg">
+        <p className="text-musgo max-w-2xl text-lg">
           {t("directory.subtitle")}
         </p>
       </div>
 
       <div className="flex flex-col gap-6 mb-8">
         <form onSubmit={handleSmartSearch} className="relative flex-grow">
-          <Sparkles className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-[#98A77C]" />
+          <Sparkles className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-salvia-oscuro" />
           <input 
             type="text"
             placeholder="Preguntale a la IA (ej. 'busco clases de Pilates Reformer en Recoleta' o 'Yoga suave')"
             value={smartQuery}
             onChange={(e) => setSmartQuery(e.target.value)}
-            className="w-full bg-[#F4EFE4] border-2 border-[#E8E0D0] rounded-sm pl-14 pr-32 py-5 outline-none focus:border-[#98A77C] focus:ring-1 focus:ring-[#98A77C] transition-all text-lg shadow-sm"
+            className="w-full bg-lino border-2 border-lino-oscuro rounded-sm pl-14 pr-32 py-5 outline-none focus:border-salvia focus:ring-1 focus:ring-salvia transition-all text-lg shadow-sm"
           />
           <button 
             type="submit" 
             disabled={isSmartSearching}
-            className="absolute right-3 top-1/2 -translate-y-1/2 bg-[#98A77C] hover:bg-[#88976C] text-white px-6 py-3 rounded-sm font-medium transition-colors flex items-center gap-2"
+            className="absolute right-3 top-1/2 -translate-y-1/2 bg-bosque hover:bg-bosque-profundo text-lino px-6 py-3 rounded-full font-medium transition-colors flex items-center gap-2"
           >
             {isSmartSearching ? <Loader2 className="w-5 h-5 animate-spin" /> : "Buscar"}
           </button>
@@ -105,10 +105,10 @@ export function Directory() {
             <select 
               value={disciplineFilter}
               onChange={(e) => { setDisciplineFilter(e.target.value); setSmartQuery(""); }}
-              className="w-full appearance-none bg-[#2C2C2C] text-white border border-[#2C2C2C] rounded-sm px-6 py-4 font-semibold focus:outline-none cursor-pointer shadow-sm"
+              className="w-full appearance-none bg-bosque text-lino border border-bosque rounded-sm px-6 py-4 font-semibold focus:outline-none cursor-pointer shadow-sm"
             >
               {disciplines.map(disc => (
-                <option key={disc} value={disc} className="bg-white text-[#2C2C2C]">{disc === "Todas" ? "Todas las disciplinas" : disc}</option>
+                <option key={disc} value={disc} className="bg-white text-bosque">{disc === "Todas" ? "Todas las disciplinas" : disc}</option>
               ))}
             </select>
             <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none">
@@ -119,11 +119,11 @@ export function Directory() {
           </div>
 
           <div className="relative w-full md:w-48 shrink-0">
-            <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#5D5D5D]" />
+            <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-musgo" />
             <select 
               value={locationFilter}
               onChange={(e) => { setLocationFilter(e.target.value); setSmartQuery(""); }}
-              className="w-full appearance-none bg-[#F4EFE4] border border-[#E8E0D0] rounded-sm pl-12 pr-10 py-4 font-medium focus:outline-none focus:border-[#98A77C] focus:ring-1 focus:ring-[#98A77C] cursor-pointer"
+              className="w-full appearance-none bg-lino border border-lino-oscuro rounded-sm pl-12 pr-10 py-4 font-medium focus:outline-none focus:border-salvia focus:ring-1 focus:ring-salvia cursor-pointer"
             >
               {locations.map(loc => (
                 <option key={loc} value={loc}>{loc}</option>
@@ -131,16 +131,16 @@ export function Directory() {
             </select>
             <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none">
               <svg width="12" height="7" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M1 1L5 5L9 1" stroke="#2C2C2C" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M1 1L5 5L9 1" stroke="#1C3829" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
           </div>
           <div className="relative w-full md:w-56 shrink-0">
-            <Wind className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#5D5D5D]" />
+            <Wind className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-musgo" />
             <select 
               value={specialtyFilter}
               onChange={(e) => { setSpecialtyFilter(e.target.value); setSmartQuery(""); }}
-              className="w-full appearance-none bg-[#F4EFE4] border border-[#E8E0D0] rounded-sm pl-12 pr-10 py-4 font-medium focus:outline-none focus:border-[#98A77C] focus:ring-1 focus:ring-[#98A77C] cursor-pointer"
+              className="w-full appearance-none bg-lino border border-lino-oscuro rounded-sm pl-12 pr-10 py-4 font-medium focus:outline-none focus:border-salvia focus:ring-1 focus:ring-salvia cursor-pointer"
             >
               {specialties.map(spec => (
                 <option key={spec} value={spec}>{spec}</option>
@@ -148,16 +148,16 @@ export function Directory() {
             </select>
             <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none">
               <svg width="12" height="7" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M1 1L5 5L9 1" stroke="#2C2C2C" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M1 1L5 5L9 1" stroke="#1C3829" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
           </div>
           <div className="relative w-full md:w-56 shrink-0">
-            <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#5D5D5D]" />
+            <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-musgo" />
             <select 
               value={priceFilter}
               onChange={(e) => { setPriceFilter(e.target.value); setSmartQuery(""); }}
-              className="w-full appearance-none bg-[#F4EFE4] border border-[#E8E0D0] rounded-sm pl-12 pr-10 py-4 font-medium focus:outline-none focus:border-[#98A77C] focus:ring-1 focus:ring-[#98A77C] cursor-pointer"
+              className="w-full appearance-none bg-lino border border-lino-oscuro rounded-sm pl-12 pr-10 py-4 font-medium focus:outline-none focus:border-salvia focus:ring-1 focus:ring-salvia cursor-pointer"
             >
               {priceRanges.map(price => (
                 <option key={price} value={price}>{price}</option>
@@ -165,16 +165,16 @@ export function Directory() {
             </select>
             <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none">
               <svg width="12" height="7" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M1 1L5 5L9 1" stroke="#2C2C2C" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M1 1L5 5L9 1" stroke="#1C3829" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
           </div>
           <div className="relative w-full md:w-56 shrink-0">
-            <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#5D5D5D]" />
+            <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-musgo" />
             <select 
               value={availabilityFilter}
               onChange={(e) => { setAvailabilityFilter(e.target.value); setSmartQuery(""); }}
-              className="w-full appearance-none bg-[#F4EFE4] border border-[#E8E0D0] rounded-sm pl-12 pr-10 py-4 font-medium focus:outline-none focus:border-[#98A77C] focus:ring-1 focus:ring-[#98A77C] cursor-pointer"
+              className="w-full appearance-none bg-lino border border-lino-oscuro rounded-sm pl-12 pr-10 py-4 font-medium focus:outline-none focus:border-salvia focus:ring-1 focus:ring-salvia cursor-pointer"
             >
               {availabilities.map(avail => (
                 <option key={avail} value={avail}>{avail}</option>
@@ -182,7 +182,7 @@ export function Directory() {
             </select>
             <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none">
               <svg width="12" height="7" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M1 1L5 5L9 1" stroke="#2C2C2C" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M1 1L5 5L9 1" stroke="#1C3829" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
           </div>
@@ -206,8 +206,8 @@ export function Directory() {
           </AnimatePresence>
         </div>
       ) : (
-        <div className="py-32 text-center bg-[#F4EFE4] rounded-3xl border border-[#E8E0D0]">
-          <p className="text-[#5D5D5D] text-lg">No encontramos profes con esos filtros.</p>
+        <div className="py-32 text-center bg-lino rounded-3xl border border-lino-oscuro">
+          <p className="text-musgo text-lg">No encontramos profes con esos filtros.</p>
         </div>
       )}
     </div>

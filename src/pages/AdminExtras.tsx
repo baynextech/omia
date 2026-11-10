@@ -10,12 +10,12 @@ const call = (token: string, method: string, url: string, body?: unknown) =>
     body: body ? JSON.stringify(body) : undefined,
   }).then((r) => r.json());
 
-const card = "bg-white rounded-2xl border border-[#E5E5E5] shadow-sm";
-const inputCls = "w-full border border-[#E8E0D0] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#88976C] bg-white";
-const thCls = "px-5 py-3.5 text-left text-[10px] font-semibold text-[#98A77C] uppercase tracking-wider";
-const tdCls = "px-5 py-3 text-sm text-[#2C2C2C] align-top";
-const primary = "inline-flex items-center gap-2 bg-[#88976C] hover:bg-[#728156] text-white px-5 py-2.5 rounded-sm text-sm font-medium transition-colors";
-const secondary = "inline-flex items-center gap-2 bg-white border border-[#9DB085] text-[#2C2C2C] px-4 py-2 rounded-sm text-sm font-medium";
+const card = "bg-white rounded-2xl border border-lino-oscuro shadow-sm";
+const inputCls = "w-full border border-lino-oscuro rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-salvia bg-white";
+const thCls = "px-5 py-3.5 text-left text-[10px] font-semibold text-salvia-oscuro uppercase tracking-wider";
+const tdCls = "px-5 py-3 text-sm text-bosque align-top";
+const primary = "inline-flex items-center gap-2 bg-bosque hover:bg-bosque-profundo text-lino px-5 py-2.5 rounded-sm text-sm font-medium transition-colors";
+const secondary = "inline-flex items-center gap-2 bg-white border border-salvia text-bosque px-4 py-2 rounded-sm text-sm font-medium";
 const fmt = (d: string) => new Date(d).toLocaleDateString("es-AR");
 const ars = (n: number) => `$${Number(n || 0).toLocaleString("es-AR")}`;
 
@@ -28,7 +28,7 @@ const useList = (token: string, url: string) => {
 };
 
 const Empty = ({ loading, text }: { loading: boolean; text: string }) => (
-  <p className="p-8 text-center text-sm text-[#5D5D5D]">{loading ? "Cargando…" : text}</p>
+  <p className="p-8 text-center text-sm text-musgo">{loading ? "Cargando…" : text}</p>
 );
 
 // ─── Suscripciones ───────────────────────────────────────────────────────────
@@ -40,15 +40,15 @@ export function AdminSubscriptions({ token }: { token: string }) {
     <div className="space-y-4">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[["Activas", active.length], ["Ingreso mensual recurrente", ars(mrr)], ["Pendientes", rows.filter((r) => r.status === "pendiente").length], ["Bajas / vencidas", rows.filter((r) => ["cancelada", "vencida"].includes(r.status)).length]].map(([l, v]) => (
-          <div key={l as string} className={`${card} p-5`}><p className="text-[10px] uppercase tracking-widest text-[#98A77C] font-semibold">{l}</p><p className="text-2xl font-light mt-1">{v}</p></div>
+          <div key={l as string} className={`${card} p-5`}><p className="text-[10px] uppercase tracking-widest text-salvia-oscuro font-semibold">{l}</p><p className="text-2xl font-light mt-1">{v}</p></div>
         ))}
       </div>
       <div className={`${card} overflow-x-auto`}>
         {rows.length === 0 ? <Empty loading={loading} text="Todavía no hay suscripciones." /> : (
           <table className="w-full"><thead><tr>{["Usuario", "Plan", "Importe", "Estado", "Próximo cobro", "Alta"].map((h) => <th key={h} className={thCls}>{h}</th>)}</tr></thead>
             <tbody>{rows.map((r) => (
-              <tr key={r.id} className="border-t border-[#E5E5E5]">
-                <td className={tdCls}>{r.user_name}<br /><span className="text-xs text-[#5D5D5D]">{r.email}</span></td>
+              <tr key={r.id} className="border-t border-lino-oscuro">
+                <td className={tdCls}>{r.user_name}<br /><span className="text-xs text-musgo">{r.email}</span></td>
                 <td className={tdCls}>{r.plan}</td><td className={tdCls}>{ars(r.amount)}</td>
                 <td className={tdCls}>{r.status}</td>
                 <td className={tdCls}>{r.next_payment_at ? fmt(r.next_payment_at) : "—"}</td>
@@ -73,14 +73,14 @@ export function AdminOrders({ token }: { token: string }) {
       {rows.length === 0 ? <Empty loading={loading} text="Todavía no hay pedidos pagos." /> : (
         <table className="w-full"><thead><tr>{["Fecha", "Cliente", "Detalle", "Entrega", "Total", "Estado"].map((h) => <th key={h} className={thCls}>{h}</th>)}</tr></thead>
           <tbody>{rows.map((r) => (
-            <tr key={r.id} className="border-t border-[#E5E5E5]">
+            <tr key={r.id} className="border-t border-lino-oscuro">
               <td className={tdCls}>{fmt(r.created_at)}</td>
-              <td className={tdCls}>{r.shipping?.name}<br /><span className="text-xs text-[#5D5D5D]">{r.shipping?.phone} · {r.email}</span></td>
+              <td className={tdCls}>{r.shipping?.name}<br /><span className="text-xs text-musgo">{r.shipping?.phone} · {r.email}</span></td>
               <td className={tdCls}>{(r.items || []).map((i: any) => <div key={i.id}>{i.quantity} × {i.name}</div>)}</td>
               <td className={tdCls}>{r.shipping?.method === "retiro" ? "Retiro" : `${r.shipping?.address}, ${r.shipping?.city} (${r.shipping?.zip})`}{r.tracking && <><br /><span className="text-xs">Seguimiento: {r.tracking}</span></>}</td>
               <td className={tdCls}>{ars(r.amount)}</td>
               <td className={tdCls}>
-                <select value={r.fulfillment} onChange={(e) => update(r.id, e.target.value)} className="border border-[#E8E0D0] rounded-lg px-2 py-1 text-xs">
+                <select value={r.fulfillment} onChange={(e) => update(r.id, e.target.value)} className="border border-lino-oscuro rounded-lg px-2 py-1 text-xs">
                   {["pendiente", "preparando", "despachado", "entregado", "cancelado"].map((s) => <option key={s}>{s}</option>)}
                 </select>
               </td>
@@ -100,12 +100,12 @@ export function AdminMessages({ token }: { token: string }) {
   return (
     <div className={card}>
       {rows.length === 0 ? <Empty loading={loading} text="No hay mensajes." /> : rows.map((r) => (
-        <div key={r.id} className={`p-5 border-b border-[#E5E5E5] last:border-0 ${r.handled ? "opacity-50" : ""}`}>
+        <div key={r.id} className={`p-5 border-b border-lino-oscuro last:border-0 ${r.handled ? "opacity-50" : ""}`}>
           <div className="flex justify-between gap-4">
             <div>
               <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-sm ${r.kind === "consulta" ? "bg-blue-100 text-blue-700" : r.kind === "baja" ? "bg-amber-100 text-amber-700" : "bg-red-100 text-red-700"}`}>{r.kind}</span>
-              <span className="ml-3 text-sm font-medium">{r.name || "—"}</span> <span className="text-xs text-[#5D5D5D]">{r.email} · {fmt(r.created_at)}</span>
-              {r.reference && <p className="text-xs text-[#5D5D5D] mt-1">Referencia: {r.reference}</p>}
+              <span className="ml-3 text-sm font-medium">{r.name || "—"}</span> <span className="text-xs text-musgo">{r.email} · {fmt(r.created_at)}</span>
+              {r.reference && <p className="text-xs text-musgo mt-1">Referencia: {r.reference}</p>}
               <p className="text-sm mt-2 whitespace-pre-wrap">{r.message}</p>
             </div>
             <button onClick={() => toggle(r.id, !r.handled)} className={secondary}>{r.handled ? "Reabrir" : "Marcar resuelto"}</button>
@@ -150,7 +150,7 @@ export function AdminNews({ token }: { token: string }) {
         </div>
         <textarea className={`${inputCls} min-h-[320px] font-mono`} placeholder="Contenido (admite Markdown: ## títulos, **negrita**, listas con -)" value={editing.body} onChange={(e) => set("body", e.target.value)} />
         <div className="flex items-center gap-3">
-          <select className="border border-[#E8E0D0] rounded-xl px-3 py-2 text-sm" value={editing.status} onChange={(e) => set("status", e.target.value)}>
+          <select className="border border-lino-oscuro rounded-xl px-3 py-2 text-sm" value={editing.status} onChange={(e) => set("status", e.target.value)}>
             <option value="borrador">Borrador</option><option value="publicado">Publicada</option>
           </select>
           <button onClick={save} disabled={saving || !editing.title || !editing.body} className={primary}><Check size={16} />{saving ? "Guardando…" : "Guardar"}</button>
@@ -166,13 +166,13 @@ export function AdminNews({ token }: { token: string }) {
         {rows.length === 0 ? <Empty loading={loading} text="Todavía no escribiste notas." /> : (
           <table className="w-full"><thead><tr>{["Título", "Categoría", "Estado", "Fecha", ""].map((h) => <th key={h} className={thCls}>{h}</th>)}</tr></thead>
             <tbody>{rows.map((r) => (
-              <tr key={r.id} className="border-t border-[#E5E5E5]">
-                <td className={tdCls}>{r.title}<br /><span className="text-xs text-[#5D5D5D]">/noticias/{r.slug}</span></td>
+              <tr key={r.id} className="border-t border-lino-oscuro">
+                <td className={tdCls}>{r.title}<br /><span className="text-xs text-musgo">/noticias/{r.slug}</span></td>
                 <td className={tdCls}>{r.category}</td><td className={tdCls}>{r.status}</td>
                 <td className={tdCls}>{fmt(r.published_at || r.created_at)}</td>
                 <td className={`${tdCls} text-right whitespace-nowrap`}>
-                  <button onClick={() => setEditing(r)} className="p-2 text-[#5D5D5D] hover:text-[#88976C]"><Edit2 size={15} /></button>
-                  <button onClick={() => remove(r.id)} className="p-2 text-[#5D5D5D] hover:text-red-600"><Trash2 size={15} /></button>
+                  <button onClick={() => setEditing(r)} className="p-2 text-musgo hover:text-salvia-oscuro"><Edit2 size={15} /></button>
+                  <button onClick={() => remove(r.id)} className="p-2 text-musgo hover:text-red-600"><Trash2 size={15} /></button>
                 </td>
               </tr>))}</tbody></table>
         )}

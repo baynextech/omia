@@ -1,2 +1,24 @@
 @import "tailwindcss";
-body { background-color: #F4EFE4; color: #1C1C1C; }
+
+/* Marca Omia v2.0 — tokens del manual (sección 17). Usar siempre estos nombres, no hex sueltos. */
+@theme {
+  --color-bosque: #1C3829;
+  --color-bosque-profundo: #0D1F14;
+  --color-lino: #F4EFE4;
+  --color-lino-oscuro: #E8E0D0;
+  --color-salvia: #8CAE99;
+  --color-salvia-oscuro: #4E6F5B;
+  --color-salvia-claro: #C9DCCF;
+  --color-niebla: #DCE4DC;
+  --color-arcilla: #C4835F;
+  --color-musgo: #5E6A62;
+
+  --font-serif: "Gloock", ui-serif, Georgia, "Times New Roman", serif;
+  --font-sans: "Onest", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --radius-tarjeta: 12px;
+}
+
+/* Gloock solo existe en peso 400 y sin cursiva: que el navegador no invente negritas. */
+html { font-synthesis-weight: none; }
+body { background-color: var(--color-lino); color: var(--color-bosque); font-family: var(--font-sans); }

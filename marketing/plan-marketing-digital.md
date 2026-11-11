@@ -4,43 +4,47 @@
 
 Es un mercado de dos lados: la **oferta** (profes e institutos) paga y la **demanda** (alumnos) llena el directorio de movimiento. Por eso el plan va en este orden: primero la oferta, después la demanda barrio por barrio.
 
-**Meta final: 50 profesores particulares + 50 institutos, los dos tipos, pagando la membresía mensual** (100 clientes). *Supuesto a confirmar: que los 50 y 50 son clientes que pagan, no solo fichas cargadas, y que el plazo no está fijado todavía.* Los primeros 30 días siguen siendo los de arranque: 15 fichas reales cargadas, el primer cliente pago de cada tipo y las primeras solicitudes de clase.
+**Meta final: 50 profesores particulares + 50 institutos, los dos tipos, pagando la membresía mensual** (100 clientes). *Supuesto a confirmar: que los 50 y 50 son clientes que pagan, no solo fichas cargadas, y que el plazo no está fijado todavía.* **No hay pruebas ni meses gratis en ningún lado:** el plan se cobra mensual desde el primer mes, sin permanencia y con el arrepentimiento legal de 10 días. Los primeros 30 días son de arranque: cobro operativo, lista armada, conversaciones con profes e institutos y los primeros pagos.
 
 ## Meta: 50 + 50, hecha números
 
 **Cuánto significa:** con los precios de lista, 50 profes (Inicial $39.900 o Destacado $43.900) y 50 institutos ($49.900) suman entre **$4,49 y $4,69 millones por mes**, antes de comisiones de Mercado Pago e impuestos.
 
-**Cuántos contactos hacen falta** (todos los porcentajes son hipótesis para ajustar con datos reales de las primeras semanas, no datos de mercado):
+**Cómo funciona el embudo sin prueba gratis:** como la ficha se publica cuando el plan está activo, cada alta ya es un cliente que paga. El camino es Contactos → Responden → Pagan el primer mes. Los porcentajes son hipótesis para ajustar con las primeras semanas, no datos de mercado:
 
-| Paso (por cada tipo de cliente) | Hipótesis | Para llegar a 50 pagos |
+| Paso (por cada tipo de cliente) | Hipótesis A | Hipótesis B (más prudente) |
 |---|---|---|
-| Pasan a pagar después de la prueba gratis | 30 % | 167 fichas cargadas |
-| Cargan ficha entre los que contestan | 50 % | 333 respuestas |
-| Contestan entre los contactados | 25 % | ≈ 1.300 contactos |
+| Contestan entre los contactados | 25 % | 25 % |
+| Pagan el primer mes entre los que contestan | 15 % | 10 % |
+| **Contactos para llegar a 50 pagos** | **≈ 1.300** | **2.000** |
 
-**Cuánto tarda, según la oferta** (cargando 30 fichas nuevas por mes de cada tipo, que equivale a unos 240 contactos mensuales, 60 por semana):
+**Cuánto tarda**, según el ritmo de contactos por cada tipo de cliente:
 
-| Oferta | Fichas necesarias | Meses para juntarlas | Primer cobro de cada una | Llegás a 50 + 50 pagos en |
-|---|---|---|---|---|
-| **A.** 3 meses gratis, pasa el 30 % | 167 por tipo | ≈ 5,5 | +3 meses | **≈ 9 meses** |
-| **B.** 1 mes gratis, pasa el 40 % | 125 por tipo | ≈ 4 | +1 mes | **≈ 5 a 6 meses** |
+| Ritmo | Contactos por mes | Hipótesis A | Hipótesis B |
+|---|---|---|---|
+| 60 por semana por tipo (120 en total, ≈ 15 h semanales) | 240 por tipo | ≈ 5,5 meses | ≈ 8 meses |
+| 120 por semana por tipo (el doble, repartido o automatizado) | 480 por tipo | ≈ 3 meses | ≈ 4 meses |
 
-Con 15 fichas nuevas por mes en vez de 30, los plazos casi se duplican (A ≈ 14 meses). Por eso la meta de 50 + 50 depende más del ritmo de contactos y de la oferta que de cualquier anuncio.
+Son plazos para *llegar* a 50 altas de cada tipo. **Las bajas hay que sumarlas:** quien cancela después del primer mes deja un hueco que se llena con más contactos. Medirlo desde el primer mes (ver «Retención» en la sección 3).
+
+**Qué cambia al no regalar meses:**
+- **A favor:** hay ingresos desde el primer cliente, entran los que de verdad quieren la herramienta y el dato de conversión es real desde el día uno.
+- **En contra:** el arranque es más lento y el directorio tarda en llenarse (sin fichas gratis de «fundadores» hay que mostrar valor de otra forma; ver la sección 0).
+- **Requisito:** sin el token de producción de Mercado Pago y su webhook **no se puede cobrar a nadie**. Es lo primero a resolver (pendientes 2 y 3 de `PENDIENTES.md`).
 
 **Qué significa para el trabajo:**
-- 60 contactos por semana por tipo son **120 por semana en total**. Para una sola persona son unas 15 horas por semana solo de mensajes y seguimiento: conviene repartirlo o automatizarlo (planilla compartida, plantillas, recordatorios; el n8n que ya tenés sirve para los seguimientos).
+- El ritmo de 120 contactos por semana pide repartir o automatizar los mensajes y seguimientos (planilla compartida, plantillas, recordatorios; el n8n que ya tenés sirve para los seguimientos).
 - **Institutos:** antes de comprometerse con 50 hay que contar cuántos estudios de yoga y pilates existen en la zona de trabajo (CABA y GBA). No lo verifiqué: si el total son 150, conseguir 50 es una tercera parte del mercado y hay que abrir otras ciudades. Primer paso: armar la lista completa de estudios con nombre, barrio y contacto.
-- **Cobrar antes cuesta menos:** con la oferta A el primer cobro de cada cliente llega 3 meses después de la alta, y durante todo ese tiempo no hay ingresos. La oferta B adelanta la plata y muestra antes si la gente paga de verdad. Se puede reservar los 3 meses gratis solo para los primeros 30 «fundadores».
-- **Qué mueve la aguja** (por orden de impacto): cargarles la ficha nosotros, que ya tengan reseñas reales visibles, alianzas con escuelas de formación (traen decenas de profes juntos) y los referidos de los que ya están.
+- **Qué mueve la aguja** (por orden de impacto): cargarles la ficha nosotros apenas pagan, mostrar reseñas reales, alianzas con escuelas de formación (traen decenas de profes juntos) y los referidos de los que ya están.
 
 ## 0. Antes de gastar un peso (la parte que más importa)
 Hoy el directorio, el ranking y la tienda están vacíos. Si un profe entra a mirar y no ve a nadie, no paga. Por eso:
 
-1. **Cargar 10 a 15 fichas reales** de profes que acepten salir gratis (los «fundadores»), con foto, barrio, precio, horarios y WhatsApp. Es la prueba social mínima.
-2. **Conseguir 1 o 2 reseñas reales por ficha** pidiéndoselas a los alumnos de ese profe. No cargar reseñas inventadas: el sitio promete «opiniones reales» y la Defensa del Consumidor lo toma en serio.
+1. **Tener operativo el cobro:** token de producción de Mercado Pago y webhook. Sin esto nadie puede pagar el plan.
+2. **Mostrar cómo se ve una ficha sin regalar nada:** una ficha de ejemplo claramente marcada «Ejemplo» para las capturas de los mensajes, y las fichas de los primeros que paguen apenas entren. Cuando haya reseñas reales (las que pidan los profes a sus propios alumnos), mostrarlas. No cargar reseñas inventadas: el sitio promete «opiniones reales» y la Defensa del Consumidor lo toma en serio.
 3. Dejar la tienda en «Muy pronto» (ya está) y **no** nombrarla en ningún anuncio.
 4. Tener operativos los mails (Resend) y la casilla `hola@omia.site`; sin eso las solicitudes de clase no le llegan al profe.
-5. Decidir la oferta de lanzamiento (ver sección 2) y poder activarla desde Admin → Profesores.
+5. Dejar clara la oferta (sección 2): plan mensual, sin permanencia, sin comisión y con el arrepentimiento de 10 días.
 
 ## 1. Los tres públicos
 
@@ -57,20 +61,21 @@ Cuenta rápida para el argumento de venta a quien paga: $39.900 equivalen a meno
 
 ## 2. Oferta (una sola por cada público)
 - **Alumnos:** «Encontrá tu profe de yoga o pilates por barrio, leé opiniones reales y escribile directo. Sin costo y sin comisiones». No hay nada que cobrarles ni que regalarles: lo que hay que ganar es que entren, busquen y pidan una clase.
-- **Profes:** «Primeros 30: ficha gratis 3 meses, sin permanencia». Hoy se activa a mano en Admin → Profesores (plan, activo y vencimiento a +90 días); anotar la fecha del primer cobro de cada uno.
-- **Institutos:** lo mismo, 3 meses sin costo, más que Omia les arma la ficha y carga a su equipo de profes (el plan Institutos permite profes asociados).
+- **Profes:** «Cobrás el 100% de tus clases, sin comisión. Pagás un plan mensual fijo, sin permanencia: te das de baja cuando quieras y, si te arrepentís, tenés 10 días para revocar». Argumento de precio: con 1 o 2 alumnos nuevos por mes el plan se paga solo.
+- **Institutos:** lo mismo, más que Omia les arma la ficha y carga a su equipo de profes (el plan Institutos permite profes asociados).
+- **Sin pruebas ni meses gratis, en ningún mensaje ni en el sitio.** Si más adelante se quisiera incentivar de otra manera, es una decisión aparte.
 - Detalle que cambia mucho la conversión: **cargarles la ficha nosotros** (ellos solo mandan datos por WhatsApp). Ya figura en las objeciones de `captacion-profes.md`.
 
 ## 3. Embudo y qué medir
-**Lado que paga (profes e institutos):** Descubren → Responden → Cargan ficha → Reciben su primera solicitud → Pagan el primer mes.
+**Lado que paga (profes e institutos):** Descubren → Responden → Pagan el primer mes y se carga su ficha → Reciben su primera solicitud → Renuevan el segundo mes.
 
 | Etapa | Métrica | Primera referencia de trabajo |
 |---|---|---|
 | Contactos | DMs y WhatsApps enviados por semana | 40 a 60 (≈10 por día hábil) |
 | Respuesta | % que contesta | 20 a 30 %; si es menor, cambiar el mensaje |
-| Ficha | % de los que respondieron que cargan ficha | 50 % |
-| Activación | Fichas con al menos 1 solicitud de clase en 30 días | 30 % |
-| Pago | Fichas que pagan al terminar los 3 meses | Lo que diga la realidad: es el dato clave |
+| Alta | % de los que respondieron que pagan el primer mes | 10 a 15 % (hipótesis) |
+| Activación | Fichas pagas con al menos 1 solicitud de clase en 30 días | 30 % |
+| Retención | Clientes que renuevan el segundo mes | Lo que diga la realidad: es el dato clave |
 
 **Lado de los alumnos (no pagan, pero mueven todo):** Ven una ficha o el sitio → Buscan o chatean con Omi → Entran a una ficha → Piden la clase → Dejan una reseña.
 
@@ -84,7 +89,7 @@ Cuenta rápida para el argumento de venta a quien paga: $39.900 equivalen a meno
 
 Los datos de los alumnos (nombre, mail, solicitudes) se tratan como dice la política de privacidad, y solo se contacta con novedades a quien dio su consentimiento.
 
-Todo en `marketing/prospectos.csv` (columna `estado`). Una vez por semana mirar: contactados, respuestas, fichas, activaciones.
+Todo en `marketing/prospectos.csv` (columna `estado`). Una vez por semana mirar: contactados, respuestas, altas, activaciones y renovaciones.
 
 ## 4. Canales (de más barato a más caro)
 
@@ -101,8 +106,8 @@ Todo en `marketing/prospectos.csv` (columna `estado`). Una vez por semana mirar:
 - Seguimiento a los 3 y a los 7 días, uno solo por vez. Si no hay respuesta, dejar para el mes siguiente.
 
 ### C. Alianzas (el canal con mejor relación costo/resultado)
-- **Escuelas de formación de profes** (Hatha, Vinyasa, Stott, Balanced Body): ofrecerles ficha gratis para sus egresados y que ellos lo comuniquen. Una alianza trae 10 a 30 profes juntos.
-- **Referidos:** pedirle a cada profe que se sumó los nombres de dos colegas. Primer mes bonificado a quien traiga a alguien que pague.
+- **Escuelas de formación de profes** (Hatha, Vinyasa, Stott, Balanced Body): proponerles una alianza para que comuniquen Omia a sus egresados (condiciones a definir, sin regalar meses). Una alianza puede traer 10 a 30 profes juntos.
+- **Referidos:** pedirle a cada profe que se sumó los nombres de dos colegas. Sin incentivo económico: se pide como favor y se agradece mostrando su ficha en las redes de Omia.
 - Grupos de Facebook y WhatsApp de profes de CABA: no spamear; participar, aportar y recién después presentar Omia.
 
 ### D. Google: SEO local — costo bajo, resultado lento
@@ -113,7 +118,7 @@ Todo en `marketing/prospectos.csv` (columna `estado`). Una vez por semana mirar:
 ### E. Alumnos (la demanda) — empezar cuando haya 15 fichas
 Un alumno solo se queda si encuentra a alguien cerca. Por eso se salen a buscar **barrio por barrio**, empezando por donde haya más fichas cargadas.
 - **Los propios profes:** cada profe comparte su ficha en historias y con su lista de WhatsApp; es el canal más barato y el más confiable, porque llegan alumnos que ya lo conocen y pueden dejar la primera reseña real.
-- **Instagram de Omia:** 2 de cada 3 publicaciones del calendario pensadas para el alumno: «dónde hacer pilates reformer en {barrio}», «cómo elegir profe», «clase de prueba».
+- **Instagram de Omia:** 2 de cada 3 publicaciones del calendario pensadas para el alumno: «dónde hacer pilates reformer en {barrio}», «cómo elegir profe», «clases individuales o en grupo».
 - **Google:** las fichas y las páginas de zona aparecen en búsquedas tipo «yoga en Villa Crespo». Es lento pero gratis y se acumula.
 - **Chat Omi y buscador con IA:** son la gracia del sitio frente a un listado común; mostrarlos en videos cortos («le conté a Omi lo que necesitaba y me sugirió estos tres profes»).
 - **Alianzas locales:** gimnasios y estudios de barrio, cafés y negocios de bienestar, para dejar un cartel o un código QR hacia el directorio de la zona.
@@ -122,17 +127,17 @@ Un alumno solo se queda si encuentra a alguien cerca. Por eso se salen a buscar 
 
 ### F. Publicidad paga (recién con 15 fichas y un proceso que funcione)
 - Meta Ads (Instagram) a **profes** de CABA: anuncio de video corto o carrusel, destino `omia.site/para-profes`, intereses yoga y pilates + «instructor».
-- Presupuesto de prueba: empezar con un monto que se pueda perder, por ejemplo US$5 a US$10 por día durante 10 días, y **medir costo por ficha creada**, no por clic. Si una ficha cuesta más de lo que vale (aprox. 1 mes de plan), pausar.
+- Presupuesto de prueba: empezar con un monto que se pueda perder, por ejemplo US$5 a US$10 por día durante 10 días, y **medir costo por profe que paga el primer mes**, no por clic. Si un cliente cuesta más de lo que deja en 2 o 3 meses de plan, pausar.
 - Pautar para **alumnos** recién cuando haya fichas de sobra en el barrio al que se apunta (por ejemplo 5 o más en Palermo): si el visitante no encuentra a nadie, se pierde el dinero. Ahí el objetivo del anuncio es «solicitud de clase», no clics.
 
 ## 5. Calendario de las primeras 4 semanas
 
 | Semana | Foco | Entregables |
 |---|---|---|
-| 1 | Dejar el sitio listo y cargar fundadores | Resend + `hola@omia.site` activos; 5 fichas reales cargadas; lista de 60 profes y 40 estudios; oferta decidida |
-| 2 | Contacto masivo a profes + primeras alianzas | 50 DMs; mensaje a 2 escuelas de formación; 10 fichas cargadas; empezar el calendario de Instagram |
-| 3 | Estudios + reseñas | WhatsApp a 20 estudios con captura de su ficha; pedir reseñas a los alumnos de los fundadores; 15 fichas |
-| 4 | Primer cobro, primeros alumnos y ajuste | Activar el primer plan pago de cada tipo; que cada fundador comparta su ficha con sus alumnos; contar solicitudes de clase; revisar los dos embudos; decidir si se prueba Meta Ads |
+| 1 | Dejar el sitio listo para cobrar | Cobro por Mercado Pago operativo; Resend + `hola@omia.site` activos; ficha de ejemplo para las capturas; lista de 60 profes y 40 estudios |
+| 2 | Contacto a profes + primeras alianzas | 50 DMs; mensaje a 2 escuelas de formación; empezar el calendario de Instagram; cargar la ficha de cada profe que pague |
+| 3 | Estudios + reseñas | WhatsApp a 20 estudios con una captura de cómo se vería su ficha; pedir reseñas a los alumnos de los primeros profes; seguimiento de los DMs |
+| 4 | Primeros pagos, primeros alumnos y ajuste | Primer plan pago de cada tipo; que cada profe comparta su ficha con sus alumnos; contar solicitudes de clase; revisar los dos embudos; decidir si se prueba Meta Ads |
 
 ## 6. Presupuesto orientativo (mensual)
 - Organico + alianzas: $0 en medios, tiempo del fundador.
@@ -141,14 +146,14 @@ Un alumno solo se queda si encuentra a alguien cerca. Por eso se salen a buscar 
 - Mails (Resend): gratis hasta el volumen inicial.
 
 ## 7. Riesgos a tener presentes
-- **Sitio vacío:** sin fichas y reseñas reales, el mejor mensaje no convierte. Es el riesgo principal.
-- **Cobro:** hasta tener el token de producción de Mercado Pago y el webhook, los primeros clientes solo pueden usar el plan gratis activado a mano.
+- **Sitio casi vacío al arrancar:** sin fichas gratis de «fundadores», el directorio tarda en llenarse y el mejor mensaje convierte menos. Es el riesgo principal: se compensa con capturas de una ficha de ejemplo, reseñas reales apenas aparezcan y empezar barrio por barrio (por ejemplo 5 pagos en Palermo antes de abrir otro).
+- **Cobro:** hasta tener el token de producción de Mercado Pago y el webhook no se puede vender. Es el bloqueo número uno.
 - **Reseñas:** nunca inventarlas ni pagar por ellas en un sitio que promete «opiniones reales».
 - **Promesas de los planes:** «Hasta 5 fotos», «IA entrenada con tus horarios» y «Prioridad en IA» hoy no se cumplen tal cual (pendiente 15). Corregirlo antes de venderlos.
 - **Datos personales:** guardar los datos de prospectos (Ley 25.326) y ofrecer baja en cada mensaje.
 
 ## 8. Qué se hace esta semana
-1. Elegir la oferta de lanzamiento y confirmar a quién se le ofrece (¿30 profes? ¿cuántos institutos?).
-2. Cargar las primeras 5 fichas fundadoras.
+1. Activar el cobro real: token de producción y webhook de Mercado Pago.
+2. Preparar la ficha de ejemplo y las capturas para los mensajes.
 3. Mandar los primeros 10 DMs y los primeros 5 WhatsApps a estudios.
 4. Abrir la planilla `prospectos.csv` y anotar cada contacto el mismo día.

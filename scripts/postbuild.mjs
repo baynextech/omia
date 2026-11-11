@@ -21,6 +21,7 @@ const clip = (s, n = 160) => (String(s || "").length > n ? `${String(s).slice(0,
 const STATIC = [
   { path: "/directorio", title: "Directorio de profesores de yoga y pilates en Buenos Aires", description: "Buscá profesores de yoga y pilates por barrio, disciplina y precio. Leé reseñas de alumnos y contactalos directo, sin comisiones." },
   { path: "/estudios", title: "Estudios e institutos de yoga y pilates en Buenos Aires", description: "Descubrí estudios e institutos de yoga y pilates (Reformer, Mat, Barre) en Palermo, Belgrano, Recoleta y más. Horarios, precios y reseñas." },
+  { path: "/mapa", title: "Mapa de estudios y profesores de yoga y pilates", description: "Encontrá estudios, institutos y profesores de yoga y pilates cerca tuyo en el mapa de Buenos Aires." },
   { path: "/ranking", title: "Ranking de profesores e institutos", description: "Los profesores e institutos de yoga y pilates mejor valorados por sus alumnos en Argentina." },
   { path: "/tienda", title: "Tienda de yoga y pilates: mats, accesorios y más", description: "Equipamiento para tu práctica: mats, bloques, aros de pilates, bandas y más, con envío a todo el país." },
   { path: "/para-profes", title: "Para profesores e institutos: publicá tus clases", description: "Creá tu ficha en Omia, aparecé en las búsquedas de tu zona y recibí alumnos sin comisiones por clase. Planes mensuales sin permanencia." },
@@ -102,7 +103,7 @@ if (API) {
 
   const asList = (v) => (Array.isArray(v) ? v : []);
   for (const t of [...asList(listings), ...asList(institutes)]) {
-    const route = `/profesor/${t.id}`;
+    const route = `/profesor/${t.slug || t.id}`;
     const where = t.location ? ` en ${t.location}` : "";
     const title = `${t.name}${t.specialty ? ` — ${t.specialty}` : ""}${where}`;
     const description = clip(t.bio || `${t.name}: ${t.discipline || "yoga y pilates"}${where}. Mirá horarios, precio y reseñas en Omia.`);

@@ -6,9 +6,14 @@ import { apiFetch } from "../lib/api";
 import { Search, MapPin, Coffee, Compass, Sparkles, Clock, Layers } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { SEOMeta } from "../components/SEOMeta";
+import { ProBadge } from "../components/ProBadge";
+import { profileUrl } from "../lib/links";
 
 interface Studio {
   id: string;
+  slug?: string | null;
+  isPro?: boolean;
+  isFeatured?: boolean;
   name: string;
   discipline: string;
   location: string;
@@ -62,6 +67,9 @@ export function Studios() {
         <p className="text-musgo max-w-2xl text-lg">
           {t("studios.subtitle")}
         </p>
+        <Link to="/mapa" className="mt-6 inline-flex items-center gap-2 bg-bosque hover:bg-bosque-profundo text-lino px-6 py-3 rounded-full text-sm font-medium transition-colors">
+          <MapPin className="w-4 h-4" /> Ver estudios en el mapa
+        </Link>
       </div>
 
       {/* Filters block */}
@@ -151,7 +159,10 @@ export function Studios() {
                   <div>
                     <div className="flex justify-between items-start gap-4 mb-2">
                       <h3 className="text-2xl font-semibold text-bosque tracking-tight">{studio.name}</h3>
-                      <span className="text-xs bg-salvia/10 text-salvia-oscuro font-bold px-3 py-1 rounded-sm tracking-wider uppercase whitespace-nowrap">Verificado</span>
+                      <div className="flex flex-col items-end gap-1.5 shrink-0">
+                        {studio.isPro && <ProBadge size="md" />}
+                        {studio.isFeatured && <Link to="/mapa" className="text-[10px] bg-[#FFF6DA] text-[#6B4A06] border border-[#E4C56A] font-bold px-2.5 py-1 rounded-sm tracking-wider uppercase whitespace-nowrap">Destacado en el mapa</Link>}
+                      </div>
                     </div>
 
                     <p className="text-xs text-musgo font-mono mb-4 flex items-center gap-1.5">
@@ -199,7 +210,7 @@ export function Studios() {
                         Llamar
                       </a>
                       <Link
-                        to={`/profesor/${studio.id}`}
+                        to={profileUrl(studio)}
                         className="flex-1 text-center bg-bosque hover:bg-bosque-profundo text-lino py-3 rounded-full text-sm font-medium transition-colors"
                       >
                         Ver perfil y reseñas

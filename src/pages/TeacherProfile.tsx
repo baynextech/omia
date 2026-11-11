@@ -1,6 +1,9 @@
 import { placeholderFor } from "../components/Photo";
 import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import { ProBadge } from "../components/ProBadge";
+import { Photo } from "../components/Photo";
+import { profileUrl } from "../lib/links";
 import { apiFetch } from "../lib/api";
 import { MapPin, Star, Heart, Share2, ArrowLeft, Mail, Phone, Sparkles, X, ChevronLeft, ChevronRight, Image as ImageIcon } from "lucide-react";
 import { Teacher } from "../components/TeacherCard";
@@ -12,13 +15,15 @@ import { SEOMeta } from "../components/SEOMeta";
 
 export function TeacherProfile() {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const [staff, setStaff] = useState<Teacher[]>([]);
   const [teacher, setTeacher] = useState<Teacher | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isReviewOpen, setIsReviewOpen] = useState(false);
   const [reviewList, setReviewList] = useState<any[]>([]);
 
-  const loadReviews = () => {
-    apiFetch(`/api/teachers/${id}/reviews`)
+  const loadReviews = (teacherId: string | undefined = id) => {
+    apiFetch(`/api/teachers/${teacherId}/reviews`)
       .then(res => res.json())
       .then(data => setReviewList(Array.isArray(data) ? data : []))
       .catch(() => {});
@@ -37,9 +42,14 @@ export function TeacherProfile() {
       })
       .then((data) => {
         setTeacher(data);
-        loadReviews();
+        // La dirección propia (slug) reemplaza al id largo en la barra del navegador.
+        if (data.slug && id !== data.slug) navigate(`/profesor/${data.slug}`, { replace: true });
+        loadReviews(data.id);
+        if (data.kind === "instituto") {
+          apiFetch(`/api/institutes/${data.id}/staff`).then((r) => r.json()).then((d) => setStaff(Array.isArray(d) ? d : [])).catch(() => {});
+        }
         // Registrar visita en el servidor
-        apiFetch(`/api/teachers/${id}/visit`, {
+        apiFetch(`/api/teachers/${data.id}/visit`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ visitorName: user?.name || "Invitado" })
@@ -50,7 +60,7 @@ export function TeacherProfile() {
   }, [id]);
 
   const handleShare = () => {
-    const url = `${window.location.origin}/profesor/${id}`;
+    const url = `${window.location.origin}${profileUrl({ id: teacher?.id || id || "", slug: teacher?.slug })}`;
     navigator.clipboard.writeText(url).then(() => {
       alert("¡Enlace copiado al portapapeles!");
     });
@@ -313,7 +323,11 @@ export function TeacherProfile() {
         <div className="p-8 sm:p-12">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-6">
             <div>
-              <h1 className="font-serif text-3xl sm:text-4xl font-medium text-bosque mb-2">{teacher.name}</h1>
+              <div className="flex flex-wrap items-center gap-3 mb-2">
+                <h1 className="font-serif text-3xl sm:text-4xl font-medium text-bosque">{teacher.name}</h1>
+                {teacher.isPro && <ProBadge size="md" />}
+                {teacher.isFeatured && <Link to="/mapa" className="text-[10px] bg-[#FFF6DA] text-[#6B4A06] border border-[#E4C56A] font-bold px-2.5 py-1 rounded-sm tracking-wider uppercase">Destacado en el mapa</Link>}
+              </div>
               <p className="text-salvia-oscuro text-xl font-medium">{teacher.specialty}</p>
             </div>
             <div className="flex flex-col items-start sm:items-end gap-2">
@@ -352,6 +366,39 @@ export function TeacherProfile() {
             <h3 className="text-lg font-medium text-bosque mb-3">Sobre mí</h3>
             <p className="text-musgo leading-relaxed text-lg whitespace-pre-line">{teacher.bio}</p>
           </div>
+
+          {teacher.kind === "instituto" && (teacher.schedule || teacher.hours || teacher.address) && (
+            <div className="mb-8" id="horarios">
+              <h3 className="text-lg font-medium text-bosque mb-3">Horarios y clases</h3>
+              {teacher.address && <p className="text-musgo mb-2 flex items-center gap-2"><MapPin className="w-4 h-4" />{teacher.address}</p>}
+              {teacher.hours && <p className="text-musgo mb-3">{teacher.hours}</p>}
+              {teacher.schedule && (
+                <ul className="bg-lino border border-lino-oscuro rounded-2xl divide-y divide-lino-oscuro">
+                  {teacher.schedule.split("\n").map((line) => line.trim()).filter(Boolean).map((line, i) => (
+                    <li key={i} className="px-4 py-2.5 text-sm text-bosque">{line}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+
+          {teacher.kind === "instituto" && staff.length > 0 && (
+            <div className="mb-8" id="equipo">
+              <h3 className="text-lg font-medium text-bosque mb-3">Nuestro equipo ({staff.length})</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {staff.map((p) => (
+                  <Link key={p.id} to={profileUrl(p)} className="flex items-center gap-4 bg-lino border border-lino-oscuro hover:border-bosque rounded-2xl p-3 transition-colors">
+                    <Photo src={p.image} name={p.name} className="w-16 h-16 rounded-xl object-cover shrink-0" />
+                    <div className="min-w-0">
+                      <p className="font-semibold text-bosque truncate">{p.name}</p>
+                      <p className="text-xs text-musgo truncate">{[p.discipline, p.specialty].filter(Boolean).join(" · ")}</p>
+                      {p.price && <p className="text-xs text-salvia-oscuro font-medium mt-0.5">{p.price}</p>}
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* SECCIÓN DE CONTACTO DIRECTO (EMAIL Y WHATSAPP) */}
           <div className="mb-10 p-6 sm:p-8 bg-lino rounded-[24px] border border-lino-oscuro shadow-sm">

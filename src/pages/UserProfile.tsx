@@ -1,13 +1,17 @@
 import { useState, useEffect, useRef } from "react";
 import { apiFetch, apiJson } from "../lib/api";
 import { usePlans, startSubscription } from "../hooks/usePlans";
-import { User, Heart, MessageSquare, Camera, Edit2, Star, Save, Calendar, ShieldCheck, Sparkles, AlertCircle, CheckCircle2, Eye, DollarSign, ArrowUpRight, Mail, Phone, Check, UploadCloud, X, Plus, TrendingUp, LayoutDashboard } from "lucide-react";
+import { Users, User, Heart, MessageSquare, Camera, Edit2, Star, Save, Calendar, ShieldCheck, Sparkles, AlertCircle, CheckCircle2, Eye, DollarSign, ArrowUpRight, Mail, Phone, Check, UploadCloud, X, Plus, TrendingUp, LayoutDashboard } from "lucide-react";
 import { TeacherCard, Teacher } from "../components/TeacherCard";
 import { useFavorites } from "../hooks/useFavorites";
 import { Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { UserAvatar } from "../components/UserMenu";
 import { Logo } from "../components/Logo";
+import { InstituteTeam } from "../components/InstituteTeam";
+import { SupportCard } from "../components/SupportCard";
+import { ProBadge } from "../components/ProBadge";
+import { profileUrl } from "../lib/links";
 
 const convertToWebP = (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
@@ -65,7 +69,7 @@ interface Booking {
 }
 
 export function UserProfile() {
-  const [activeTab, setActiveTab] = useState<"perfil" | "bookings" | "favoritos" | "reseñas" | "premium" | "visited" | "stats" | "landing">("perfil");
+  const [activeTab, setActiveTab] = useState<"perfil" | "bookings" | "favoritos" | "reseñas" | "premium" | "visited" | "stats" | "landing" | "equipo">("perfil");
   const [isEditing, setIsEditing] = useState(false);
   
   const [profile, setProfile] = useState({ 
@@ -80,6 +84,9 @@ export function UserProfile() {
     teacherStatus: null as string | null,
     planExpiresAt: null as string | null
   });
+  // Beneficios de tu plan: fotos incluidas (sin plan se puede ir armando la ficha con hasta 5).
+  const planKey = profile.plan || "ninguno";
+  const photoLimit = planKey === "ninguno" ? 5 : ((profile as any).benefits?.photos ?? 5);
   
   const [editForm, setEditForm] = useState({ 
     name: "", 
@@ -103,7 +110,8 @@ export function UserProfile() {
     impressions: 0,
     bookings: 0,
     rating: 0,
-    reviews: 0
+    reviews: 0,
+    locked: false
   });
   const [subInfo, setSubInfo] = useState<{ subscription: any | null; payments: any[] }>({ subscription: null, payments: [] });
   const [subBusy, setSubBusy] = useState(false);
@@ -121,6 +129,7 @@ export function UserProfile() {
     images: [] as string[],
     address: "",
     hours: "",
+    schedule: "",
     amenities: [] as string[]
   });
 
@@ -183,6 +192,7 @@ export function UserProfile() {
           images: linkedTeacher.images || [],
           address: (linkedTeacher as any).address || "",
           hours: (linkedTeacher as any).hours || "",
+          schedule: (linkedTeacher as any).schedule || "",
           amenities: (linkedTeacher as any).amenities || []
         });
       } else {
@@ -267,7 +277,7 @@ export function UserProfile() {
   // Asegurar de que la pestaña activa sea válida cuando cambia el rol del usuario
   useEffect(() => {
     if (profile.role === "alumno") {
-      if (["stats", "landing"].includes(activeTab)) {
+      if (["stats", "landing", "equipo"].includes(activeTab)) {
         setActiveTab("perfil");
       }
     } else {
@@ -283,12 +293,21 @@ export function UserProfile() {
     const files = e.target.files;
     if (!files || files.length === 0) return;
     
+    // Cada plan incluye una cantidad de fotos (Inicial 1, Destacado 5, Institutos 8; sin plan se puede ir armando hasta 5).
+    const room = photoLimit - (landingForm.images || []).length;
+    if (room <= 0) {
+      alert(`Tu plan incluye hasta ${photoLimit} ${photoLimit === 1 ? "foto" : "fotos"}.${planKey === "inicial" ? " Pasate al Plan Destacado para subir hasta 5." : ""}`);
+      e.target.value = "";
+      return;
+    }
+    const picked = Array.from(files).slice(0, room);
+    if (picked.length < files.length) alert(`Solo entran ${room} ${room === 1 ? "foto más" : "fotos más"} en tu plan: subimos las primeras ${picked.length}.`);
     setIsUploadingGallery(true);
     const convertedImages: string[] = [];
     
-    for (let i = 0; i < files.length; i++) {
+    for (let i = 0; i < picked.length; i++) {
       try {
-        const webpData = await convertToWebP(files[i]);
+        const webpData = await convertToWebP(picked[i]);
         convertedImages.push(webpData);
       } catch (err) {
         console.error("Error al convertir imagen a WebP:", err);
@@ -456,6 +475,7 @@ export function UserProfile() {
     { id: "perfil", label: "Mi Perfil", icon: User },
     { id: "stats", label: "Estadísticas", icon: TrendingUp },
     { id: "landing", label: "Mi Página", icon: LayoutDashboard },
+    ...(profile.role === "instituto" ? [{ id: "equipo", label: "Equipo", icon: Users }] : []),
     { id: "bookings", label: "Solicitudes", icon: Calendar },
     { id: "reseñas", label: "Reseñas", icon: Star },
     { id: "premium", label: "Plan Premium", icon: Sparkles },
@@ -846,7 +866,7 @@ export function UserProfile() {
                         </a>
                       </div>
                       <Link 
-                        to={`/profesor/${teacher.id}`}
+                        to={profileUrl(teacher)}
                         className="w-full text-center py-2.5 bg-bosque hover:bg-bosque-profundo text-lino rounded-xl text-xs font-semibold transition-all"
                       >
                         Ver Perfil Completo
@@ -868,8 +888,26 @@ export function UserProfile() {
           </div>
         )}
 
+        {/* EQUIPO DEL INSTITUTO (Plan Institutos) */}
+        {activeTab === "equipo" && profile.role === "instituto" && (
+          <InstituteTeam authHeaders={authHeaders} onUpgrade={() => setActiveTab("premium")} />
+        )}
+
+        {/* ESTADÍSTICAS CON CANDADO: el dashboard es del Plan Destacado en adelante */}
+        {activeTab === "stats" && isTeacherOrInstitute && teacherStats.locked && (
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+            <h1 className="text-3xl font-light tracking-tight text-bosque mb-2">Panel de Control Profesional</h1>
+            <div className="bg-[#FFF9E8] border border-[#E4C56A] rounded-3xl p-8 sm:p-10 mt-6 max-w-2xl">
+              <div className="flex items-center gap-2 text-[#6B4A06] mb-3"><ProBadge size="md" /><span className="font-semibold text-sm uppercase tracking-wider">Plan Destacado</span></div>
+              <h2 className="text-2xl font-semibold text-bosque mb-2">El dashboard con estadísticas es del Plan Destacado</h2>
+              <p className="text-musgo mb-6">Mirá cuántas personas ven tu ficha, quién la visitó, cuántas solicitudes recibís y cómo te califican. Con el Plan Destacado también sumás la insignia Pro, prioridad en el asistente de IA y hasta 5 fotos.</p>
+              <button onClick={() => setActiveTab("premium")} className="bg-bosque hover:bg-bosque-profundo text-lino px-7 py-3 rounded-full text-sm font-semibold cursor-pointer">Ver planes</button>
+            </div>
+          </div>
+        )}
+
         {/* TAB 5: ESTADÍSTICAS / DASHBOARD (SOLO PROFESOR / INSTITUTO) */}
-        {activeTab === "stats" && isTeacherOrInstitute && (
+        {activeTab === "stats" && isTeacherOrInstitute && !teacherStats.locked && (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
             <h1 className="text-3xl font-light tracking-tight text-bosque mb-2">Panel de Control Profesional</h1>
             <p className="text-musgo mb-8">Hacé el seguimiento del rendimiento de tu página y de las solicitudes de clase que recibís.</p>
@@ -998,7 +1036,7 @@ export function UserProfile() {
               </div>
               {profile.teacherId && (
                 <Link 
-                  to={`/profesor/${profile.teacherId}`}
+                  to={`/profesor/${(profile as any).teacherSlug || profile.teacherId}`}
                   target="_blank"
                   className="inline-flex items-center gap-2 px-5 py-2.5 bg-bosque hover:bg-bosque-profundo text-lino text-sm font-medium rounded-full transition-colors shrink-0"
                 >
@@ -1019,7 +1057,7 @@ export function UserProfile() {
                     {profile.teacherStatus === "activo"
                       ? "Tu publicación está online. Podés compartir este enlace: "
                       : "Para que aparezca en el directorio, activá tu plan en la pestaña Plan Premium. Así se va a ver: "}
-                    <Link to={`/profesor/${profile.teacherId}`} className="font-bold underline text-bosque">
+                    <Link to={`/profesor/${(profile as any).teacherSlug || profile.teacherId}`} className="font-bold underline text-bosque">
                       {window.location.origin}/profesor/{profile.teacherId}
                     </Link>
                   </p>
@@ -1090,6 +1128,11 @@ export function UserProfile() {
                   <div>
                     <label className="block text-sm font-semibold text-musgo mb-2">Horarios de atención</label>
                     <input type="text" value={landingForm.hours} onChange={e => setLandingForm({...landingForm, hours: e.target.value})} placeholder="Ej. Lun a Sáb 07:00 a 21:00 hs" className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-xl px-4 py-3 outline-none" />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-semibold text-musgo mb-1">Grilla de clases (una por línea)</label>
+                    <p className="text-xs text-musgo mb-2">Ej. «Lunes 09:00 – Vinyasa – Lucía». Se muestra en tu ficha{(profile as any).benefits?.aiSchedule ? " y el asistente de Omia la usa para recomendarte a quien busca un día y horario" : ". Con el Plan Institutos, además, el asistente de Omia la usa para recomendarte"}.</p>
+                    <textarea value={landingForm.schedule} onChange={e => setLandingForm({...landingForm, schedule: e.target.value})} rows={6} maxLength={3000} placeholder={"Lunes 09:00 – Vinyasa – Lucía\nMartes 19:00 – Pilates Reformer – Camila\nSábado 10:30 – Yoga restaurativo – Martín"} className="w-full bg-lino border border-lino-oscuro rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-salvia" />
                   </div>
                   <div className="md:col-span-2">
                     <label className="block text-sm font-semibold text-musgo mb-2">Comodidades (separadas por coma)</label>
@@ -1197,7 +1240,7 @@ export function UserProfile() {
                 {/* Grid de fotos subidadas */}
                 {(landingForm.images || []).length > 0 && (
                   <div className="mb-6 bg-lino/50 p-4 rounded-2xl border border-lino-oscuro">
-                    <p className="text-xs text-musgo font-semibold mb-3">Tus imágenes en la Galería ({landingForm.images.length} fotos):</p>
+                    <p className="text-xs text-musgo font-semibold mb-3">Tus imágenes en la Galería ({landingForm.images.length} de {photoLimit} que incluye tu plan):</p>
                     <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
                       {(landingForm.images || []).map((img, idx) => (
                         <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border border-lino-oscuro group/thumb bg-white">
@@ -1296,6 +1339,12 @@ export function UserProfile() {
         {activeTab === "premium" && isTeacherOrInstitute && (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
             <h1 className="text-3xl font-light tracking-tight text-bosque mb-6">Mi Membresía de Pauta</h1>
+            {(profile as any).benefits?.pro && (
+              <p className="mb-6 flex items-center gap-3 text-sm text-musgo"><ProBadge size="md" />Tu ficha muestra la insignia Pro dorada{(profile as any).benefits?.featuredMap ? " y aparece destacada en el mapa" : ""}.</p>
+            )}
+            {(profile as any).benefits?.support && (
+              <div className="mb-6"><SupportCard name={profile.name} ficha={(profile as any).teacherSlug || profile.teacherId} /></div>
+            )}
             
             {profile.isPremium ? (
               <div className="space-y-6">

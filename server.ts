@@ -58,6 +58,34 @@ const PLAN_DAYS = 30;
 const GRACE_DAYS = 5;
 const PUBLIC_ROLES = ['alumno', 'profesor', 'instituto'];
 const MAX_GALLERY_IMAGES = 8;
+
+// ─── Beneficios por plan ─────────────────────────────────────────────────────
+// Un único lugar donde se decide qué incluye cada plan. Sin plan activo se aplica el piso de «Inicial».
+const PLAN_BENEFITS: Record<string, { photos: number; pro: boolean; stats: boolean; aiPriority: boolean; team: boolean; featuredMap: boolean; aiSchedule: boolean; support: boolean }> = {
+  ninguno:       { photos: 1, pro: false, stats: false, aiPriority: false, team: false, featuredMap: false, aiSchedule: false, support: false },
+  inicial:       { photos: 1, pro: false, stats: false, aiPriority: false, team: false, featuredMap: false, aiSchedule: false, support: false },
+  destacado:     { photos: 5, pro: true,  stats: true,  aiPriority: true,  team: false, featuredMap: false, aiSchedule: false, support: false },
+  institucional: { photos: 8, pro: true,  stats: true,  aiPriority: true,  team: true,  featuredMap: true,  aiSchedule: true,  support: true },
+};
+const MAX_STAFF = 20;
+const DRAFT_PHOTOS = 5; // mientras la ficha no tiene plan activo se puede ir armando (hasta 5 fotos)
+function activePlan(t: Row | null | undefined): string {
+  return t?.plan_active && PLAN_BENEFITS[t.plan as string] ? (t.plan as string) : 'ninguno';
+}
+function benefitsOf(t: Row | null | undefined) {
+  return PLAN_BENEFITS[activePlan(t)];
+}
+
+// ─── Direcciones de URL propias y ubicación en el mapa ───────────────────────
+// Centro aproximado de cada barrio (para ubicar fichas cuando no se puede geolocalizar la dirección).
+const ZONE_COORDS: Record<string, [number, number]> = {
+  palermo: [-34.5880, -58.4300], belgrano: [-34.5627, -58.4585], recoleta: [-34.5875, -58.3974], 'villa crespo': [-34.5995, -58.4390],
+  caballito: [-34.6180, -58.4400], almagro: [-34.6100, -58.4200], 'san telmo': [-34.6217, -58.3731], colegiales: [-34.5740, -58.4490],
+  nunez: [-34.5450, -58.4640], flores: [-34.6280, -58.4650], 'villa urquiza': [-34.5720, -58.4900], devoto: [-34.6000, -58.5120],
+  balvanera: [-34.6090, -58.4040], 'puerto madero': [-34.6118, -58.3622], barracas: [-34.6470, -58.3720],
+  'vicente lopez': [-34.5270, -58.4730], olivos: [-34.5090, -58.4900], martinez: [-34.4900, -58.5060], 'san isidro': [-34.4710, -58.5280],
+  'villa del parque': [-34.6050, -58.4900], saavedra: [-34.5560, -58.4850], chacarita: [-34.5890, -58.4540], boedo: [-34.6310, -58.4170],
+};
 // Mínimo de reseñas "virtuales" con que se pondera el ranking (promedio bayesiano).
 const RANKING_PRIOR = 3;
 
@@ -233,6 +261,51 @@ const priceToNumber = (price: unknown): number =>
 
 const formatARS = (n: unknown): string => `$${Math.round(Number(n) || 0).toLocaleString('es-AR')}`;
 
+// Dirección propia de cada ficha: omia.site/profesor/<slug>. Único; si el nombre se repite se agrega el barrio o un número.
+async function ensureSlug(t: Row): Promise<Row> {
+  if (t.slug) return t;
+  const bases = [slugify(String(t.name || 'ficha')), slugify(`${t.name || 'ficha'} ${t.location || ''}`)].filter(Boolean);
+  for (let i = 0; i < 30; i++) {
+    const base = bases[Math.min(i, bases.length - 1)] || 'ficha';
+    const slug = i < bases.length ? base : `${base}-${i - bases.length + 2}`;
+    const done = await pool.query(`UPDATE teachers SET slug = $1 WHERE id = $2 AND slug IS NULL
+      AND NOT EXISTS (SELECT 1 FROM teachers WHERE slug = $1) RETURNING *`, [slug, t.id]);
+    if (done.rows[0]) return done.rows[0];
+    const now = (await pool.query('SELECT * FROM teachers WHERE id = $1', [t.id])).rows[0];
+    if (now?.slug) return now;
+  }
+  return t;
+}
+
+// Ubica la ficha en el mapa: primero la dirección exacta (OpenStreetMap/Nominatim); si no se puede, el centro de su barrio.
+async function locateTeacher(t: Row): Promise<void> {
+  try {
+    let lat: number | null = null;
+    let lng: number | null = null;
+    const query = [t.address, t.location, 'Buenos Aires', 'Argentina'].filter(Boolean).join(', ');
+    if (t.address && !IS_TEST_NO_GEOCODE) {
+      try {
+        const r = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=ar&q=${encodeURIComponent(query)}`, {
+          headers: { 'User-Agent': 'omia.site (hola@omia.site)' }, signal: AbortSignal.timeout(5000),
+        });
+        const hit = r.ok ? ((await r.json()) as Row[])[0] : null;
+        if (hit) { lat = Number(hit.lat); lng = Number(hit.lon); }
+      } catch { /* sin conexión o límite de uso: se usa el barrio */ }
+    }
+    if (lat === null || lng === null) {
+      const zone = ZONE_COORDS[slugify(String(t.location || '')).replace(/-/g, ' ')] || ZONE_COORDS.palermo;
+      // Pequeño desplazamiento estable (según el id) para que las fichas del mismo barrio no queden encimadas.
+      const h = [...String(t.id)].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7);
+      lat = zone[0] + (((h % 1000) / 1000) - 0.5) * 0.012;
+      lng = zone[1] + ((((h >> 10) % 1000) / 1000) - 0.5) * 0.012;
+    }
+    await pool.query('UPDATE teachers SET lat = $1, lng = $2 WHERE id = $3', [lat, lng, t.id]);
+  } catch (err) {
+    console.error('[mapa] no se pudo ubicar la ficha', t.id, err);
+  }
+}
+const IS_TEST_NO_GEOCODE = process.env.NO_GEOCODE === '1';
+
 const PRICE_SQL = `NULLIF(regexp_replace(split_part(COALESCE(price, ''), '/', 1), '\\D', '', 'g'), '')::numeric`;
 
 // Ficha pública de un profesor o instituto, con los nombres que usa el frontend.
@@ -248,7 +321,19 @@ function teacherDTO(t: Row): Row {
     availableDays: t.available_days || [],
     description: t.bio || '',
     isPremium: !!t.plan_active,
+    isPro: benefitsOf(t).pro,
+    isFeatured: benefitsOf(t).featuredMap,
+    planKey: activePlan(t),
+    slug: t.slug || null,
+    photoLimit: benefitsOf(t).photos,
   };
+}
+
+// La ficha pública muestra solo las fotos que incluye el plan (el dueño ve todas las que subió).
+function publicDTO(t: Row): Row {
+  const dto = teacherDTO(t);
+  const images: string[] = (t.images || []).slice(0, benefitsOf(t).photos);
+  return { ...dto, images, image: images[0] || '', photo_url: images[0] || '' };
 }
 
 async function getTeacherByUser(userId: string): Promise<Row | null> {
@@ -272,6 +357,8 @@ function profileDTO(user: Row, teacher: Row | null): Row {
     plan: teacher?.plan_active ? teacher.plan : 'ninguno',
     planExpiresAt: teacher?.plan_active ? teacher.plan_expires_at : null,
     isPremium: !!teacher?.plan_active,
+    benefits: PLAN_BENEFITS[activePlan(teacher)],
+    teacherSlug: teacher?.slug || null,
   };
 }
 
@@ -627,12 +714,14 @@ async function listListings(query: Request['query'], kind: string | null): Promi
   if (availability === 'Fin de semana') conditions.push(`available_days && ARRAY['Sáb','Dom']`);
   else if (availability === 'Días de semana') conditions.push(`available_days && ARRAY['Lun','Mar','Mié','Jue','Vie']`);
 
+  // Los profes que carga un instituto (sin cuenta propia) se ven mientras el instituto tenga su plan activo.
+  conditions.push(`(institute_id IS NULL OR user_id IS NOT NULL OR EXISTS (SELECT 1 FROM teachers i WHERE i.id = teachers.institute_id AND i.plan_active))`);
   const result = await pool.query(
     `SELECT * FROM teachers WHERE ${conditions.join(' AND ')}
-     ORDER BY plan_active DESC, (plan = 'destacado') DESC, rating DESC, review_count DESC, created_at DESC`,
+     ORDER BY plan_active DESC, (plan IN ('destacado', 'institucional')) DESC, rating DESC, review_count DESC, created_at DESC`,
     params
   );
-  return result.rows.map(teacherDTO);
+  return result.rows.map(publicDTO);
 }
 
 app.get('/api/teachers', h(async (req, res) => {
@@ -647,10 +736,12 @@ app.get('/api/institutes', h(async (req, res) => {
 app.get('/api/institutes/:id/staff', h(async (req, res) => {
   if (!isUuid(req.params.id)) return res.json([]);
   const result = await pool.query(
-    `SELECT * FROM teachers WHERE institute_id = $1 AND status = 'activo' ORDER BY rating DESC`,
+    `SELECT * FROM teachers WHERE institute_id = $1 AND status = 'activo'
+       AND (user_id IS NOT NULL OR EXISTS (SELECT 1 FROM teachers i WHERE i.id = $1 AND i.plan_active))
+     ORDER BY rating DESC, name ASC`,
     [req.params.id]
   );
-  res.json(result.rows.map(teacherDTO));
+  res.json(result.rows.map(publicDTO));
 }));
 
 // Ranking: promedio ponderado por cantidad de reseñas, para que una sola reseña de 5
@@ -681,12 +772,13 @@ app.get('/api/ranking', h(async (req, res) => {
      LIMIT ${limit}`,
     params
   );
-  res.json(result.rows.map((row, i) => ({ ...teacherDTO(row), score: Number(row.score), position: i + 1 })));
+  res.json(result.rows.map((row, i) => ({ ...publicDTO(row), score: Number(row.score), position: i + 1 })));
 }));
 
 app.get('/api/teachers/:id', h(async (req, res) => {
-  if (!isUuid(req.params.id)) return res.status(404).json({ error: 'Profesor no encontrado' });
-  const result = await pool.query('SELECT * FROM teachers WHERE id = $1', [req.params.id]);
+  // La ficha se pide por su dirección propia (slug) o por el id.
+  const byId = isUuid(req.params.id);
+  const result = await pool.query(`SELECT * FROM teachers WHERE ${byId ? 'id' : 'slug'} = $1`, [byId ? req.params.id : req.params.id.toLowerCase()]);
   const teacher = result.rows[0];
   if (!teacher) return res.status(404).json({ error: 'Profesor no encontrado' });
 
@@ -697,7 +789,7 @@ app.get('/api/teachers/:id', h(async (req, res) => {
       return res.status(404).json({ error: 'Profesor no encontrado' });
     }
   }
-  res.json(teacherDTO(teacher));
+  res.json(publicDTO(teacher));
 }));
 
 app.post('/api/teachers/:id/visit', h(async (req, res) => {
@@ -771,7 +863,7 @@ app.post('/api/teachers/:id/reviews', auth(), h(async (req, res) => {
     pool.query('SELECT * FROM teachers WHERE id = $1', [teacherId]),
     pool.query(`${REVIEW_SELECT} WHERE r.id = $1`, [review.rows[0].id]),
   ]);
-  res.json({ ...teacherDTO(teacher.rows[0]), review: reviewDTO(saved.rows[0]) });
+  res.json({ ...publicDTO(teacher.rows[0]), review: reviewDTO(saved.rows[0]) });
 }));
 
 // El profesional (o el admin) responde una reseña que recibió.
@@ -940,9 +1032,14 @@ app.post('/api/teachers/create-or-update', auth(), h(async (req, res) => {
   const gallery = [b.image, ...(Array.isArray(b.images) ? b.images : [])]
     .filter((img): img is string => typeof img === 'string' && img.length > 0);
   const images = [...new Set(gallery)];
-  if (images.length > MAX_GALLERY_IMAGES) {
-    return res.status(400).json({ error: `Podés subir hasta ${MAX_GALLERY_IMAGES} fotos` });
+  const current = await getTeacherByUser(userId);
+  // Con plan activo, el límite es el de tu plan; mientras armás la ficha sin plan se pueden cargar hasta 5.
+  const photoLimit = current?.plan_active ? benefitsOf(current).photos : DRAFT_PHOTOS;
+  if (images.length > photoLimit || images.length > MAX_GALLERY_IMAGES) {
+    const upgrade = activePlan(current) === 'inicial' ? ' Pasate al Plan Destacado para subir hasta 5.' : '';
+    return res.status(400).json({ error: `Tu plan permite hasta ${photoLimit} ${photoLimit === 1 ? 'foto' : 'fotos'}.${upgrade}`, code: 'photo_limit', limit: photoLimit });
   }
+  const schedule = typeof b.schedule === 'string' ? b.schedule.trim().slice(0, 3000) : null;
 
   // Quien arma su ficha pasa a ser profesional; el instituto conserva su tipo.
   let user = req.profile!;
@@ -960,7 +1057,7 @@ app.post('/api/teachers/create-or-update', auth(), h(async (req, res) => {
     b.instagram ?? null, b.website ?? null,
   ];
 
-  const existing = await getTeacherByUser(userId);
+  const existing = current;
   let teacher: Row;
   if (existing) {
     teacher = (await pool.query(
@@ -971,9 +1068,10 @@ app.post('/api/teachers/create-or-update', auth(), h(async (req, res) => {
          phone = COALESCE($9, phone), images = COALESCE($10, images),
          address = COALESCE($11, address), hours = COALESCE($12, hours),
          amenities = COALESCE($13, amenities), instagram = COALESCE($14, instagram),
-         website = COALESCE($15, website), institute_id = $16::uuid, kind = $17
+         website = COALESCE($15, website), institute_id = $16::uuid, kind = $17,
+         schedule = COALESCE($19, schedule)
        WHERE user_id = $18 RETURNING *`,
-      [...fields, kind === 'profesor' ? instituteId : null, kind, userId]
+      [...fields, kind === 'profesor' ? instituteId : null, kind, userId, schedule]
     )).rows[0];
   } else {
     // La ficha nueva queda pendiente: se publica cuando se acredita el primer pago del abono.
@@ -981,22 +1079,43 @@ app.post('/api/teachers/create-or-update', auth(), h(async (req, res) => {
       `INSERT INTO teachers
          (user_id, name, specialty, discipline, location, bio, price, available_days, email, phone,
           images, address, hours, amenities, instagram, website, institute_id, kind,
-          rating, review_count, plan, plan_active, status, impressions)
+          rating, review_count, plan, plan_active, status, impressions, schedule)
        VALUES ($18, $1, $2, COALESCE($3, 'Yoga'), $4, $5, COALESCE($6, '$8.000/clase'),
                COALESCE($7::text[], '{}'), COALESCE($8, $19), $9, COALESCE($10::text[], '{}'), $11, $12,
-               COALESCE($13::text[], '{}'), $14, $15, $16::uuid, $17, 0, 0, 'ninguno', false, 'pendiente', 0)
+               COALESCE($13::text[], '{}'), $14, $15, $16::uuid, $17, 0, 0, 'ninguno', false, 'pendiente', 0, $20)
        RETURNING *`,
-      [...fields, kind === 'profesor' ? instituteId : null, kind, userId, user.email]
+      [...fields, kind === 'profesor' ? instituteId : null, kind, userId, user.email, schedule]
     )).rows[0];
   }
+  teacher = await ensureSlug(teacher);
+  void locateTeacher(teacher);
 
   res.json({ success: true, teacher: teacherDTO(teacher), userProfile: profileDTO(user, teacher) });
+}));
+
+// Dirección propia editable: omia.site/profesor/<tu-nombre>. Solo letras, números y guiones; no se puede repetir.
+app.put('/api/teacher/slug', auth(), h(async (req, res) => {
+  const teacher = await getTeacherByUser(req.user!.id);
+  if (!teacher) return res.status(404).json({ error: 'Primero armá tu ficha' });
+  const slug = slugify(String(req.body.slug || ''));
+  if (slug.length < 3) return res.status(400).json({ error: 'Usá al menos 3 letras o números' });
+  if (isUuid(slug)) return res.status(400).json({ error: 'Elegí una dirección con tu nombre' });
+  const done = await pool.query(
+    `UPDATE teachers SET slug = $1 WHERE id = $2 AND NOT EXISTS (SELECT 1 FROM teachers WHERE slug = $1 AND id <> $2) RETURNING slug`,
+    [slug, teacher.id]
+  );
+  if (!done.rows[0]) return res.status(409).json({ error: 'Esa dirección ya la usa otra página. Probá con otra.' });
+  res.json({ slug: done.rows[0].slug });
 }));
 
 app.get('/api/user/teacher-stats', auth(), h(async (req, res) => {
   const empty = { impressions: 0, visitors: [], bookings: 0, rating: 0, reviews: 0 };
   const teacher = await getTeacherByUser(req.user!.id);
   if (!teacher) return res.json(empty);
+  // El dashboard con estadísticas es del Plan Destacado en adelante.
+  if (!benefitsOf(teacher).stats) {
+    return res.json({ ...empty, locked: true, requiredPlan: 'destacado', plan: activePlan(teacher), plan_active: !!teacher.plan_active });
+  }
 
   const [bookings, visitors] = await Promise.all([
     pool.query(
@@ -1021,6 +1140,97 @@ app.get('/api/user/teacher-stats', auth(), h(async (req, res) => {
     plan_active: teacher.plan_active,
     plan_expires_at: teacher.plan_expires_at,
   });
+}));
+
+// ─── Equipo del instituto (Plan Institutos: múltiples profes asociados) ──────
+
+async function getOwnInstitute(req: AuthRequest, res: Response): Promise<Row | null> {
+  const inst = await getTeacherByUser(req.user!.id);
+  if (!inst || inst.kind !== 'instituto') {
+    res.status(403).json({ error: 'Solo los institutos pueden armar un equipo' });
+    return null;
+  }
+  return inst;
+}
+function staffFields(b: Row) {
+  const image = typeof b.image === 'string' && b.image ? b.image : null;
+  return {
+    name: String(b.name || '').trim().slice(0, 120),
+    specialty: String(b.specialty || '').trim().slice(0, 120) || null,
+    discipline: ['Yoga', 'Pilates', 'Yoga & Pilates'].includes(b.discipline) ? b.discipline : 'Yoga',
+    price: String(b.price || '').trim().slice(0, 40) || null,
+    bio: String(b.bio || '').trim().slice(0, 1000) || null,
+    days: Array.isArray(b.availableDays) ? b.availableDays.filter((d: unknown) => typeof d === 'string').slice(0, 7) : [],
+    image,
+  };
+}
+
+app.get('/api/institute/staff', auth(), h(async (req, res) => {
+  const inst = await getOwnInstitute(req, res);
+  if (!inst) return;
+  const rows = (await pool.query(`SELECT * FROM teachers WHERE institute_id = $1 ORDER BY created_at ASC`, [inst.id])).rows;
+  res.json({ allowed: benefitsOf(inst).team, max: MAX_STAFF, staff: rows.map(teacherDTO) });
+}));
+
+app.post('/api/institute/staff', auth(), h(async (req, res) => {
+  const inst = await getOwnInstitute(req, res);
+  if (!inst) return;
+  if (!benefitsOf(inst).team) return res.status(403).json({ error: 'Armar un equipo es parte del Plan Institutos', code: 'plan_required' });
+  const f = staffFields(req.body);
+  if (!f.name) return res.status(400).json({ error: 'Poné el nombre del profe' });
+  const count = Number((await pool.query('SELECT COUNT(*) FROM teachers WHERE institute_id = $1 AND user_id IS NULL', [inst.id])).rows[0].count);
+  if (count >= MAX_STAFF) return res.status(400).json({ error: `Un instituto puede tener hasta ${MAX_STAFF} profes asociados` });
+  let row = (await pool.query(
+    `INSERT INTO teachers (name, specialty, discipline, location, bio, price, available_days, images, kind, institute_id,
+                           rating, review_count, plan, plan_active, status, impressions)
+     VALUES ($1, $2, $3, $4, $5, COALESCE($6, '$8.000/clase'), $7::text[], $8::text[], 'profesor', $9, 0, 0, 'ninguno', false, 'activo', 0)
+     RETURNING *`,
+    [f.name, f.specialty, f.discipline, inst.location, f.bio, f.price, f.days, f.image ? [f.image] : [], inst.id]
+  )).rows[0];
+  row = await ensureSlug(row);
+  void locateTeacher({ ...row, address: inst.address });
+  res.status(201).json(teacherDTO(row));
+}));
+
+app.put('/api/institute/staff/:id', auth(), h(async (req, res) => {
+  const inst = await getOwnInstitute(req, res);
+  if (!inst) return;
+  if (!isUuid(req.params.id)) return res.status(404).json({ error: 'No encontrado' });
+  const f = staffFields(req.body);
+  if (!f.name) return res.status(400).json({ error: 'Poné el nombre del profe' });
+  const row = (await pool.query(
+    `UPDATE teachers SET name = $1, specialty = $2, discipline = $3, bio = $4, price = COALESCE($5, price),
+            available_days = $6::text[], images = CASE WHEN $7::text IS NULL THEN images ELSE ARRAY[$7::text] END
+     WHERE id = $8 AND institute_id = $9 AND user_id IS NULL RETURNING *`,
+    [f.name, f.specialty, f.discipline, f.bio, f.price, f.days, f.image, req.params.id, inst.id]
+  )).rows[0];
+  if (!row) return res.status(404).json({ error: 'No encontramos a ese profe en tu equipo' });
+  res.json(teacherDTO(row));
+}));
+
+app.delete('/api/institute/staff/:id', auth(), h(async (req, res) => {
+  const inst = await getOwnInstitute(req, res);
+  if (!inst) return;
+  if (!isUuid(req.params.id)) return res.status(404).json({ error: 'No encontrado' });
+  const done = await pool.query('DELETE FROM teachers WHERE id = $1 AND institute_id = $2 AND user_id IS NULL', [req.params.id, inst.id]);
+  if (!done.rowCount) return res.status(404).json({ error: 'No encontramos a ese profe en tu equipo' });
+  res.json({ success: true });
+}));
+
+// ─── Mapa ────────────────────────────────────────────────────────────────────
+// Fichas activas con su ubicación. Los institutos con Plan Institutos salen como «destacados».
+app.get('/api/map', h(async (_req, res) => {
+  const rows = (await pool.query(
+    `SELECT id, slug, name, kind, discipline, location, address, lat, lng, rating, review_count, images, plan, plan_active
+     FROM teachers t WHERE status = 'activo' AND lat IS NOT NULL AND lng IS NOT NULL
+       AND (institute_id IS NULL OR user_id IS NOT NULL OR EXISTS (SELECT 1 FROM teachers i WHERE i.id = t.institute_id AND i.plan_active))
+     ORDER BY plan_active DESC, rating DESC LIMIT 500`
+  )).rows;
+  res.json(rows.map((t) => ({
+    id: t.id, slug: t.slug, name: t.name, kind: t.kind, discipline: t.discipline, location: t.location, address: t.address,
+    lat: Number(t.lat), lng: Number(t.lng), rating: Number(t.rating) || 0, reviews: Number(t.review_count) || 0,
+    image: (t.images || [])[0] || '', isPro: benefitsOf(t).pro, isFeatured: benefitsOf(t).featuredMap,
+  })));
 }));
 
 // ─── Bookings ─────────────────────────────────────────────────────────────────
@@ -1662,13 +1872,17 @@ app.post('/api/admin/teachers', requireAdmin, h(async (req, res) => {
   if (!req.body.name) return res.status(400).json({ error: 'El nombre es obligatorio' });
   // Lo que carga el admin se publica directo, salvo que indique otro estado.
   const body = { ...req.body, plan: PLANS[req.body.plan] ? req.body.plan : 'ninguno', status: req.body.status || 'activo' };
-  res.status(201).json(teacherDTO(await insertRow('teachers', body, TEACHER_FIELDS)));
+  const created = await ensureSlug(await insertRow('teachers', body, TEACHER_FIELDS));
+  void locateTeacher(created);
+  res.status(201).json(teacherDTO(created));
 }));
 
 app.put('/api/admin/teachers/:id', requireAdmin, h(async (req, res) => {
   const teacher = await updateRow('teachers', req.params.id, req.body, TEACHER_FIELDS.filter((f) => f !== 'user_id'));
   if (!teacher) return res.status(404).json({ error: 'Profesor no encontrado' });
-  res.json(teacherDTO(teacher));
+  const saved = await ensureSlug(teacher);
+  if (req.body.address !== undefined || req.body.location !== undefined) void locateTeacher(saved);
+  res.json(teacherDTO(saved));
 }));
 
 app.delete('/api/admin/teachers/:id', requireAdmin, h(async (req, res) => {
@@ -1864,14 +2078,14 @@ app.get('/api/articles/:slug', h(async (req, res) => {
 app.get('/sitemap.xml', h(async (_req, res) => {
   const site = (process.env.SITE_URL || APP_URL).replace(/\/$/, '');
   const [listings, articles] = await Promise.all([
-    pool.query(`SELECT id, created_at FROM teachers WHERE status = 'activo'`),
+    pool.query(`SELECT id, slug, created_at FROM teachers t WHERE status = 'activo' AND (institute_id IS NULL OR user_id IS NOT NULL OR EXISTS (SELECT 1 FROM teachers i WHERE i.id = t.institute_id AND i.plan_active))`),
     pool.query(`SELECT slug, COALESCE(updated_at, published_at) AS d FROM articles WHERE status = 'publicado' AND published_at <= NOW()`),
   ]);
-  const fixed = ['', '/directorio', '/estudios', '/ranking', '/tienda', '/para-profes', '/noticias', '/nosotros', '/contacto', '/terminos', '/privacidad'];
+  const fixed = ['', '/directorio', '/estudios', '/mapa', '/ranking', '/tienda', '/para-profes', '/noticias', '/nosotros', '/contacto', '/terminos', '/privacidad'];
   const url = (loc: string, extra = '') => `<url><loc>${escapeHtml(site + loc)}</loc>${extra}</url>`;
   const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
     fixed.map((p) => url(p)).join('\n') + '\n' +
-    listings.rows.map((r) => url(`/profesor/${r.id}`, `<lastmod>${new Date(r.created_at).toISOString().slice(0, 10)}</lastmod>`)).join('\n') + '\n' +
+    listings.rows.map((r) => url(`/profesor/${r.slug || r.id}`, `<lastmod>${new Date(r.created_at).toISOString().slice(0, 10)}</lastmod>`)).join('\n') + '\n' +
     articles.rows.map((r) => url(`/noticias/${r.slug}`, `<lastmod>${new Date(r.d).toISOString().slice(0, 10)}</lastmod>`)).join('\n') +
     '\n</urlset>\n';
   res.type('application/xml').send(xml);
@@ -1978,11 +2192,13 @@ app.post('/api/smart-search', aiLimiter, h(async (req, res) => {
       return words.some((w) => haystack.includes(w));
     });
   };
-  if (!genai) return res.json(textSearch());
+  // Prioridad en IA (Destacado e Institutos): entre los resultados que ya coinciden, salen primero (orden estable).
+  const byPlan = (list: Row[]) => [...list].sort((a, b) => Number(!!b.isPro) - Number(!!a.isPro));
+  if (!genai) return res.json(byPlan(textSearch()));
 
   try {
     const summary = teachers
-      .map((t) => `ID:${t.id} | ${t.name} | ${t.specialty || ''} | ${t.discipline || ''} | ${t.location || ''} | Rating:${t.rating} | Precio:${t.price}`)
+      .map((t) => `ID:${t.id} | ${t.name} | ${t.specialty || ''} | ${t.discipline || ''} | ${t.location || ''} | Rating:${t.rating} | Precio:${t.price}${t.planKey === 'institucional' && t.schedule ? ` | Grilla de clases: ${String(t.schedule).replace(/\s+/g, ' ').slice(0, 400)}` : ''}`)
       .join('\n');
     const response = await genai.models.generateContent({
       model: GEMINI_MODEL,
@@ -1999,10 +2215,10 @@ Si ninguno coincide, respondé: []`,
     });
     const match = (response.text || '[]').match(/\[[\s\S]*\]/);
     const ids: string[] = match ? JSON.parse(match[0]) : [];
-    res.json(ids.map((id) => teachers.find((t) => t.id === id)).filter(Boolean));
+    res.json(byPlan(ids.map((id) => teachers.find((t) => t.id === id)).filter(Boolean) as Row[]));
   } catch (err) {
     console.error('[POST /api/smart-search]', err);
-    res.json(textSearch());
+    res.json(byPlan(textSearch()));
   }
 }));
 
@@ -2031,8 +2247,11 @@ async function buildAssistantContext(message: string, content: Record<string, an
   const words = q.split(/[^a-z0-9]+/).filter((w) => w.length > 3 && !['quiero', 'busco', 'necesito', 'para', 'clases', 'clase', 'profe', 'profesor', 'profesora', 'donde', 'tienen', 'hola', 'gracias'].includes(w));
 
   const [listings, counts, products, articles, prices] = await Promise.all([
-    pool.query(`SELECT id, name, kind, discipline, specialty, location, price, rating, review_count, available_days, bio, address, hours
-                FROM teachers WHERE status = 'activo' ORDER BY plan_active DESC, rating DESC, review_count DESC LIMIT 200`),
+    pool.query(`SELECT id, name, kind, discipline, specialty, location, price, rating, review_count, available_days, bio, address, hours,
+                       schedule, plan, plan_active
+                FROM teachers t WHERE status = 'activo'
+                  AND (institute_id IS NULL OR user_id IS NOT NULL OR EXISTS (SELECT 1 FROM teachers i WHERE i.id = t.institute_id AND i.plan_active))
+                ORDER BY plan_active DESC, rating DESC, review_count DESC LIMIT 200`),
     pool.query(`SELECT COUNT(*) FILTER (WHERE kind = 'profesor') AS teachers, COUNT(*) FILTER (WHERE kind = 'instituto') AS institutes,
                        ARRAY_REMOVE(ARRAY_AGG(DISTINCT NULLIF(TRIM(location), '')), NULL) AS zones FROM teachers WHERE status = 'activo'`),
     pool.query(`SELECT name, price, category, stock FROM products WHERE active = true AND stock > 0 ORDER BY created_at DESC LIMIT 40`),
@@ -2041,7 +2260,9 @@ async function buildAssistantContext(message: string, content: Record<string, an
   ]);
 
   const scored = listings.rows.map((t) => {
-    const hay = normalize([t.name, t.discipline, t.specialty, t.location, t.bio].join(' '));
+    const benefits = benefitsOf(t);
+    // Solo el Plan Institutos «entrena» a la IA con la grilla de clases; el resto aporta sus datos básicos.
+    const hay = normalize([t.name, t.discipline, t.specialty, t.location, t.bio, benefits.aiSchedule ? t.schedule : ''].join(' '));
     let score = 0;
     if (zones.some((z) => normalize(t.location || '').includes(normalize(z)))) score += 6;
     if (days.length && (t.available_days || []).some((d: string) => days.includes(normalize(d).slice(0, 3)))) score += 3;
@@ -2049,6 +2270,8 @@ async function buildAssistantContext(message: string, content: Record<string, an
     if (/pilates|reformer/.test(q) && /pilates/.test(hay)) score += 3;
     if (/yoga/.test(q) && /yoga/.test(hay)) score += 3;
     if (/estudio|instituto|centro/.test(q) && t.kind === 'instituto') score += 3;
+    // Prioridad en IA (Destacado e Institutos): a igual relevancia, se recomienda primero. Nunca aparece algo que no coincide.
+    if (score > 0 && benefits.aiPriority) score += 4;
     return { t, score };
   });
   const asked = zones.length || days.length || words.length || /yoga|pilates|estudio|instituto|profe/.test(q);
@@ -2057,7 +2280,7 @@ async function buildAssistantContext(message: string, content: Record<string, an
 
   const c = counts.rows[0];
   const fichas = picked.length
-    ? picked.map(({ t }) => `- ID:${t.id} | ${clean(t.name, 80)} (${t.kind}) | ${clean(t.discipline, 40)} · ${clean(t.specialty, 80)} | ${clean(t.location, 40)} | ${clean(t.price, 30)} | valoración ${Number(t.rating) || 0}/5 (${t.review_count} reseñas) | días: ${(t.available_days || []).join(',') || 's/d'}${t.kind === 'instituto' ? ` | ${clean(t.address, 80)} ${clean(t.hours, 60)}` : ''} | ${clean(t.bio, 160)}`).join('\n')
+    ? picked.map(({ t }) => `- ID:${t.id} | ${clean(t.name, 80)} (${t.kind}) | ${clean(t.discipline, 40)} · ${clean(t.specialty, 80)} | ${clean(t.location, 40)} | ${clean(t.price, 30)} | valoración ${Number(t.rating) || 0}/5 (${t.review_count} reseñas) | días: ${(t.available_days || []).join(',') || 's/d'}${t.kind === 'instituto' ? ` | ${clean(t.address, 80)} ${clean(t.hours, 60)}` : ''}${benefitsOf(t).aiSchedule && t.schedule ? ` | GRILLA DE CLASES: ${clean(t.schedule, 700)}` : ''} | ${clean(t.bio, 160)}`).join('\n')
     : '(todavía no hay fichas publicadas que coincidan; decile con honestidad que estamos sumando profes y ofrecé mirar zonas cercanas o escribir desde Contacto)';
 
   const planBlock = Object.keys(PLANS).map((id) => {
@@ -2254,6 +2477,22 @@ async function expirePlans(): Promise<void> {
 
 // ─── Start ────────────────────────────────────────────────────────────────────
 
+// Al arrancar: da dirección propia y ubicación en el mapa a las fichas que todavía no la tienen (de a una por segundo).
+async function backfillListings(): Promise<void> {
+  try {
+    const noSlug = (await pool.query('SELECT * FROM teachers WHERE slug IS NULL')).rows;
+    for (const t of noSlug) await ensureSlug(t);
+    const noPlace = (await pool.query('SELECT * FROM teachers WHERE lat IS NULL OR lng IS NULL')).rows;
+    for (const t of noPlace) {
+      await locateTeacher(t);
+      if (t.address) await new Promise((r) => setTimeout(r, 1100));
+    }
+    if (noSlug.length || noPlace.length) console.log(`[fichas] direcciones propias: ${noSlug.length}, ubicadas en el mapa: ${noPlace.length}`);
+  } catch (err) {
+    console.error('[fichas] no se pudo completar', err);
+  }
+}
+
 app.listen(PORT, async () => {
   console.log(`\n🧘 Omia API — ${NODE_ENV}`);
   console.log(`   Listening on port ${PORT}`);
@@ -2266,6 +2505,7 @@ app.listen(PORT, async () => {
     await seedAdmin();
     await expirePlans();
     setInterval(expirePlans, 60 * 60 * 1000).unref();
+    void backfillListings();
   } catch (err) {
     console.error('[DB] Connection FAILED:', err);
   }

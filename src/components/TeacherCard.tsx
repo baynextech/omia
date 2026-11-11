@@ -5,6 +5,8 @@ import { useFavorites } from "../hooks/useFavorites";
 import { ReviewModal } from "./ReviewModal";
 import { Link } from "react-router-dom";
 import { motion } from "motion/react";
+import { ProBadge } from "./ProBadge";
+import { profileUrl } from "../lib/links";
 
 export interface Teacher {
   id: string;
@@ -21,6 +23,13 @@ export interface Teacher {
   email?: string;
   phone?: string;
   images?: string[];
+  slug?: string | null;
+  isPro?: boolean;
+  isFeatured?: boolean;
+  kind?: "profesor" | "instituto";
+  schedule?: string | null;
+  hours?: string | null;
+  address?: string | null;
 }
 
 export function TeacherCard({ teacher, onToggleFavoriteOverride }: { teacher: Teacher; onToggleFavoriteOverride?: (id: string, isFavorited: boolean) => void }) {
@@ -66,11 +75,14 @@ export function TeacherCard({ teacher, onToggleFavoriteOverride }: { teacher: Te
 
           {/* Top badges */}
           <div className="absolute top-4 left-4 right-4 flex items-start justify-between z-10">
-            {localTeacher.discipline && (
-              <span className="text-[10px] font-bold px-2.5 py-1 rounded-sm uppercase tracking-wider bg-bosque/80 backdrop-blur-sm text-salvia-claro border border-salvia/30">
-                {localTeacher.discipline}
-              </span>
-            )}
+            <div className="flex items-center gap-1.5 flex-wrap">
+              {localTeacher.discipline && (
+                <span className="text-[10px] font-bold px-2.5 py-1 rounded-sm uppercase tracking-wider bg-bosque/80 backdrop-blur-sm text-salvia-claro border border-salvia/30">
+                  {localTeacher.discipline}
+                </span>
+              )}
+              {localTeacher.isPro && <ProBadge />}
+            </div>
             <div className="flex items-center gap-1.5 ml-auto">
               <motion.button
                 className="bg-bosque/70 backdrop-blur-sm p-2 rounded-full cursor-pointer hover:bg-bosque transition-colors"
@@ -122,7 +134,7 @@ export function TeacherCard({ teacher, onToggleFavoriteOverride }: { teacher: Te
 
           <div className="flex gap-2">
             <Link
-              to={`/profesor/${localTeacher.id}`}
+              to={profileUrl(localTeacher)}
               className="flex-1 bg-bosque hover:bg-bosque-profundo active:scale-[0.97] text-lino py-3 rounded-full font-medium transition-all text-center text-sm"
             >
               Ver Perfil

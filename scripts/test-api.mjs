@@ -53,6 +53,31 @@ test("registro, ficha y suscripción mensual", async () => {
   assert.equal(dup.status, 409, "no se duplican suscripciones activas");
 });
 
+test("beneficios del Plan Destacado: insignia Pro, estadísticas, 5 fotos, URL propia y mapa", async () => {
+  const img = (n) => Array.from({ length: n }, (_, i) => `https://example.com/foto-${i}.jpg`);
+  const six = await call("/api/teachers/create-or-update", { method: "POST", token, body: { name: "Test", images: img(6) } });
+  assert.equal(six.status, 400, "Destacado incluye hasta 5 fotos");
+  assert.equal(six.data.code, "photo_limit");
+  const five = await call("/api/teachers/create-or-update", { method: "POST", token, body: { name: "Test", images: img(5) } });
+  assert.equal(five.status, 200);
+  assert.ok(five.data.teacher.slug, "cada ficha tiene su dirección propia");
+  assert.equal(five.data.teacher.isPro, true, "insignia Pro dorada");
+
+  const stats = await call("/api/user/teacher-stats", { token });
+  assert.notEqual(stats.data.locked, true, "el dashboard de estadísticas está incluido");
+
+  const bySlug = await call(`/api/teachers/${five.data.teacher.slug}`);
+  assert.equal(bySlug.status, 200);
+  assert.equal(bySlug.data.id, five.data.teacher.id);
+  assert.equal(bySlug.data.images.length, 5);
+
+  const team = await call("/api/institute/staff", { token });
+  assert.equal(team.status, 403, "los profes asociados son del Plan Institutos");
+  const map = await call("/api/map");
+  assert.equal(map.status, 200);
+  assert.ok(Array.isArray(map.data));
+});
+
 test("el navegador no puede activar un plan sin pagar", async () => {
   const other = `otro-${run}@prueba.test`;
   const reg = await call("/api/auth/register", { method: "POST", body: { email: other, password, name: "Otro", role: "profesor", acceptTerms: true } });
@@ -68,6 +93,12 @@ test("el navegador no puede activar un plan sin pagar", async () => {
 test("cambio de plan y baja conservan lo pagado", async () => {
   const change = await call("/api/subscriptions/change", { method: "POST", token, body: { plan: "inicial" } });
   assert.equal(change.data.subscription.plan, "inicial");
+  const locked = await call("/api/user/teacher-stats", { token });
+  assert.equal(locked.data.locked, true, "con Inicial el dashboard de estadísticas queda bloqueado");
+  const tooMany = await call("/api/teachers/create-or-update", { method: "POST", token, body: { name: "Test", images: ["https://example.com/a.jpg", "https://example.com/b.jpg"] } });
+  assert.equal(tooMany.status, 400, "Inicial incluye 1 foto");
+  const pro = await call("/api/auth/me", { token });
+  assert.equal(pro.data.profile.benefits.pro, false, "Inicial no tiene insignia Pro");
   const cancel = await call("/api/subscriptions/cancel", { method: "POST", token });
   assert.equal(cancel.data.subscription.status, "cancelada");
   const me = await call("/api/auth/me", { token });

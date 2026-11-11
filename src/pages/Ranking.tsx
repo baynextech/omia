@@ -1,3 +1,4 @@
+import { profileUrl } from "../lib/links";
 import { useContent } from "../contexts/ContentContext";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
@@ -68,7 +69,7 @@ export function Ranking() {
           {ranking.map(t => (
             <li key={t.id}>
               <Link
-                to={`/profesor/${t.id}`}
+                to={profileUrl(t)}
                 className="flex items-center gap-4 bg-white border border-lino-oscuro rounded-2xl p-4 hover:shadow-md hover:border-salvia transition-all"
               >
                 <span className={`w-10 text-center text-2xl font-mono font-bold shrink-0 ${t.position <= 3 ? "text-salvia-oscuro" : "text-[#C9C2B2]"}`}>

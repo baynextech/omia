@@ -1,3 +1,4 @@
+import { profileUrl } from "../lib/links";
 import { Photo } from "../components/Photo";
 import { useState, useEffect } from "react";
 import { apiFetch } from "../lib/api";
@@ -193,7 +194,7 @@ export function Home() {
                     <div className="text-center px-6">
                       <p className="text-white font-serif text-xl mb-1">{t.name}</p>
                       <p className="text-salvia text-xs mb-6">{t.specialty}</p>
-                      <a href={`/profesor/${t.id}`} className="inline-block bg-bosque hover:bg-bosque-profundo text-lino px-7 py-3 text-sm font-semibold transition-colors" style={{ borderRadius: 5 }}>
+                      <a href={profileUrl(t)} className="inline-block bg-bosque hover:bg-bosque-profundo text-lino px-7 py-3 text-sm font-semibold transition-colors" style={{ borderRadius: 5 }}>
                         Ver Perfil
                       </a>
                     </div>

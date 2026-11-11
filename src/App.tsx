@@ -3,6 +3,7 @@ import { RootLayout } from "./layouts/RootLayout";
 import { Home } from "./pages/Home";
 import { Directory } from "./pages/Directory";
 import { Studios } from "./pages/Studios";
+import { MapPage } from "./pages/MapPage";
 import { ForTeachers } from "./pages/ForTeachers";
 import { Favorites } from "./pages/Favorites";
 import { UserProfile } from "./pages/UserProfile";
@@ -26,6 +27,7 @@ export default function App() {
             <Route index element={<Home />} />
             <Route path="directorio" element={<Directory />} />
             <Route path="estudios" element={<Studios />} />
+            <Route path="mapa" element={<MapPage />} />
             <Route path="ranking" element={<Ranking />} />
             <Route path="para-profes" element={<ForTeachers />} />
             <Route path="favoritos" element={<Favorites />} />

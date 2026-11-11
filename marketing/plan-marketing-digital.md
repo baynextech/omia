@@ -4,7 +4,34 @@
 
 Es un mercado de dos lados: la **oferta** (profes e institutos) paga y la **demanda** (alumnos) llena el directorio de movimiento. Por eso el plan va en este orden: primero la oferta, después la demanda barrio por barrio.
 
-**Meta a 30 días:** 1 cliente pago de cada tipo que paga (2 en total), 15 fichas gratuitas reales cargadas y las primeras solicitudes de clase de alumnos reales. Meta a 90 días: 5 profes y 2 institutos pagos y 30 solicitudes de clase por mes. Son metas de trabajo, no promesas: dependen de cuántas conversaciones se hagan por semana.
+**Meta final: 50 profesores particulares + 50 institutos, los dos tipos, pagando la membresía mensual** (100 clientes). *Supuesto a confirmar: que los 50 y 50 son clientes que pagan, no solo fichas cargadas, y que el plazo no está fijado todavía.* Los primeros 30 días siguen siendo los de arranque: 15 fichas reales cargadas, el primer cliente pago de cada tipo y las primeras solicitudes de clase.
+
+## Meta: 50 + 50, hecha números
+
+**Cuánto significa:** con los precios de lista, 50 profes (Inicial $39.900 o Destacado $43.900) y 50 institutos ($49.900) suman entre **$4,49 y $4,69 millones por mes**, antes de comisiones de Mercado Pago e impuestos.
+
+**Cuántos contactos hacen falta** (todos los porcentajes son hipótesis para ajustar con datos reales de las primeras semanas, no datos de mercado):
+
+| Paso (por cada tipo de cliente) | Hipótesis | Para llegar a 50 pagos |
+|---|---|---|
+| Pasan a pagar después de la prueba gratis | 30 % | 167 fichas cargadas |
+| Cargan ficha entre los que contestan | 50 % | 333 respuestas |
+| Contestan entre los contactados | 25 % | ≈ 1.300 contactos |
+
+**Cuánto tarda, según la oferta** (cargando 30 fichas nuevas por mes de cada tipo, que equivale a unos 240 contactos mensuales, 60 por semana):
+
+| Oferta | Fichas necesarias | Meses para juntarlas | Primer cobro de cada una | Llegás a 50 + 50 pagos en |
+|---|---|---|---|---|
+| **A.** 3 meses gratis, pasa el 30 % | 167 por tipo | ≈ 5,5 | +3 meses | **≈ 9 meses** |
+| **B.** 1 mes gratis, pasa el 40 % | 125 por tipo | ≈ 4 | +1 mes | **≈ 5 a 6 meses** |
+
+Con 15 fichas nuevas por mes en vez de 30, los plazos casi se duplican (A ≈ 14 meses). Por eso la meta de 50 + 50 depende más del ritmo de contactos y de la oferta que de cualquier anuncio.
+
+**Qué significa para el trabajo:**
+- 60 contactos por semana por tipo son **120 por semana en total**. Para una sola persona son unas 15 horas por semana solo de mensajes y seguimiento: conviene repartirlo o automatizarlo (planilla compartida, plantillas, recordatorios; el n8n que ya tenés sirve para los seguimientos).
+- **Institutos:** antes de comprometerse con 50 hay que contar cuántos estudios de yoga y pilates existen en la zona de trabajo (CABA y GBA). No lo verifiqué: si el total son 150, conseguir 50 es una tercera parte del mercado y hay que abrir otras ciudades. Primer paso: armar la lista completa de estudios con nombre, barrio y contacto.
+- **Cobrar antes cuesta menos:** con la oferta A el primer cobro de cada cliente llega 3 meses después de la alta, y durante todo ese tiempo no hay ingresos. La oferta B adelanta la plata y muestra antes si la gente paga de verdad. Se puede reservar los 3 meses gratis solo para los primeros 30 «fundadores».
+- **Qué mueve la aguja** (por orden de impacto): cargarles la ficha nosotros, que ya tengan reseñas reales visibles, alianzas con escuelas de formación (traen decenas de profes juntos) y los referidos de los que ya están.
 
 ## 0. Antes de gastar un peso (la parte que más importa)
 Hoy el directorio, el ranking y la tienda están vacíos. Si un profe entra a mirar y no ve a nadie, no paga. Por eso:

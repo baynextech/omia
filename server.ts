@@ -323,11 +323,18 @@ function emailLayout(title: string, bodyHtml: string, cta?: { label: string; url
 <p style="color:#888;font-size:12px;margin-top:32px">Omia · Yoga &amp; Pilates · <a href="${APP_URL}" style="color:#888">${APP_URL.replace(/^https?:\/\//, '')}</a></p></div>`;
 }
 
+// Bandeja de mails SOLO para desarrollo (sin RESEND_API_KEY): guarda lo que se enviaría para verlo en /dev/mailbox.
+const devMailbox: { id: number; at: Date; to: string; subject: string; html: string }[] = [];
+
 // Nunca interrumpe el flujo que lo llama: si el mail falla se registra y se sigue.
 async function sendEmail(to: string, subject: string, html: string): Promise<void> {
   if (!to) return;
   if (!RESEND_API_KEY) {
     console.log(`[mail] (sin RESEND_API_KEY) → ${to}: ${subject}`);
+    if (!IS_PROD) {
+      devMailbox.unshift({ id: devMailbox.length ? devMailbox[0].id + 1 : 1, at: new Date(), to, subject, html });
+      if (devMailbox.length > 2000) devMailbox.length = 2000;
+    }
     // Solo en desarrollo: muestra los enlaces del mail para poder probar los flujos sin casilla real.
     if (!IS_PROD) for (const m of html.matchAll(/href="([^"]+)"/g)) console.log(`[mail]   enlace: ${m[1].replace(/&amp;/g, '&')}`);
     return;
@@ -2170,6 +2177,59 @@ app.post('/api/chat', aiLimiter, h(async (req, res) => {
     res.json({ text, reply: text });
   }
 }));
+
+// ─── Herramientas SOLO de desarrollo (no existen en producción) ──────────────
+
+if (!IS_PROD) {
+  // Bandeja de entrada de prueba: todos los mails que el servidor "enviaría".
+  app.get('/dev/mailbox', (req, res) => {
+    const q = String(req.query.q || '').toLowerCase();
+    const rows = devMailbox.filter((m) => !q || `${m.to} ${m.subject}`.toLowerCase().includes(q)).slice(0, 300);
+    const counts = new Map<string, number>();
+    for (const m of devMailbox) counts.set(m.subject, (counts.get(m.subject) || 0) + 1);
+    res.type('html').send(`<!doctype html><meta charset="utf-8"><title>Bandeja de pruebas — Omia</title>
+<style>body{font:14px system-ui;margin:0;background:#f5f3ee;color:#222}header{padding:16px 24px;background:#5F7348;color:#fff}
+main{display:grid;grid-template-columns:420px 1fr;height:calc(100vh - 120px)}ul{margin:0;padding:0;list-style:none;overflow:auto;background:#fff;border-right:1px solid #ddd;flex:1}
+li a{display:block;padding:10px 16px;border-bottom:1px solid #eee;text-decoration:none;color:inherit}li a:hover{background:#f0f4ea}
+small{color:#777}iframe{width:100%;height:100%;border:0;background:#fff}.tags span{display:inline-block;background:#fff3;border-radius:99px;padding:2px 10px;margin:6px 6px 0 0;font-size:12px}
+form{padding:8px 16px;background:#fff;border-bottom:1px solid #ddd}input{width:100%;padding:6px;box-sizing:border-box}</style>
+<header><b>📬 Bandeja de pruebas</b> · ${devMailbox.length} mails (solo desarrollo; no sale nada a Internet)
+<div class="tags">${[...counts].map(([s, n]) => `<span>${escapeHtml(s)}: ${n}</span>`).join('')}</div></header>
+<main><div style="display:flex;flex-direction:column;min-height:0"><form><input name="q" placeholder="Filtrar por destinatario o asunto (Enter)" value="${escapeHtml(String(req.query.q || ''))}"></form>
+<ul>${rows.map((m) => `<li><a href="/dev/mailbox/${m.id}" target="v"><b>${escapeHtml(m.subject)}</b><br><small>${escapeHtml(m.to)} · ${m.at.toLocaleString('es-AR')}</small></a></li>`).join('')}</ul></div>
+<iframe name="v" src="${rows[0] ? `/dev/mailbox/${rows[0].id}` : 'about:blank'}"></iframe></main>`);
+  });
+  app.get('/dev/mailbox/:id', (req, res) => {
+    const mail = devMailbox.find((m) => m.id === Number(req.params.id));
+    if (!mail) return res.status(404).send('No existe');
+    res.type('html').send(`<div style="font:13px system-ui;padding:10px 16px;background:#f5f3ee;border-bottom:1px solid #ddd"><b>Para:</b> ${escapeHtml(mail.to)}<br><b>Asunto:</b> ${escapeHtml(mail.subject)}</div>${mail.html}`);
+  });
+
+  // Hace "pasar un mes" para una suscripción: cobro ok, cobro rechazado, baja o vencimiento.
+  app.post('/api/dev/subscriptions/:id/renew', h(async (req, res) => {
+    const sub = (await pool.query('SELECT * FROM subscriptions WHERE id = $1', [req.params.id])).rows[0];
+    if (!sub) return res.status(404).json({ error: 'Suscripción no encontrada' });
+    const outcome = String(req.body.outcome || 'ok');
+    const paymentId = `sim-${String(sub.id).slice(0, 8)}-${Date.now()}`;
+    const user = (await pool.query('SELECT * FROM users WHERE id = $1', [sub.user_id])).rows[0];
+    if (outcome === 'ok') {
+      await recordSubscriptionPayment(sub, paymentId, true);
+      const next = new Date(Date.now() + PLAN_DAYS * 86400000);
+      await pool.query(`UPDATE subscriptions SET status = 'activa', last_payment_at = NOW(), next_payment_at = $2 WHERE id = $1`, [sub.id, next]);
+      await pool.query(`UPDATE teachers SET plan_active = true, plan_expires_at = $2 WHERE id = $1`, [sub.teacher_id, new Date(next.getTime() + GRACE_DAYS * 86400000)]);
+    } else if (outcome === 'fail') {
+      await recordSubscriptionPayment(sub, paymentId, false);
+    } else if (outcome === 'cancel') {
+      await pool.query(`UPDATE subscriptions SET status = 'cancelada', cancelled_at = NOW() WHERE id = $1`, [sub.id]);
+      if (user) void mails.subscriptionCancelled(user, sub.plan, sub.next_payment_at);
+    } else if (outcome === 'expire') {
+      await pool.query(`UPDATE subscriptions SET status = 'vencida' WHERE id = $1`, [sub.id]);
+      await pool.query(`UPDATE teachers SET plan_active = false, plan_expires_at = NOW() - interval '1 day' WHERE id = $1`, [sub.teacher_id]);
+      if (user) void mails.subscriptionExpired(user);
+    } else return res.status(400).json({ error: 'outcome: ok | fail | cancel | expire' });
+    res.json({ success: true, outcome });
+  }));
+}
 
 // ─── Static (production SPA) ──────────────────────────────────────────────────
 

@@ -10,6 +10,7 @@ import { UserAvatar } from "../components/UserMenu";
 import { Logo } from "../components/Logo";
 import { InstituteTeam } from "../components/InstituteTeam";
 import { SupportCard } from "../components/SupportCard";
+import { PageBuilderCard } from "../components/PageBuilderCard";
 import { ProBadge } from "../components/ProBadge";
 import { profileUrl } from "../lib/links";
 
@@ -1058,12 +1059,22 @@ export function UserProfile() {
                       ? "Tu publicación está online. Podés compartir este enlace: "
                       : "Para que aparezca en el directorio, activá tu plan en la pestaña Plan Premium. Así se va a ver: "}
                     <Link to={`/profesor/${(profile as any).teacherSlug || profile.teacherId}`} className="font-bold underline text-bosque">
-                      {window.location.origin}/profesor/{profile.teacherId}
+                      {window.location.origin}/profesor/{(profile as any).teacherSlug || profile.teacherId}
                     </Link>
                   </p>
                 </div>
               </div>
             )}
+
+            <PageBuilderCard
+              form={landingForm}
+              slug={(profile as any).teacherSlug || null}
+              teacherId={profile.teacherId}
+              status={profile.teacherStatus}
+              isInstitute={profile.role === "instituto"}
+              authHeaders={authHeaders}
+              onSlug={(slug) => setProfile((p) => ({ ...p, teacherSlug: slug } as any))}
+            />
 
             <form onSubmit={handleSaveLanding} className="bg-white border border-lino-oscuro rounded-3xl p-8 shadow-sm flex flex-col gap-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1241,6 +1252,11 @@ export function UserProfile() {
                 {(landingForm.images || []).length > 0 && (
                   <div className="mb-6 bg-lino/50 p-4 rounded-2xl border border-lino-oscuro">
                     <p className="text-xs text-musgo font-semibold mb-3">Tus imágenes en la Galería ({landingForm.images.length} de {photoLimit} que incluye tu plan):</p>
+                    {landingForm.images.length > photoLimit && (
+                      <p className="text-xs bg-[#FFF9E8] border border-[#E4C56A] text-[#6B4A06] rounded-xl px-3 py-2 mb-3">
+                        Tu plan incluye {photoLimit} {photoLimit === 1 ? "foto" : "fotos"}: en tu ficha pública se muestra{photoLimit === 1 ? " solo la primera (la «Portada»)" : `n las primeras ${photoLimit}`}. Quitá las que sobran para guardar{planKey === "inicial" ? " o pasate al Plan Destacado para mostrar hasta 5" : ""}.
+                      </p>
+                    )}
                     <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
                       {(landingForm.images || []).map((img, idx) => (
                         <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border border-lino-oscuro group/thumb bg-white">
@@ -1355,7 +1371,7 @@ export function UserProfile() {
                       <span className="font-semibold uppercase tracking-wider text-sm">Tu membresía está activa</span>
                     </div>
                     <h2 className="text-2xl font-semibold text-bosque mb-2">
-                      {profile.plan === "inicial" ? "Plan Inicial" : profile.plan === "institucional" ? "Plan Institucional" : "Plan Destacado"}
+                      {profile.plan === "inicial" ? "Plan Inicial" : profile.plan === "institucional" ? "Plan Institutos" : "Plan Destacado"}
                     </h2>
                     <p className="text-musgo max-w-xl text-sm leading-relaxed">
                       Tu ficha está publicada en el directorio. Podés editar tu página en cualquier momento, ver tus estadísticas y recibir solicitudes de clase sin comisiones.

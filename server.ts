@@ -1093,6 +1093,21 @@ app.post('/api/teachers/create-or-update', auth(), h(async (req, res) => {
   res.json({ success: true, teacher: teacherDTO(teacher), userProfile: profileDTO(user, teacher) });
 }));
 
+// Dirección propia editable: omia.site/profesor/<tu-nombre>. Solo letras, números y guiones; no se puede repetir.
+app.put('/api/teacher/slug', auth(), h(async (req, res) => {
+  const teacher = await getTeacherByUser(req.user!.id);
+  if (!teacher) return res.status(404).json({ error: 'Primero armá tu ficha' });
+  const slug = slugify(String(req.body.slug || ''));
+  if (slug.length < 3) return res.status(400).json({ error: 'Usá al menos 3 letras o números' });
+  if (isUuid(slug)) return res.status(400).json({ error: 'Elegí una dirección con tu nombre' });
+  const done = await pool.query(
+    `UPDATE teachers SET slug = $1 WHERE id = $2 AND NOT EXISTS (SELECT 1 FROM teachers WHERE slug = $1 AND id <> $2) RETURNING slug`,
+    [slug, teacher.id]
+  );
+  if (!done.rows[0]) return res.status(409).json({ error: 'Esa dirección ya la usa otra página. Probá con otra.' });
+  res.json({ slug: done.rows[0].slug });
+}));
+
 app.get('/api/user/teacher-stats', auth(), h(async (req, res) => {
   const empty = { impressions: 0, visitors: [], bookings: 0, rating: 0, reviews: 0 };
   const teacher = await getTeacherByUser(req.user!.id);

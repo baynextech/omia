@@ -14,7 +14,7 @@ export function SupportCard({ name, ficha }: { name: string; ficha?: string | nu
       <div className="flex flex-col sm:flex-row gap-3">
         <a href={`mailto:${mail}?subject=${encodeURIComponent(`Soporte Plan Institutos – ${name}`)}&body=${encodeURIComponent(msg)}`} className="inline-flex items-center justify-center gap-2 bg-bosque hover:bg-bosque-profundo text-lino px-6 py-3 rounded-full text-sm font-semibold"><Mail className="w-4 h-4" />Escribir por mail</a>
         {wa ? <a href={`https://wa.me/${wa}?text=${encodeURIComponent(msg)}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1fb857] text-white px-6 py-3 rounded-full text-sm font-semibold"><MessageCircle className="w-4 h-4" />Escribir por WhatsApp</a>
-          : <span className="text-sm text-musgo self-center">El WhatsApp de soporte se carga en Admin → Sitio → Contacto.</span>}
+          : <span className="text-sm text-musgo self-center">Respondemos dentro de las próximas 48 horas hábiles.</span>}
       </div>
     </div>
   );

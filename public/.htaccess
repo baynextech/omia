@@ -6,8 +6,13 @@
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteCond %{REQUEST_FILENAME} !-l
-  RewriteRule . /index.html [L]
+  # Solo las rutas dinámicas de la app (fichas, notas, panel de cuenta, admin) caen en el index.html.
+  # Cualquier otra ruta que no exista responde 404 de verdad (ErrorDocument de abajo) y no se indexa.
+  RewriteRule ^(profesor|noticias|admin|perfil|favoritos|login|registro|shop)(/|$) /index.html [L]
 </IfModule>
+
+# 404.html es la misma app: en el navegador se ve la página «No encontramos esta página», pero el código HTTP es 404.
+ErrorDocument 404 /404.html
 
 # Enable Gzip Compression for World-Class PageSpeed/SEO
 <IfModule mod_deflate.c>

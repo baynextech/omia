@@ -93,7 +93,10 @@ for (const p of STATIC) {
   count++;
 }
 
-const sitemap = [{ loc: `${SITE}/` }, ...STATIC.filter((p) => p.path !== "/arrepentimiento").map((p) => ({ loc: `${SITE}${p.path}` }))];
+// 404.html: lo sirve el hosting (ErrorDocument en .htaccess) con código 404 para las rutas que no existen.
+await writeFile(path.join(DIST, "404.html"), page({ route: "/404", title: "Página no encontrada", description: "La página que buscás no existe o ya no está publicada.", noindex: true }));
+
+const sitemap = [{ loc: `${SITE}/` },...STATIC.filter((p) => p.path !== "/arrepentimiento").map((p) => ({ loc: `${SITE}${p.path}` }))];
 
 if (API) {
   const [listings, articles] = await Promise.all([getJson(`${API}/api/teachers`), getJson(`${API}/api/articles?limit=50`)]);

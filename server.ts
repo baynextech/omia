@@ -93,6 +93,7 @@ const SIMULATED_PAYMENTS = !mp && !IS_PROD;
 // ─── Express App ─────────────────────────────────────────────────────────────
 
 const app = express();
+app.disable('x-powered-by'); // no anunciar qué framework usa la API
 app.set('trust proxy', 1);
 
 // ─── CORS ────────────────────────────────────────────────────────────────────
@@ -1498,6 +1499,12 @@ function validWebhookSignature(req: Request, dataId: string): boolean {
   return expected.length === parts.v1.length && crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(parts.v1));
 }
 
+// ¿El error viene de que Mercado Pago no encontró el recurso? (SDK: status/statusCode 404; mpApi: «respondió 404»).
+function isMpNotFound(err: unknown): boolean {
+  const e = err as { status?: unknown; statusCode?: unknown; message?: unknown } | null;
+  return e?.status === 404 || e?.statusCode === 404 || / 404 /.test(String(e?.message || ''));
+}
+
 // Aviso de Mercado Pago. El cuerpo solo trae un id: el estado real se consulta siempre en su API.
 app.post('/api/webhooks/mercadopago', h(async (req, res) => {
   const topic = String(req.body?.type || req.query.type || req.query.topic || '');
@@ -1534,6 +1541,11 @@ app.post('/api/webhooks/mercadopago', h(async (req, res) => {
       console.log(`[MP webhook] cobro de suscripción ${dataId}: ${sub ? authorized.status : 'suscripción desconocida'}`);
     }
   } catch (err) {
+    // Un id que Mercado Pago no conoce (404) no mejora reintentando: se responde 200 y se registra.
+    if (isMpNotFound(err)) {
+      console.warn(`[MP webhook] ${topic} ${dataId}: Mercado Pago no lo conoce, se ignora`);
+      return res.sendStatus(200);
+    }
     console.error('[MP webhook]', err);
     return res.sendStatus(500); // Mercado Pago reintenta
   }

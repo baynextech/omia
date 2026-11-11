@@ -30,6 +30,7 @@ export interface CartItem {
 export function Shop() {
   const { t, pairs, img } = useContent();
   const [products, setProducts] = useState<Product[]>([]);
+  const [loaded, setLoaded] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>("Todos");
 
   // Los productos se cargan desde el panel de administración.
@@ -37,8 +38,12 @@ export function Shop() {
     apiFetch("/api/products")
       .then(res => res.json())
       .then(data => setProducts(Array.isArray(data) ? data : []))
-      .catch(err => console.error(err));
+      .catch(err => console.error(err))
+      .finally(() => setLoaded(true));
   }, []);
+
+  // Sin productos cargados no se muestran carrito, promesas de envío ni filtros: solo el aviso.
+  const comingSoon = loaded && products.length === 0;
 
   const [selectedDiscipline, setSelectedDiscipline] = useState<string>("Todas");
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -188,7 +193,7 @@ export function Shop() {
         </div>
 
         {/* Cart Quick Button */}
-        <div className="relative shrink-0">
+        {!comingSoon && <div className="relative shrink-0">
           <button 
             onClick={() => setIsCartOpen(true)}
             className="bg-[#2C2C2C] hover:bg-black text-white px-7 py-4 rounded-sm font-medium transition-all shadow-md hover:shadow-lg flex items-center gap-3 cursor-pointer group"
@@ -201,9 +206,17 @@ export function Shop() {
               </span>
             )}
           </button>
-        </div>
+        </div>}
       </div>
 
+      {comingSoon ? (
+        <div className="py-16 text-center bg-[#F4EFE4] rounded-3xl border border-[#E8E0D0] max-w-xl mx-auto p-8">
+          <ShoppingBag className="w-12 h-12 text-[#98A77C] mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-[#2C2C2C] mb-1">Muy pronto</h3>
+          <p className="text-sm text-[#5D5D5D]">Estamos trabajando para que puedas comprar los mejores productos de forma fácil y segura.</p>
+        </div>
+      ) : (
+      <>
       {/* Guarantees Strip */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
         {pairs("shop.badges").map(({ a: title, b: desc }, i) => {
@@ -361,6 +374,8 @@ export function Shop() {
           </div>
         )}
       </AnimatePresence>
+      </>
+      )}
 
       {/* QUICK VIEW MODAL */}
       <AnimatePresence>

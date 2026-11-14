@@ -1,3 +1,4 @@
+import { ModalA11y } from "./ModalA11y";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { X, Mail, Lock, User, AlertCircle, Eye, EyeOff } from "lucide-react";
@@ -157,9 +158,11 @@ export function AuthModal({ isOpen, onClose, initialMode = "login" }: AuthModalP
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
+      <ModalA11y onClose={onClose} label="Ingresar o crear una cuenta" />
       <div className="relative w-full max-w-md bg-white rounded-3xl p-8 shadow-2xl animate-in zoom-in-95 duration-200">
         <button
           onClick={onClose}
+          aria-label="Cerrar"
           className="absolute top-6 right-6 text-musgo hover:text-bosque transition-colors p-2 rounded-full hover:bg-black/5"
         >
           <X className="w-5 h-5" />
@@ -203,12 +206,12 @@ export function AuthModal({ isOpen, onClose, initialMode = "login" }: AuthModalP
               <>
                 <div className="relative">
                   <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-musgo" />
-                  <input
+                  <input aria-label="Nombre completo"
                     type="text"
                     placeholder="Nombre completo"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-2xl pl-12 pr-4 py-3 outline-none transition-all placeholder:text-musgo/50"
+                    className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-2xl pl-12 pr-4 py-3 outline-none transition placeholder:text-musgo/50"
                     required
                   />
                 </div>
@@ -223,7 +226,7 @@ export function AuthModal({ isOpen, onClose, initialMode = "login" }: AuthModalP
                         key={r}
                         type="button"
                         onClick={() => setRole(r)}
-                        className={`py-2.5 px-2 rounded-xl border text-xs font-medium transition-all ${
+                        className={`py-2.5 px-2 rounded-xl border text-xs font-medium transition ${
                           role === r
                             ? "bg-bosque text-lino border-salvia shadow-sm"
                             : "bg-white text-musgo border-lino-oscuro hover:border-salvia/50"
@@ -239,12 +242,12 @@ export function AuthModal({ isOpen, onClose, initialMode = "login" }: AuthModalP
 
             {mode !== "reset" && (<div className="relative">
               <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-musgo" />
-              <input
+              <input aria-label="Correo electrónico"
                 type="email"
                 placeholder="Correo electrónico"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-2xl pl-12 pr-4 py-3 outline-none transition-all placeholder:text-musgo/50"
+                className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-2xl pl-12 pr-4 py-3 outline-none transition placeholder:text-musgo/50"
                 required
               />
             </div>)}
@@ -254,16 +257,19 @@ export function AuthModal({ isOpen, onClose, initialMode = "login" }: AuthModalP
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-musgo" />
                 <input
                   type={showPassword ? "text" : "password"}
+                  aria-label={mode === "reset" ? "Contraseña nueva" : "Contraseña"}
                   placeholder={mode === "register" ? "Contraseña (mínimo 8 caracteres)" : mode === "reset" ? "Contraseña nueva (mínimo 8 caracteres)" : "Contraseña"}
                   minLength={mode === "register" || mode === "reset" ? 8 : undefined}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-2xl pl-12 pr-12 py-3 outline-none transition-all placeholder:text-musgo/50"
+                  className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-2xl pl-12 pr-12 py-3 outline-none transition placeholder:text-musgo/50"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(v => !v)}
+                  aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                  aria-pressed={showPassword}
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-musgo hover:text-salvia-oscuro transition-colors"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}

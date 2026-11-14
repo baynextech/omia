@@ -200,8 +200,8 @@ function ContactForm({ kind: initialKind, lockKind = false }: { kind: Kind; lock
           <option value="arrepentimiento">Arrepentimiento de una compra o contratación</option>
         </select>
       )}
-      <input className={input} placeholder="Nombre y apellido" value={form.name} onChange={set("name")} required />
-      <input className={input} type="email" placeholder="Email con el que te registraste o compraste" value={form.email} onChange={set("email")} required />
+      <input aria-label="Nombre y apellido" className={input} placeholder="Nombre y apellido" value={form.name} onChange={set("name")} required />
+      <input aria-label="Email con el que te registraste o compraste" className={input} type="email" placeholder="Email con el que te registraste o compraste" value={form.email} onChange={set("email")} required />
       {kind !== "consulta" && (
         <input className={input} placeholder={kind === "arrepentimiento" ? "Número de pedido o producto / plan *" : "Referencia (opcional)"} value={form.reference} onChange={set("reference")} required={kind === "arrepentimiento"} />
       )}

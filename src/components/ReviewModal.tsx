@@ -1,3 +1,4 @@
+import { ModalA11y } from "./ModalA11y";
 import { useState } from "react";
 import { Star, X } from "lucide-react";
 import { Teacher } from "./TeacherCard";
@@ -51,9 +52,11 @@ export function ReviewModal({ teacher, onClose, onSubmitSuccess }: ReviewModalPr
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
+      <ModalA11y onClose={onClose} label={`Dejar una reseña a ${teacher.name}`} />
       <div className="relative w-full max-w-lg bg-white rounded-3xl p-8 shadow-2xl animate-in zoom-in-95 duration-200">
-        <button 
+        <button
           onClick={onClose}
+          aria-label="Cerrar"
           className="absolute top-6 right-6 text-musgo hover:text-bosque transition-colors p-2 rounded-full hover:bg-black/5"
         >
           <X className="w-5 h-5" />
@@ -85,11 +88,11 @@ export function ReviewModal({ teacher, onClose, onSubmitSuccess }: ReviewModalPr
           </div>
 
           <div className="mb-8">
-            <textarea
+            <textarea aria-label="¿Qué te pareció la clase? Contanos un poco sobre tu experiencia..."
               placeholder="¿Qué te pareció la clase? Contanos un poco sobre tu experiencia..."
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-2xl p-4 outline-none transition-all placeholder:text-musgo/50 h-32 resize-none"
+              className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-2xl p-4 outline-none transition placeholder:text-musgo/50 h-32 resize-none"
               required
             />
           </div>

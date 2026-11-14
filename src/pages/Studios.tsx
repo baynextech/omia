@@ -68,12 +68,12 @@ export function Studios() {
       <div className="flex flex-col md:flex-row gap-4 mb-10">
         <div className="relative flex-grow">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-musgo" />
-          <input 
+          <input aria-label="Buscar estudio por nombre o disciplina (ej. Reformer, Hot Yoga)..." 
             type="text"
             placeholder="Buscar estudio por nombre o disciplina (ej. Reformer, Hot Yoga)..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-lino border border-lino-oscuro rounded-sm pl-12 pr-6 py-4 outline-none focus:border-salvia focus:ring-1 focus:ring-salvia transition-all text-bosque shadow-sm"
+            className="w-full bg-lino border border-lino-oscuro rounded-sm pl-12 pr-6 py-4 outline-none focus:border-salvia focus:ring-1 focus:ring-salvia transition text-bosque shadow-sm"
           />
         </div>
 

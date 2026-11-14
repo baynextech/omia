@@ -142,13 +142,13 @@ export function AdminNews({ token }: { token: string }) {
   if (editing) {
     return (
       <div className={`${card} p-6 space-y-4 max-w-3xl`}>
-        <input className={inputCls} placeholder="Título" value={editing.title} onChange={(e) => set("title", e.target.value)} />
-        <input className={inputCls} placeholder="Bajada / resumen (aparece en Google y en las redes)" value={editing.excerpt || ""} onChange={(e) => set("excerpt", e.target.value)} />
+        <input aria-label="Título" className={inputCls} placeholder="Título" value={editing.title} onChange={(e) => set("title", e.target.value)} />
+        <input aria-label="Bajada / resumen (aparece en Google y en las redes)" className={inputCls} placeholder="Bajada / resumen (aparece en Google y en las redes)" value={editing.excerpt || ""} onChange={(e) => set("excerpt", e.target.value)} />
         <div className="grid grid-cols-2 gap-4">
-          <input className={inputCls} placeholder="Categoría" value={editing.category || ""} onChange={(e) => set("category", e.target.value)} />
-          <input className={inputCls} placeholder="URL de la imagen" value={editing.image || ""} onChange={(e) => set("image", e.target.value)} />
+          <input aria-label="Categoría" className={inputCls} placeholder="Categoría" value={editing.category || ""} onChange={(e) => set("category", e.target.value)} />
+          <input aria-label="URL de la imagen" className={inputCls} placeholder="URL de la imagen" value={editing.image || ""} onChange={(e) => set("image", e.target.value)} />
         </div>
-        <textarea className={`${inputCls} min-h-[320px] font-mono`} placeholder="Contenido (admite Markdown: ## títulos, **negrita**, listas con -)" value={editing.body} onChange={(e) => set("body", e.target.value)} />
+        <textarea aria-label="Contenido (admite Markdown: ## títulos, **negrita**, listas con -)" className={`${inputCls} min-h-[320px] font-mono`} placeholder="Contenido (admite Markdown: ## títulos, **negrita**, listas con -)" value={editing.body} onChange={(e) => set("body", e.target.value)} />
         <div className="flex items-center gap-3">
           <select className="border border-lino-oscuro rounded-xl px-3 py-2 text-sm" value={editing.status} onChange={(e) => set("status", e.target.value)}>
             <option value="borrador">Borrador</option><option value="publicado">Publicada</option>

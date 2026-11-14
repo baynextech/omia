@@ -71,7 +71,7 @@ export function CheckoutSimulator() {
                 {/* Card option */}
                 <button
                   onClick={() => setPaymentMethod("card")}
-                  className={`flex items-center gap-4 p-4 rounded-xl border text-left transition-all ${
+                  className={`flex items-center gap-4 p-4 rounded-xl border text-left transition ${
                     paymentMethod === "card"
                       ? "border-[#009EE3] bg-[#009EE3]/5 shadow-sm"
                       : "border-lino-oscuro hover:border-gray-300"
@@ -89,7 +89,7 @@ export function CheckoutSimulator() {
                 {/* Wallet option */}
                 <button
                   onClick={() => setPaymentMethod("wallet")}
-                  className={`flex items-center gap-4 p-4 rounded-xl border text-left transition-all ${
+                  className={`flex items-center gap-4 p-4 rounded-xl border text-left transition ${
                     paymentMethod === "wallet"
                       ? "border-[#009EE3] bg-[#009EE3]/5 shadow-sm"
                       : "border-lino-oscuro hover:border-gray-300"
@@ -107,7 +107,7 @@ export function CheckoutSimulator() {
                 {/* Bank transfer option */}
                 <button
                   onClick={() => setPaymentMethod("transfer")}
-                  className={`flex items-center gap-4 p-4 rounded-xl border text-left transition-all ${
+                  className={`flex items-center gap-4 p-4 rounded-xl border text-left transition ${
                     paymentMethod === "transfer"
                       ? "border-[#009EE3] bg-[#009EE3]/5 shadow-sm"
                       : "border-lino-oscuro hover:border-gray-300"
@@ -129,11 +129,11 @@ export function CheckoutSimulator() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div>
                       <label className="block text-xs text-musgo mb-1 font-medium">Número de tarjeta</label>
-                      <input type="text" placeholder="•••• •••• •••• 4242" className="w-full bg-white border border-lino-oscuro rounded-lg px-3 py-2 text-sm outline-none" disabled />
+                      <input aria-label="Número de tarjeta" type="text" placeholder="•••• •••• •••• 4242" className="w-full bg-white border border-lino-oscuro rounded-lg px-3 py-2 text-sm outline-none" disabled />
                     </div>
                     <div>
                       <label className="block text-xs text-musgo mb-1 font-medium">Nombre impreso</label>
-                      <input type="text" placeholder="COSMO KRAMER" className="w-full bg-white border border-lino-oscuro rounded-lg px-3 py-2 text-sm outline-none" disabled />
+                      <input aria-label="Nombre impreso" type="text" placeholder="COSMO KRAMER" className="w-full bg-white border border-lino-oscuro rounded-lg px-3 py-2 text-sm outline-none" disabled />
                     </div>
                   </div>
                   <p className="text-[11px] text-gray-500">Estamos operando en el entorno seguro simulado de Omia con Mercado Pago.</p>

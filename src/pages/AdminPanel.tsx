@@ -275,7 +275,7 @@ export function AdminPanel() {
               <button
                 key={t.id}
                 onClick={() => setTab(t.id)}
-                className={`w-full flex items-center justify-between px-4 py-2.5 text-sm font-medium transition-all my-0.5 ${
+                className={`w-full flex items-center justify-between px-4 py-2.5 text-sm font-medium transition my-0.5 ${
                   active
                     ? "bg-[#1a2a1a] text-white rounded-lg border-none mx-1"
                     : "text-musgo hover:bg-niebla hover:text-bosque rounded-lg"
@@ -449,7 +449,7 @@ export function AdminPanel() {
               {/* Search */}
               <div className="relative">
                 <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-salvia-oscuro" />
-                <input
+                <input aria-label="Buscar por nombre o email…"
                   type="text"
                   placeholder="Buscar por nombre o email…"
                   value={searchTeachers}
@@ -526,7 +526,7 @@ export function AdminPanel() {
               {/* Search */}
               <div className="relative">
                 <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-salvia-oscuro" />
-                <input
+                <input aria-label="Buscar por nombre o categoría…"
                   type="text"
                   placeholder="Buscar por nombre o categoría…"
                   value={searchProducts}
@@ -590,7 +590,7 @@ export function AdminPanel() {
               {/* Search */}
               <div className="relative">
                 <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-salvia-oscuro" />
-                <input
+                <input aria-label="Buscar por nombre o email…"
                   type="text"
                   placeholder="Buscar por nombre o email…"
                   value={searchUsers}
@@ -690,7 +690,7 @@ export function AdminPanel() {
               {/* Search */}
               <div className="relative">
                 <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-salvia-oscuro" />
-                <input
+                <input aria-label="Buscar por alumno o profesor…"
                   type="text"
                   placeholder="Buscar por alumno o profesor…"
                   value={searchBookings}
@@ -794,7 +794,7 @@ export function AdminPanel() {
               {/* Search */}
               <div className="relative">
                 <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-salvia-oscuro" />
-                <input
+                <input aria-label="Buscar por usuario o descripción…"
                   type="text"
                   placeholder="Buscar por usuario o descripción…"
                   value={searchTransactions}
@@ -915,15 +915,15 @@ function TeacherForm({ teacher, onSave, onCancel }: { teacher: any; onSave: (t: 
         ))}
         <div className="md:col-span-2">
           <label className="block text-xs font-medium text-musgo mb-1.5">URL foto de perfil</label>
-          <input type="text" value={form.photo_url || ""} onChange={e => set("photo_url", e.target.value)} className={`w-full border border-lino-oscuro rounded-xl px-4 py-2.5 text-sm text-bosque focus:outline-none focus:border-salvia focus:ring-1 focus:ring-salvia/30 bg-white`} placeholder="https://…" />
+          <input aria-label="URL foto de perfil" type="text" value={form.photo_url || ""} onChange={e => set("photo_url", e.target.value)} className={`w-full border border-lino-oscuro rounded-xl px-4 py-2.5 text-sm text-bosque focus:outline-none focus:border-salvia focus:ring-1 focus:ring-salvia/30 bg-white`} placeholder="https://…" />
         </div>
         <div className="md:col-span-2">
           <label className="block text-xs font-medium text-musgo mb-1.5">Biografía</label>
-          <textarea value={form.bio || ""} onChange={e => set("bio", e.target.value)} className={`w-full border border-lino-oscuro rounded-xl px-4 py-2.5 text-sm text-bosque focus:outline-none focus:border-salvia focus:ring-1 focus:ring-salvia/30 bg-white`} rows={3} />
+          <textarea aria-label="Biografía" value={form.bio || ""} onChange={e => set("bio", e.target.value)} className={`w-full border border-lino-oscuro rounded-xl px-4 py-2.5 text-sm text-bosque focus:outline-none focus:border-salvia focus:ring-1 focus:ring-salvia/30 bg-white`} rows={3} />
         </div>
         <div>
           <label className="block text-xs font-medium text-musgo mb-1.5">Plan</label>
-          <select value={form.plan || "ninguno"} onChange={e => set("plan", e.target.value)} className={`w-full border border-lino-oscuro rounded-xl px-4 py-2.5 text-sm text-bosque focus:outline-none focus:border-salvia bg-white`}>
+          <select aria-label="Plan" value={form.plan || "ninguno"} onChange={e => set("plan", e.target.value)} className={`w-full border border-lino-oscuro rounded-xl px-4 py-2.5 text-sm text-bosque focus:outline-none focus:border-salvia bg-white`}>
             <option value="ninguno">Sin plan</option>
             <option value="inicial">Inicial</option>
             <option value="destacado">Destacado</option>
@@ -932,7 +932,7 @@ function TeacherForm({ teacher, onSave, onCancel }: { teacher: any; onSave: (t: 
         </div>
         <div>
           <label className="block text-xs font-medium text-musgo mb-1.5">Estado</label>
-          <select value={form.status || "activo"} onChange={e => set("status", e.target.value)} className={`w-full border border-lino-oscuro rounded-xl px-4 py-2.5 text-sm text-bosque focus:outline-none focus:border-salvia bg-white`}>
+          <select aria-label="Estado" value={form.status || "activo"} onChange={e => set("status", e.target.value)} className={`w-full border border-lino-oscuro rounded-xl px-4 py-2.5 text-sm text-bosque focus:outline-none focus:border-salvia bg-white`}>
             <option value="activo">Activo</option>
             <option value="inactivo">Inactivo</option>
           </select>
@@ -972,11 +972,11 @@ function ProductForm({ product, onSave, onCancel }: { product: any; onSave: (p: 
         ))}
         <div className="md:col-span-2">
           <label className="block text-xs font-medium text-musgo mb-1.5">Descripción</label>
-          <textarea value={form.description || ""} onChange={e => set("description", e.target.value)} className={`w-full border border-lino-oscuro rounded-xl px-4 py-2.5 text-sm text-bosque focus:outline-none focus:border-salvia focus:ring-1 focus:ring-salvia/30 bg-white`} rows={3} />
+          <textarea aria-label="Descripción" value={form.description || ""} onChange={e => set("description", e.target.value)} className={`w-full border border-lino-oscuro rounded-xl px-4 py-2.5 text-sm text-bosque focus:outline-none focus:border-salvia focus:ring-1 focus:ring-salvia/30 bg-white`} rows={3} />
         </div>
         <div className="md:col-span-2">
           <label className="block text-xs font-medium text-musgo mb-1.5">URL de imagen principal</label>
-          <input value={form.images?.[0] || ""} onChange={e => set("images", [e.target.value])} className={`w-full border border-lino-oscuro rounded-xl px-4 py-2.5 text-sm text-bosque focus:outline-none focus:border-salvia focus:ring-1 focus:ring-salvia/30 bg-white`} placeholder="https://…" />
+          <input aria-label="URL de imagen principal" value={form.images?.[0] || ""} onChange={e => set("images", [e.target.value])} className={`w-full border border-lino-oscuro rounded-xl px-4 py-2.5 text-sm text-bosque focus:outline-none focus:border-salvia focus:ring-1 focus:ring-salvia/30 bg-white`} placeholder="https://…" />
         </div>
         <div>
           <label className="flex items-center gap-2 cursor-pointer">

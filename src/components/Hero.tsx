@@ -16,13 +16,15 @@ export function Hero() {
   }, []);
 
   return (
-    <section className="relative w-full min-h-screen flex items-center justify-center bg-bosque overflow-hidden">
+    <section className="relative w-full min-h-dvh flex items-center justify-center bg-bosque overflow-hidden">
       <video
         autoPlay
         muted
         loop
         playsInline
-        preload="auto"
+        preload="metadata"
+        aria-hidden="true"
+        tabIndex={-1}
         className="absolute inset-0 w-full h-full object-cover"
       >
         <source src={mediaUrl(t("home.hero.video") || "/videos/hero_1.mp4")} type="video/mp4" />
@@ -38,21 +40,21 @@ export function Hero() {
         animate="visible"
       >
 
-        <motion.h1 variants={item} className="text-4xl sm:text-5xl md:text-6xl font-serif font-light tracking-tight text-white max-w-2xl leading-[1.1] mb-6">
+        <motion.h1 variants={item} className="text-4xl sm:text-5xl md:text-6xl font-serif tracking-tight text-white max-w-3xl leading-[1.05] mb-6 lg:text-7xl">
           <Rich text={t("home.hero.title")} em="text-salvia-claro" />
         </motion.h1>
 
-        <motion.p variants={item} className="text-base md:text-lg text-white/70 max-w-xl font-light leading-relaxed mb-10">
+        <motion.p variants={item} className="text-base md:text-lg text-white/80 max-w-xl leading-relaxed mb-10">
           {t("home.hero.subtitle")}
         </motion.p>
 
         <motion.div variants={item} className="flex flex-wrap items-center gap-3">
-          <Link to="/directorio" className="group flex items-center gap-3 bg-lino hover:bg-white active:scale-[0.97] text-bosque px-7 py-4 rounded-full font-semibold transition-all shadow-lg">
-            <Search className="w-4 h-4" />
+          <Link to="/directorio" className="group flex items-center gap-3 bg-lino hover:bg-white active:scale-[0.97] text-bosque px-7 py-4 rounded-full font-semibold transition shadow-lg">
+            <Search className="w-4 h-4" aria-hidden="true" />
             <span>{t("home.hero.cta1")}</span>
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300 ease-(--ease-omia)" aria-hidden="true" />
           </Link>
-          <Link to="/estudios" className="flex items-center gap-2 bg-white/10 border border-white/25 hover:bg-white/20 active:scale-[0.97] text-white px-6 py-4 rounded-full font-medium transition-all backdrop-blur-sm">
+          <Link to="/estudios" className="flex items-center gap-2 bg-white/10 border border-white/25 hover:bg-white/20 active:scale-[0.97] text-white px-6 py-4 rounded-full font-medium transition backdrop-blur-sm">
             {t("home.hero.cta2")}
           </Link>
         </motion.div>
@@ -60,19 +62,13 @@ export function Hero() {
         <motion.div variants={item} className="mt-16 flex flex-wrap items-center gap-8">
           {[{ n: stats.teachers, label: "Profesores" }, { n: stats.institutes, label: "Institutos" }, { n: stats.zones, label: "Barrios" }].filter(({ n }) => n > 0).map(({ n, label }) => (
             <div key={label} className="flex flex-col">
-              <span className="text-2xl font-serif text-salvia-claro leading-none">{n}</span>
-              <span className="text-xs text-white/50 font-medium mt-1 uppercase tracking-wider">{label}</span>
+              <span className="text-3xl font-serif tabular-nums text-salvia-claro leading-none">{n}</span>
+              <span className="text-xs text-white/70 font-medium mt-1.5">{label}</span>
             </div>
           ))}
         </motion.div>
       </motion.div>
 
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2 opacity-50">
-        <span className="text-white text-[10px] uppercase tracking-widest font-medium">Scroll</span>
-        <div className="w-px h-12 bg-white/40 relative overflow-hidden">
-          <motion.div className="absolute top-0 left-0 right-0 bg-white h-4" animate={{ y: ["-100%", "300%"] }} transition={{ duration: 1.4, repeat: Infinity, ease: "linear" }} />
-        </div>
-      </div>
     </section>
   );
 }

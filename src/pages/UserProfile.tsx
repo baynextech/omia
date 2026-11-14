@@ -490,7 +490,7 @@ export function UserProfile() {
         <nav className="flex-1 px-3 py-4 space-y-1">
           {TABS_FOR_ROLE.map(t => (
             <button key={t.id} onClick={() => setActiveTab(t.id as any)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all text-left ${
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition text-left ${
                 activeTab === t.id
                   ? "bg-[#1a2a1a] text-white rounded-lg border-none"
                   : "text-musgo hover:bg-niebla hover:text-bosque"
@@ -613,11 +613,11 @@ export function UserProfile() {
                   <div>
                     <label className="block text-sm font-medium text-musgo mb-2">Nombre completo</label>
                     {isEditing ? (
-                      <input 
+                      <input aria-label="Nombre completo" 
                         type="text" 
                         value={editForm.name}
                         onChange={e => setEditForm({...editForm, name: e.target.value})}
-                        className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-xl px-4 py-3 outline-none transition-all"
+                        className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-xl px-4 py-3 outline-none transition"
                       />
                     ) : (
                       <p className="text-bosque font-medium p-3 bg-lino rounded-xl border border-transparent">{profile.name}</p>
@@ -626,11 +626,11 @@ export function UserProfile() {
                   <div>
                     <label className="block text-sm font-medium text-musgo mb-2">Correo electrónico</label>
                     {isEditing ? (
-                      <input 
+                      <input aria-label="Correo electrónico" 
                         type="email" 
                         value={editForm.email}
                         onChange={e => setEditForm({...editForm, email: e.target.value})}
-                        className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-xl px-4 py-3 outline-none transition-all"
+                        className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-xl px-4 py-3 outline-none transition"
                       />
                     ) : (
                       <p className="text-bosque font-medium p-3 bg-lino rounded-xl border border-transparent">{profile.email}</p>
@@ -642,10 +642,10 @@ export function UserProfile() {
                   <div>
                     <label className="block text-sm font-medium text-musgo mb-2">Rol / Tipo de cuenta</label>
                     {isEditing ? (
-                      <select 
+                      <select aria-label="Rol / Tipo de cuenta" 
                         value={editForm.role}
                         onChange={e => setEditForm({...editForm, role: e.target.value as any})}
-                        className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-xl px-4 py-3 outline-none transition-all cursor-pointer"
+                        className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-xl px-4 py-3 outline-none transition cursor-pointer"
                       >
                         <option value="alumno">Alumno / Alumna</option>
                         <option value="profesor">Profesor / Profesora</option>
@@ -668,11 +668,11 @@ export function UserProfile() {
                 <div>
                   <label className="block text-sm font-medium text-musgo mb-2">Biografía</label>
                   {isEditing ? (
-                    <textarea 
+                    <textarea aria-label="Biografía" 
                       value={editForm.bio}
                       onChange={e => setEditForm({...editForm, bio: e.target.value})}
                       rows={4}
-                      className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-xl px-4 py-3 outline-none transition-all resize-none"
+                      className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-xl px-4 py-3 outline-none transition resize-none"
                     />
                   ) : (
                     <div className="p-4 bg-lino rounded-xl border border-transparent min-h-[100px]">
@@ -830,7 +830,7 @@ export function UserProfile() {
                       <div className="grid grid-cols-2 gap-2">
                         <a 
                           href={`mailto:profe_${teacher.id}@omiayoga.com?subject=Consulta sobre clases de yoga - Omia&body=Hola ${teacher.name}, vi tu perfil en Omia y quería hacerte una consulta.`}
-                          className="flex items-center justify-center gap-1.5 py-2.5 bg-lino hover:bg-black/5 text-bosque rounded-xl text-xs font-semibold border border-lino-oscuro transition-all"
+                          className="flex items-center justify-center gap-1.5 py-2.5 bg-lino hover:bg-black/5 text-bosque rounded-xl text-xs font-semibold border border-lino-oscuro transition"
                         >
                           <Mail className="w-3.5 h-3.5 text-musgo" />
                           <span>Enviar Mail</span>
@@ -839,7 +839,7 @@ export function UserProfile() {
                           href={`https://wa.me/5491133445566?text=Hola%20${encodeURIComponent(teacher.name)}!%20Vi%20tu%20perfil%20en%20Omia%20y%20me%20gustaría%20hacerte%20una%20consulta%20por%20tus%20clases.%20Gracias!`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center justify-center gap-1.5 py-2.5 bg-[#25D366] hover:bg-[#20ba5a] text-white rounded-xl text-xs font-semibold transition-all"
+                          className="flex items-center justify-center gap-1.5 py-2.5 bg-[#25D366] hover:bg-[#20ba5a] text-white rounded-xl text-xs font-semibold transition"
                         >
                           <Phone className="w-3.5 h-3.5" />
                           <span>WhatsApp</span>
@@ -847,7 +847,7 @@ export function UserProfile() {
                       </div>
                       <Link 
                         to={`/profesor/${teacher.id}`}
-                        className="w-full text-center py-2.5 bg-bosque hover:bg-bosque-profundo text-lino rounded-xl text-xs font-semibold transition-all"
+                        className="w-full text-center py-2.5 bg-bosque hover:bg-bosque-profundo text-lino rounded-xl text-xs font-semibold transition"
                       >
                         Ver Perfil Completo
                       </Link>
@@ -1031,23 +1031,23 @@ export function UserProfile() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-semibold text-musgo mb-2">Nombre del Profesor o Instituto *</label>
-                  <input 
+                  <input aria-label="Nombre del Profesor o Instituto" 
                     type="text" 
                     value={landingForm.name}
                     onChange={e => setLandingForm({...landingForm, name: e.target.value})}
                     placeholder="Ej. Estudio de Yoga Serene, Profe Lena"
-                    className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-xl px-4 py-3 outline-none transition-all"
+                    className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-xl px-4 py-3 outline-none transition"
                     required
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-musgo mb-2">Especialidad / Estilos de Yoga *</label>
-                  <input 
+                  <input aria-label="Especialidad / Estilos de Yoga" 
                     type="text" 
                     value={landingForm.specialty}
                     onChange={e => setLandingForm({...landingForm, specialty: e.target.value})}
                     placeholder="Ej. Vinyasa Flow, Ashtanga, Hatha, Yin Yoga"
-                    className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-xl px-4 py-3 outline-none transition-all"
+                    className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-xl px-4 py-3 outline-none transition"
                     required
                   />
                 </div>
@@ -1056,10 +1056,10 @@ export function UserProfile() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-semibold text-musgo mb-2">Barrio / Zona *</label>
-                  <select 
+                  <select aria-label="Barrio / Zona" 
                     value={landingForm.location}
                     onChange={e => setLandingForm({...landingForm, location: e.target.value})}
-                    className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-xl px-4 py-3 outline-none transition-all cursor-pointer"
+                    className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-xl px-4 py-3 outline-none transition cursor-pointer"
                     required
                   >
                     <option value="Palermo">Palermo</option>
@@ -1070,12 +1070,12 @@ export function UserProfile() {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-musgo mb-2">Precio sugerido por clase *</label>
-                  <input 
+                  <input aria-label="Precio sugerido por clase" 
                     type="text" 
                     value={landingForm.price}
                     onChange={e => setLandingForm({...landingForm, price: e.target.value})}
                     placeholder="Ej. $8.000/clase o Gratis"
-                    className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-xl px-4 py-3 outline-none transition-all"
+                    className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-xl px-4 py-3 outline-none transition"
                     required
                   />
                 </div>
@@ -1085,15 +1085,15 @@ export function UserProfile() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-semibold text-musgo mb-2">Dirección</label>
-                    <input type="text" value={landingForm.address} onChange={e => setLandingForm({...landingForm, address: e.target.value})} placeholder="Ej. Humboldt 1942, Palermo" className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-xl px-4 py-3 outline-none" />
+                    <input aria-label="Dirección" type="text" value={landingForm.address} onChange={e => setLandingForm({...landingForm, address: e.target.value})} placeholder="Ej. Humboldt 1942, Palermo" className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-xl px-4 py-3 outline-none" />
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-musgo mb-2">Horarios de atención</label>
-                    <input type="text" value={landingForm.hours} onChange={e => setLandingForm({...landingForm, hours: e.target.value})} placeholder="Ej. Lun a Sáb 07:00 a 21:00 hs" className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-xl px-4 py-3 outline-none" />
+                    <input aria-label="Horarios de atención" type="text" value={landingForm.hours} onChange={e => setLandingForm({...landingForm, hours: e.target.value})} placeholder="Ej. Lun a Sáb 07:00 a 21:00 hs" className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-xl px-4 py-3 outline-none" />
                   </div>
                   <div className="md:col-span-2">
                     <label className="block text-sm font-semibold text-musgo mb-2">Comodidades (separadas por coma)</label>
-                    <input type="text" value={landingForm.amenities.join(", ")} onChange={e => setLandingForm({...landingForm, amenities: e.target.value.split(",").map(a => a.trimStart()).filter((a, i, all) => a || i === all.length - 1)})} placeholder="Ej. Camas Reformer, Mat incluido, Duchas" className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-xl px-4 py-3 outline-none" />
+                    <input aria-label="Comodidades (separadas por coma)" type="text" value={landingForm.amenities.join(", ")} onChange={e => setLandingForm({...landingForm, amenities: e.target.value.split(",").map(a => a.trimStart()).filter((a, i, all) => a || i === all.length - 1)})} placeholder="Ej. Camas Reformer, Mat incluido, Duchas" className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-xl px-4 py-3 outline-none" />
                   </div>
                 </div>
               )}
@@ -1101,23 +1101,23 @@ export function UserProfile() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-semibold text-musgo mb-2">E-mail de Contacto Público *</label>
-                  <input 
+                  <input aria-label="E-mail de Contacto Público" 
                     type="email" 
                     value={landingForm.email || ""}
                     onChange={e => setLandingForm({...landingForm, email: e.target.value})}
                     placeholder="Ej. mi.contacto@yogaestudio.com"
-                    className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-xl px-4 py-3 outline-none transition-all"
+                    className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-xl px-4 py-3 outline-none transition"
                     required
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-musgo mb-2">Teléfono o WhatsApp de Contacto *</label>
-                  <input 
+                  <input aria-label="Teléfono o WhatsApp de Contacto" 
                     type="text" 
                     value={landingForm.phone || ""}
                     onChange={e => setLandingForm({...landingForm, phone: e.target.value})}
                     placeholder="Ej. 5491133445566 (Sólo números: código país + área + número)"
-                    className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-xl px-4 py-3 outline-none transition-all"
+                    className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-xl px-4 py-3 outline-none transition"
                     required
                   />
                 </div>
@@ -1133,7 +1133,7 @@ export function UserProfile() {
                         type="button"
                         key={day}
                         onClick={() => toggleAvailableDay(day)}
-                        className={`px-4 py-2 rounded-xl text-xs font-semibold border transition-all ${
+                        className={`px-4 py-2 rounded-xl text-xs font-semibold border transition ${
                           isSelected
                             ? "bg-bosque text-lino border-salvia"
                             : "bg-lino text-musgo border-lino-oscuro hover:border-salvia/40"
@@ -1148,12 +1148,12 @@ export function UserProfile() {
 
               <div>
                 <label className="block text-sm font-semibold text-musgo mb-2">Imagen de Portada (URL de Foto) *</label>
-                <input 
+                <input aria-label="Imagen de Portada (URL de Foto)" 
                   type="text" 
                   value={landingForm.image}
                   onChange={e => setLandingForm({...landingForm, image: e.target.value})}
                   placeholder="Ej. https://images.unsplash.com/..."
-                  className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-xl px-4 py-3 outline-none transition-all font-mono text-xs"
+                  className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-xl px-4 py-3 outline-none transition font-mono text-xs"
                   required
                 />
                 
@@ -1171,7 +1171,7 @@ export function UserProfile() {
                         type="button"
                         key={idx}
                         onClick={() => setLandingForm({ ...landingForm, image: preset.url })}
-                        className={`p-2 bg-lino border rounded-lg text-[10px] font-medium text-left truncate transition-all ${
+                        className={`p-2 bg-lino border rounded-lg text-[10px] font-medium text-left truncate transition ${
                           landingForm.image === preset.url ? "border-salvia bg-salvia/5 font-bold" : "border-lino-oscuro hover:border-salvia/30"
                         }`}
                       >
@@ -1241,7 +1241,7 @@ export function UserProfile() {
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                     disabled={isUploadingGallery}
                   />
-                  <div className="border-2 border-dashed border-lino-oscuro hover:border-salvia rounded-2xl p-8 text-center transition-all bg-lino flex flex-col items-center justify-center gap-3">
+                  <div className="border-2 border-dashed border-lino-oscuro hover:border-salvia rounded-2xl p-8 text-center transition bg-lino flex flex-col items-center justify-center gap-3">
                     {isUploadingGallery ? (
                       <div className="flex flex-col items-center gap-2">
                         <div className="w-8 h-8 border-4 border-salvia/30 border-t-salvia rounded-sm animate-spin" />
@@ -1264,12 +1264,12 @@ export function UserProfile() {
 
               <div>
                 <label className="block text-sm font-semibold text-musgo mb-2">Presentación / Biografía Pública *</label>
-                <textarea 
+                <textarea aria-label="Presentación / Biografía Pública" 
                   value={landingForm.bio}
                   onChange={e => setLandingForm({...landingForm, bio: e.target.value})}
                   placeholder="Contanos sobre tu trayectoria, el estilo de tus clases, la dirección de tu estudio, qué tipo de alumnos recibís, etc."
                   rows={6}
-                  className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-xl px-4 py-3 outline-none transition-all resize-none text-sm"
+                  className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-xl px-4 py-3 outline-none transition resize-none text-sm"
                   required
                 />
               </div>
@@ -1277,7 +1277,7 @@ export function UserProfile() {
               <button 
                 type="submit"
                 disabled={saveLandingLoading}
-                className="w-full bg-bosque hover:bg-bosque-profundo text-lino py-4 rounded-full font-semibold transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                className="w-full bg-bosque hover:bg-bosque-profundo text-lino py-4 rounded-full font-semibold transition shadow-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
               >
                 {saveLandingLoading ? (
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-sm animate-spin" />
@@ -1394,7 +1394,7 @@ export function UserProfile() {
                           <button
                             onClick={() => handleSubscribe(plan.id)}
                             disabled={isPayingId !== null}
-                            className="px-5 py-3 bg-[#009EE3] hover:bg-[#008CD0] disabled:opacity-60 text-white rounded-full text-xs font-bold transition-all shadow-sm"
+                            className="px-5 py-3 bg-[#009EE3] hover:bg-[#008CD0] disabled:opacity-60 text-white rounded-full text-xs font-bold transition shadow-sm"
                           >
                             {isPayingId === plan.id ? "Abriendo…" : "Suscribirme"}
                           </button>

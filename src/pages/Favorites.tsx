@@ -1,3 +1,4 @@
+import { ModalA11y } from "../components/ModalA11y";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Heart } from "lucide-react";
@@ -66,6 +67,7 @@ export function Favorites() {
 
       {teacherToRemove && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
+          <ModalA11y onClose={() => setTeacherToRemove(null)} label="Quitar de favoritos" />
           <div className="relative w-full max-w-md bg-white rounded-3xl p-8 shadow-2xl animate-in zoom-in-95 duration-200 text-center">
             <div className="mx-auto w-12 h-12 bg-lino text-red-400 rounded-sm flex items-center justify-center mb-4 border border-lino-oscuro">
               <Heart className="w-6 h-6 fill-red-400" />

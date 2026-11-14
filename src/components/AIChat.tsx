@@ -68,7 +68,7 @@ export function AIChat() {
       <div className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 ${isOpen ? 'pointer-events-none' : ''}`}>
         <button
           onClick={() => setIsOpen(true)}
-          className={`bg-bosque hover:bg-bosque-profundo text-lino p-4 rounded-full shadow-2xl transition-all duration-300 pointer-events-auto ${isOpen ? 'scale-0' : 'scale-100 hover:scale-110'}`}
+          className={`bg-bosque hover:bg-bosque-profundo text-lino p-4 rounded-full shadow-2xl transition duration-300 pointer-events-auto ${isOpen ? 'scale-0' : 'scale-100 hover:scale-110'}`}
           title={`Chateá con ${name}`}
         >
           <MessageSquare className="w-6 h-6" />
@@ -152,13 +152,13 @@ export function AIChat() {
           {/* Chat Input */}
           <div className="p-4 bg-white border-t border-lino-oscuro shrink-0">
             <div className="relative flex items-center">
-              <input
+              <input aria-label="Escribime lo que necesitás..."
                 type="text"
                 placeholder="Escribime lo que necesitás..."
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-sm pl-5 pr-12 py-3.5 outline-none transition-all placeholder:text-musgo/50 text-sm"
+                className="w-full bg-lino border border-lino-oscuro focus:border-salvia focus:ring-1 focus:ring-salvia text-bosque rounded-sm pl-5 pr-12 py-3.5 outline-none transition placeholder:text-musgo/50 text-sm"
               />
               <button
                 onClick={() => handleSend()}

@@ -50,4 +50,13 @@ Sitio y API publicados y andando (login con Google y con mail, panel con editor,
 1. Probar suscripción en modo prueba (#1) → 2. Resend + casilla de mail (#4, #5) → 3. Contraseña del admin y rotar claves (#9, #10) → 4. Datos legales (#13) → 5. Empezar a hablar con profes (#6) → 6. Producción de Mercado Pago (#3) cuando haya al menos 5 profes dispuestos.
 
 ## Hecho (no hace falta volver a verlo)
-Sitio y API desplegados · migraciones 001–003 · login con Google (proyecto Omia, gratis) · asistente «Omi» · panel de administración con editor del sitio · usuarios con método de registro y exportación CSV · menú de cuenta con foto · páginas legales, botón de arrepentimiento y de baja · SEO con sitemap y páginas con título propio · manual de marca (PDF) · documentación en `README.md`, `DEPLOY.md`, `docs/`.
+Sitio y API desplegados · migraciones 001–003 · login con Google (proyecto Omia, gratis) · asistente «Omi» · panel de administración con editor del sitio · usuarios con método de registro y exportación CSV · menú de cuenta con foto · páginas legales, botón de arrepentimiento y de baja · SEO con sitemap y páginas con título propio · manual de marca (PDF) · documentación en `README.md`, `DEPLOY.md`, `docs/`. · auditoría de interfaz y pulido con skills (14/11/2026): foco visible, modales con teclado, campos con nombre, tokens `bosque-claro` y `bosque-linea`.
+
+## G · Interfaz (quedó de la auditoría del 14/11/2026)
+| # | Pendiente | Quién |
+|---|---|---|
+| 22 | Pasar los 17 `alert()` (reseñas, reservas, tienda, panel, admin) a mensajes en la página. | Yo |
+| 23 | Asociar las etiquetas visibles a sus campos (`htmlFor` + `id`); hoy tienen `aria-label`. | Yo |
+| 24 | Bajar la foto del buscador de la portada a `public/images` (hoy se carga desde Unsplash). | Yo |
+| 25 | Revisar el panel de usuario y el admin en pantalla, con sesión iniciada. | Yo |
+| 26 | Dividir `app.js` por ruta (784 kB en un solo archivo). | Yo |

@@ -41,7 +41,7 @@ function ImageField({ value, onChange, token }: { value: string; onChange: (v: s
       <div className="flex gap-3 items-start">
         {value ? <img src={mediaUrl(value)} alt="" className="w-28 h-20 object-cover rounded-lg border border-lino-oscuro" /> : <div className="w-28 h-20 rounded-lg border border-dashed border-lino-oscuro flex items-center justify-center text-salvia-oscuro"><ImageIcon size={20} /></div>}
         <div className="flex-1 space-y-2">
-          <input className={inputCls} placeholder="Dirección (URL) de la imagen" value={value} onChange={(e) => onChange(e.target.value)} />
+          <input aria-label="Dirección (URL) de la imagen" className={inputCls} placeholder="Dirección (URL) de la imagen" value={value} onChange={(e) => onChange(e.target.value)} />
           <button type="button" onClick={() => input.current?.click()} disabled={busy} className="inline-flex items-center gap-2 text-sm text-salvia-oscuro border border-salvia rounded-lg px-3 py-1.5 hover:bg-salvia/10 disabled:opacity-50"><Upload size={14} />{busy ? "Subiendo…" : "Subir desde mi computadora"}</button>
           <input ref={input} type="file" accept="image/png,image/jpeg,image/webp" hidden onChange={(e) => upload(e.target.files?.[0])} />
         </div>

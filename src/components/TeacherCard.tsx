@@ -111,26 +111,26 @@ export function TeacherCard({ teacher, onToggleFavoriteOverride }: { teacher: Te
           {localTeacher.availableDays && localTeacher.availableDays.length > 0 && (
             <div className="flex flex-wrap gap-1.5 mb-4">
               {localTeacher.availableDays.map(day => (
-                <span key={day} className="px-2 py-0.5 bg-[#2a4d38] text-salvia text-xs font-medium rounded-sm border border-[#3a6048]/40">
+                <span key={day} className="px-2 py-0.5 bg-bosque-linea text-salvia text-xs font-medium rounded-sm border border-bosque-linea/40">
                   {day}
                 </span>
               ))}
             </div>
           )}
 
-          <p className="text-[#7a9d85] text-sm leading-relaxed line-clamp-2 mb-5">{localTeacher.bio}</p>
+          <p className="text-salvia text-sm leading-relaxed line-clamp-2 mb-5">{localTeacher.bio}</p>
 
           <div className="flex gap-2">
             <Link
               to={`/profesor/${localTeacher.id}`}
-              className="flex-1 bg-bosque hover:bg-bosque-profundo active:scale-[0.97] text-lino py-3 rounded-full font-medium transition-all text-center text-sm"
+              className="flex-1 bg-bosque hover:bg-bosque-profundo active:scale-[0.97] text-lino py-3 rounded-full font-medium transition text-center text-sm"
             >
               Ver Perfil
             </Link>
             <motion.button
               onClick={(e) => { e.preventDefault(); setIsReviewOpen(true); }}
               title="Dejar Reseña"
-              className="px-4 bg-[#2a4d38] border border-[#3a6048]/50 hover:border-salvia text-salvia hover:text-salvia rounded-full transition-colors flex items-center justify-center"
+              className="px-4 bg-bosque-linea border border-bosque-linea/50 hover:border-salvia text-salvia hover:text-salvia rounded-full transition-colors flex items-center justify-center"
               whileTap={{ scale: 0.92 }}
             >
               <Star className="w-4 h-4" />

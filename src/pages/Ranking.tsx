@@ -69,7 +69,7 @@ export function Ranking() {
             <li key={t.id}>
               <Link
                 to={`/profesor/${t.id}`}
-                className="flex items-center gap-4 bg-white border border-lino-oscuro rounded-2xl p-4 hover:shadow-md hover:border-salvia transition-all"
+                className="flex items-center gap-4 bg-white border border-lino-oscuro rounded-2xl p-4 hover:shadow-md hover:border-salvia transition"
               >
                 <span className={`w-10 text-center text-2xl font-mono font-bold shrink-0 ${t.position <= 3 ? "text-salvia-oscuro" : "text-[#C9C2B2]"}`}>
                   {t.position}

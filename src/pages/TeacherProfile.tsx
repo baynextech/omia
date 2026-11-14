@@ -1,3 +1,4 @@
+import { ModalA11y } from "../components/ModalA11y";
 import { placeholderFor } from "../components/Photo";
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
@@ -171,7 +172,7 @@ export function TeacherProfile() {
                     key={idx}
                     src={img} 
                     alt={`${teacher.name} - ${idx}`} 
-                    className="w-full h-full object-cover cursor-pointer hover:brightness-95 transition-all" 
+                    className="w-full h-full object-cover cursor-pointer hover:brightness-95 transition" 
                     onClick={() => setActivePhotoIndex(idx)}
                     referrerPolicy="no-referrer"
                   />
@@ -183,7 +184,7 @@ export function TeacherProfile() {
                   <img 
                     src={galleryImages[0]} 
                     alt={`${teacher.name} - 0`} 
-                    className="w-full h-full object-cover cursor-pointer hover:brightness-95 transition-all" 
+                    className="w-full h-full object-cover cursor-pointer hover:brightness-95 transition" 
                     onClick={() => setActivePhotoIndex(0)}
                     referrerPolicy="no-referrer"
                   />
@@ -194,7 +195,7 @@ export function TeacherProfile() {
                       key={idx}
                       src={img} 
                       alt={`${teacher.name} - ${idx + 1}`} 
-                      className="w-full h-full object-cover cursor-pointer hover:brightness-95 transition-all" 
+                      className="w-full h-full object-cover cursor-pointer hover:brightness-95 transition" 
                       onClick={() => setActivePhotoIndex(idx + 1)}
                       referrerPolicy="no-referrer"
                     />
@@ -207,7 +208,7 @@ export function TeacherProfile() {
                   <img 
                     src={galleryImages[0]} 
                     alt={`${teacher.name} - 0`} 
-                    className="w-full h-full object-cover cursor-pointer hover:brightness-95 transition-all" 
+                    className="w-full h-full object-cover cursor-pointer hover:brightness-95 transition" 
                     onClick={() => setActivePhotoIndex(0)}
                     referrerPolicy="no-referrer"
                   />
@@ -218,7 +219,7 @@ export function TeacherProfile() {
                       key={idx}
                       src={img} 
                       alt={`${teacher.name} - ${idx + 1}`} 
-                      className="w-full h-full object-cover cursor-pointer hover:brightness-95 transition-all" 
+                      className="w-full h-full object-cover cursor-pointer hover:brightness-95 transition" 
                       onClick={() => setActivePhotoIndex(idx + 1)}
                       referrerPolicy="no-referrer"
                     />
@@ -232,7 +233,7 @@ export function TeacherProfile() {
                   <img 
                     src={galleryImages[0]} 
                     alt={`${teacher.name} - 0`} 
-                    className="w-full h-full object-cover cursor-pointer hover:brightness-90 transition-all" 
+                    className="w-full h-full object-cover cursor-pointer hover:brightness-90 transition" 
                     onClick={() => setActivePhotoIndex(0)}
                     referrerPolicy="no-referrer"
                   />
@@ -241,7 +242,7 @@ export function TeacherProfile() {
                   <img 
                     src={galleryImages[1]} 
                     alt={`${teacher.name} - 1`} 
-                    className="w-full h-full object-cover cursor-pointer hover:brightness-90 transition-all" 
+                    className="w-full h-full object-cover cursor-pointer hover:brightness-90 transition" 
                     onClick={() => setActivePhotoIndex(1)}
                     referrerPolicy="no-referrer"
                   />
@@ -250,7 +251,7 @@ export function TeacherProfile() {
                   <img 
                     src={galleryImages[2]} 
                     alt={`${teacher.name} - 2`} 
-                    className="w-full h-full object-cover cursor-pointer hover:brightness-90 transition-all" 
+                    className="w-full h-full object-cover cursor-pointer hover:brightness-90 transition" 
                     onClick={() => setActivePhotoIndex(2)}
                     referrerPolicy="no-referrer"
                   />
@@ -259,7 +260,7 @@ export function TeacherProfile() {
                   <img 
                     src={galleryImages[3]} 
                     alt={`${teacher.name} - 3`} 
-                    className="w-full h-full object-cover cursor-pointer hover:brightness-90 transition-all" 
+                    className="w-full h-full object-cover cursor-pointer hover:brightness-90 transition" 
                     onClick={() => setActivePhotoIndex(3)}
                     referrerPolicy="no-referrer"
                   />
@@ -268,7 +269,7 @@ export function TeacherProfile() {
                   <img 
                     src={galleryImages[4]} 
                     alt={`${teacher.name} - 4`} 
-                    className="w-full h-full object-cover cursor-pointer hover:brightness-90 transition-all" 
+                    className="w-full h-full object-cover cursor-pointer hover:brightness-90 transition" 
                     onClick={() => setActivePhotoIndex(4)}
                     referrerPolicy="no-referrer"
                   />
@@ -276,7 +277,7 @@ export function TeacherProfile() {
 
                 <button 
                   onClick={() => setActivePhotoIndex(0)}
-                  className="absolute bottom-6 right-6 bg-white hover:bg-neutral-100 text-bosque border border-lino-oscuro px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 shadow-md transition-all active:scale-95 cursor-pointer"
+                  className="absolute bottom-6 right-6 bg-white hover:bg-neutral-100 text-bosque border border-lino-oscuro px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 shadow-md transition active:scale-95 cursor-pointer"
                 >
                   <ImageIcon className="w-4 h-4 text-musgo" />
                   <span>Ver todas las fotos ({galleryImages.length})</span>
@@ -370,7 +371,7 @@ export function TeacherProfile() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-5">
               <a 
                 href={`mailto:${teacher.email || `profe_${teacher.id}@omiayoga.com`}?subject=Consulta sobre clases de yoga - Omia&body=Hola ${teacher.name}, vi tu perfil en Omia y quería hacerte una consulta.`}
-                className="flex items-center justify-center gap-2.5 py-3.5 px-4 bg-white hover:bg-lino/50 text-bosque rounded-full font-semibold border border-lino-oscuro transition-all text-sm shadow-sm active:scale-98"
+                className="flex items-center justify-center gap-2.5 py-3.5 px-4 bg-white hover:bg-lino/50 text-bosque rounded-full font-semibold border border-lino-oscuro transition text-sm shadow-sm active:scale-98"
               >
                 <Mail className="w-4 h-4 text-salvia-oscuro" />
                 <span className="truncate">Enviar E-mail ({teacher.email || `profe_${teacher.id}@omiayoga.com`})</span>
@@ -379,7 +380,7 @@ export function TeacherProfile() {
                 href={`https://wa.me/${teacher.phone ? teacher.phone.replace(/\D/g, '') : '5491133445566'}?text=Hola%20${encodeURIComponent(teacher.name)}!%20Vi%20tu%20perfil%20en%20Omia%20y%20me%20gustaría%20hacerte%20una%20consulta%20por%20tus%20clases.%20Gracias!`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2.5 py-3.5 px-4 bg-[#25D366] hover:bg-[#20ba5a] text-white rounded-full font-semibold transition-all text-sm shadow-sm active:scale-98 cursor-pointer"
+                className="flex items-center justify-center gap-2.5 py-3.5 px-4 bg-[#25D366] hover:bg-[#20ba5a] text-white rounded-full font-semibold transition text-sm shadow-sm active:scale-98 cursor-pointer"
               >
                 <Phone className="w-4 h-4" />
                 <span className="truncate">WhatsApp ({teacher.phone || "+54 9 11 3344-5566"})</span>
@@ -447,10 +448,11 @@ export function TeacherProfile() {
           className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex items-center justify-center p-4 select-none animate-in fade-in duration-300"
           onClick={() => setActivePhotoIndex(null)}
         >
+          <ModalA11y onClose={() => setActivePhotoIndex(null)} label="Galería de fotos" />
           {/* Botón cerrar */}
           <button 
             onClick={() => setActivePhotoIndex(null)}
-            className="absolute top-6 right-6 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 p-2.5 rounded-full transition-all cursor-pointer"
+            className="absolute top-6 right-6 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 p-2.5 rounded-full transition cursor-pointer"
           >
             <X className="w-6 h-6" />
           </button>
@@ -458,8 +460,9 @@ export function TeacherProfile() {
           {/* Botón Anterior */}
           {galleryImages.length > 1 && (
             <button 
-              onClick={handlePrevPhoto}
-              className="absolute left-6 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 p-3 rounded-full transition-all cursor-pointer"
+              aria-label="Foto anterior"
+            onClick={handlePrevPhoto}
+              className="absolute left-6 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 p-3 rounded-full transition cursor-pointer"
             >
               <ChevronLeft className="w-8 h-8" />
             </button>
@@ -486,8 +489,9 @@ export function TeacherProfile() {
           {/* Botón Siguiente */}
           {galleryImages.length > 1 && (
             <button 
-              onClick={handleNextPhoto}
-              className="absolute right-6 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 p-3 rounded-full transition-all cursor-pointer"
+              aria-label="Foto siguiente"
+            onClick={handleNextPhoto}
+              className="absolute right-6 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 p-3 rounded-full transition cursor-pointer"
             >
               <ChevronRight className="w-8 h-8" />
             </button>

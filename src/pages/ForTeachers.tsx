@@ -97,7 +97,7 @@ export function ForTeachers() {
           <button
             onClick={handleSubscribe}
             disabled={isPaying}
-            className="w-full bg-[#009EE3] hover:bg-[#008CD0] text-white py-4 rounded-full font-bold transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+            className="w-full bg-[#009EE3] hover:bg-[#008CD0] text-white py-4 rounded-full font-bold transition shadow-md hover:shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
           >
             {isPaying ? (
               <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-sm animate-spin" />

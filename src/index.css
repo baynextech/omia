@@ -4,6 +4,9 @@
 @theme {
   --color-bosque: #1C3829;
   --color-bosque-profundo: #0D1F14;
+  /* Dos tintes de Bosque para superficies y líneas sobre fondo oscuro (planes, pie). */
+  --color-bosque-claro: #243D2D;
+  --color-bosque-linea: #2A4D38;
   --color-lino: #F4EFE4;
   --color-lino-oscuro: #E8E0D0;
   --color-salvia: #8CAE99;
@@ -17,8 +20,63 @@
   --font-sans: "Onest", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
 
   --radius-tarjeta: 12px;
+
+  /* Una sola curva para todo lo que entra o responde: arranca rápido y frena suave. */
+  --ease-omia: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* Gloock solo existe en peso 400 y sin cursiva: que el navegador no invente negritas. */
-html { font-synthesis-weight: none; }
+html { font-synthesis-weight: none; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
 body { background-color: var(--color-lino); color: var(--color-bosque); font-family: var(--font-sans); }
+
+@layer base {
+  /* Títulos sin palabras huérfanas; párrafos sin viudas. */
+  h1, h2, h3 { text-wrap: balance; }
+  p, li { text-wrap: pretty; }
+
+  ::selection { background-color: var(--color-salvia-claro); color: var(--color-bosque-profundo); }
+
+  /* Foco visible para teclado en todo el sitio: doble anillo, se lee sobre Lino y sobre Bosque. */
+  :focus-visible {
+    outline: 2px solid var(--color-bosque);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px var(--color-lino);
+  }
+  /* Los campos de texto llevan un solo anillo. */
+  input:focus-visible, textarea:focus-visible, select:focus-visible { box-shadow: none; }
+
+  /* Todo botón responde al clic (las utilidades active:scale-* lo pisan donde ya existen). */
+  button:not(:disabled):active { scale: 0.97; }
+}
+
+/* Enlace para saltar el menú con teclado. */
+.saltar-contenido {
+  position: fixed; left: 16px; top: 12px; z-index: 100;
+  padding: 10px 16px; border-radius: 9999px;
+  background: var(--color-bosque); color: var(--color-lino);
+  font-size: 14px; font-weight: 600;
+  transform: translateY(-300%);
+}
+.saltar-contenido:focus-visible { transform: translateY(0); }
+
+/* Subrayado que se dibuja en los enlaces del menú y del pie; queda fijo en la página actual. */
+.enlace-trazo { position: relative; }
+.enlace-trazo::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: -4px; height: 1px;
+  background: currentColor; transform: scaleX(0); transform-origin: left;
+  transition: transform 260ms var(--ease-omia);
+}
+.enlace-trazo[aria-current="page"]::after { transform: scaleX(1); }
+@media (hover: hover) and (pointer: fine) {
+  .enlace-trazo:hover::after { transform: scaleX(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  button:not(:disabled):active { scale: 1; }
+}

@@ -1,3 +1,4 @@
+import { ModalA11y } from "./ModalA11y";
 import { useState } from "react";
 import { X, ChevronLeft, ChevronRight, Calendar as CalendarIcon } from "lucide-react";
 import { Teacher } from "./TeacherCard";
@@ -83,9 +84,11 @@ export function BookingModal({ teacher, onClose, onSuccess }: BookingModalProps)
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
+      <ModalA11y onClose={onClose} label={`Reservar una clase con ${teacher.name}`} />
       <div className="relative w-full max-w-md bg-white rounded-3xl p-8 shadow-2xl animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
-        <button 
+        <button
           onClick={onClose}
+          aria-label="Cerrar"
           className="absolute top-6 right-6 text-musgo hover:text-bosque transition-colors p-2 rounded-full hover:bg-black/5"
         >
           <X className="w-5 h-5" />
@@ -120,13 +123,13 @@ export function BookingModal({ teacher, onClose, onSuccess }: BookingModalProps)
             </label>
             <div className="bg-lino border border-lino-oscuro rounded-2xl p-4">
               <div className="flex justify-between items-center mb-4">
-                <button type="button" onClick={handlePrevMonth} className="p-1 hover:bg-lino-oscuro rounded-full transition-colors text-musgo">
+                <button type="button" onClick={handlePrevMonth} aria-label="Mes anterior" className="p-1 hover:bg-lino-oscuro rounded-full transition-colors text-musgo">
                   <ChevronLeft className="w-5 h-5" />
                 </button>
                 <div className="font-medium text-bosque">
                   {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
                 </div>
-                <button type="button" onClick={handleNextMonth} className="p-1 hover:bg-lino-oscuro rounded-full transition-colors text-musgo">
+                <button type="button" onClick={handleNextMonth} aria-label="Mes siguiente" className="p-1 hover:bg-lino-oscuro rounded-full transition-colors text-musgo">
                   <ChevronRight className="w-5 h-5" />
                 </button>
               </div>
@@ -155,7 +158,7 @@ export function BookingModal({ teacher, onClose, onSuccess }: BookingModalProps)
                       type="button"
                       disabled={isPast}
                       onClick={() => handleDateSelect(day)}
-                      className={`h-8 w-full flex items-center justify-center rounded-sm text-sm transition-all
+                      className={`h-8 w-full flex items-center justify-center rounded-sm text-sm transition
                         ${isPast ? "text-lino-oscuro cursor-not-allowed" : "hover:bg-lino-oscuro"}
                         ${isSelected ? "bg-bosque text-lino hover:bg-bosque-profundo" : "text-bosque"}
                       `}
@@ -176,7 +179,7 @@ export function BookingModal({ teacher, onClose, onSuccess }: BookingModalProps)
                   key={t}
                   type="button"
                   onClick={() => setTime(t)}
-                  className={`py-2 px-3 rounded-xl border text-sm font-medium transition-all ${
+                  className={`py-2 px-3 rounded-xl border text-sm font-medium transition ${
                     time === t 
                       ? "bg-bosque border-salvia text-lino shadow-sm" 
                       : "bg-lino border-lino-oscuro text-musgo hover:border-salvia"

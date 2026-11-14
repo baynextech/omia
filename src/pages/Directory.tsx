@@ -83,12 +83,12 @@ export function Directory() {
       <div className="flex flex-col gap-6 mb-8">
         <form onSubmit={handleSmartSearch} className="relative flex-grow">
           <Sparkles className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-salvia-oscuro" />
-          <input 
+          <input aria-label="Preguntale a la IA (ej. 'busco clases de Pilates Reformer en Recoleta' o 'Yoga suave')" 
             type="text"
             placeholder="Preguntale a la IA (ej. 'busco clases de Pilates Reformer en Recoleta' o 'Yoga suave')"
             value={smartQuery}
             onChange={(e) => setSmartQuery(e.target.value)}
-            className="w-full bg-lino border-2 border-lino-oscuro rounded-sm pl-14 pr-32 py-5 outline-none focus:border-salvia focus:ring-1 focus:ring-salvia transition-all text-lg shadow-sm"
+            className="w-full bg-lino border-2 border-lino-oscuro rounded-sm pl-14 pr-32 py-5 outline-none focus:border-salvia focus:ring-1 focus:ring-salvia transition text-lg shadow-sm"
           />
           <button 
             type="submit" 

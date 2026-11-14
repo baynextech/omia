@@ -15,11 +15,14 @@ import { AuthProvider } from "./contexts/AuthContext";
 import { ContentProvider } from "./contexts/ContentContext";
 import { Terms, Privacy, About, Contact, Regret, NotFound } from "./pages/Legal";
 import { News, Article } from "./pages/News";
+import { MotionConfig } from "motion/react";
 
 export default function App() {
   return (
     <AuthProvider>
       <ContentProvider>
+      {/* Quien pidió menos movimiento en su sistema ve los cambios sin desplazamientos. */}
+      <MotionConfig reducedMotion="user">
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<RootLayout />}>
@@ -49,6 +52,7 @@ export default function App() {
           {import.meta.env.DEV && <Route path="checkout-simulator" element={<CheckoutSimulator />} />}
         </Routes>
       </BrowserRouter>
+      </MotionConfig>
       </ContentProvider>
     </AuthProvider>
   );

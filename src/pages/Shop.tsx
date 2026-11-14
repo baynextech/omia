@@ -1,3 +1,4 @@
+import { ModalA11y } from "../components/ModalA11y";
 import { useContent, Rich } from "../contexts/ContentContext";
 import { useState, useEffect } from "react";
 import { apiFetch } from "../lib/api";
@@ -191,7 +192,7 @@ export function Shop() {
         <div className="relative shrink-0">
           <button 
             onClick={() => setIsCartOpen(true)}
-            className="bg-bosque hover:bg-bosque-profundo text-lino px-7 py-4 rounded-full font-medium transition-all shadow-md hover:shadow-lg flex items-center gap-3 cursor-pointer group"
+            className="bg-bosque hover:bg-bosque-profundo text-lino px-7 py-4 rounded-full font-medium transition shadow-md hover:shadow-lg flex items-center gap-3 cursor-pointer group"
           >
             <ShoppingBag className="w-5 h-5 text-salvia-oscuro group-hover:scale-110 transition-transform" />
             <span>Mi Carrito</span>
@@ -225,12 +226,12 @@ export function Shop() {
         {/* Search bar */}
         <div className="relative">
           <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-musgo" />
-          <input 
+          <input aria-label="Buscar productos (ej. 'mat 15mm', 'aro pilates', 'bloque corcho')..." 
             type="text"
             placeholder="Buscar productos (ej. 'mat 15mm', 'aro pilates', 'bloque corcho')..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-lino border border-lino-oscuro rounded-sm pl-13 pr-6 py-4 outline-none focus:border-salvia focus:ring-1 focus:ring-salvia transition-all text-bosque text-base shadow-sm"
+            className="w-full bg-lino border border-lino-oscuro rounded-sm pl-13 pr-6 py-4 outline-none focus:border-salvia focus:ring-1 focus:ring-salvia transition text-bosque text-base shadow-sm"
           />
         </div>
 
@@ -243,7 +244,7 @@ export function Shop() {
               <button
                 key={disc}
                 onClick={() => setSelectedDiscipline(disc)}
-                className={`px-4 py-2 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                className={`px-4 py-2 rounded-full text-xs font-semibold transition cursor-pointer ${
                   selectedDiscipline === disc 
                     ? "bg-bosque text-lino shadow-sm" 
                     : "text-musgo hover:text-bosque hover:bg-neutral-100"
@@ -260,7 +261,7 @@ export function Shop() {
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-4 py-2.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer border ${
+                className={`px-4 py-2.5 rounded-full text-xs font-semibold whitespace-nowrap transition cursor-pointer border ${
                   selectedCategory === cat 
                     ? "bg-bosque text-lino border-salvia shadow-sm" 
                     : "bg-lino text-musgo border-lino-oscuro hover:border-salvia"
@@ -288,7 +289,7 @@ export function Shop() {
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.3 }}
                 key={product.id}
-                className="bg-white border border-lino-oscuro rounded-3xl overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col group"
+                className="bg-white border border-lino-oscuro rounded-3xl overflow-hidden hover:shadow-xl transition duration-300 flex flex-col group"
               >
                 {/* Product Image & Badges */}
                 <div className="relative h-64 overflow-hidden bg-[#F8F6F0]">
@@ -314,7 +315,7 @@ export function Shop() {
                   {/* Quick View Button Overlay */}
                   <button
                     onClick={() => setQuickViewProduct(product)}
-                    className="absolute inset-x-6 bottom-4 bg-white/90 hover:bg-white text-bosque py-2.5 rounded-full text-xs font-bold opacity-0 group-hover:opacity-100 transition-all shadow-md backdrop-blur-sm cursor-pointer"
+                    className="absolute inset-x-6 bottom-4 bg-white/90 hover:bg-white text-bosque py-2.5 rounded-full text-xs font-bold opacity-0 group-hover:opacity-100 transition shadow-md backdrop-blur-sm cursor-pointer"
                   >
                     Vista Rápida
                   </button>
@@ -343,7 +344,7 @@ export function Shop() {
 
                     <button
                       onClick={() => addToCart(product)}
-                      className="bg-bosque hover:bg-bosque-profundo text-lino px-5 py-2.5 rounded-full text-xs font-semibold transition-all flex items-center gap-2 cursor-pointer shadow-sm hover:scale-105 active:scale-95"
+                      className="bg-bosque hover:bg-bosque-profundo text-lino px-5 py-2.5 rounded-full text-xs font-semibold transition flex items-center gap-2 cursor-pointer shadow-sm hover:scale-105 active:scale-95"
                     >
                       <Plus className="w-4 h-4 text-salvia-oscuro" />
                       <span>Agregar</span>
@@ -366,6 +367,7 @@ export function Shop() {
       <AnimatePresence>
         {quickViewProduct && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+            <ModalA11y onClose={() => setQuickViewProduct(null)} label="Vista rápida del producto" />
             <motion.div 
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -374,7 +376,7 @@ export function Shop() {
             >
               <button 
                 onClick={() => setQuickViewProduct(null)}
-                className="absolute top-4 right-4 z-10 bg-white/80 hover:bg-white p-2 rounded-full text-bosque transition-all cursor-pointer shadow-md"
+                className="absolute top-4 right-4 z-10 bg-white/80 hover:bg-white p-2 rounded-full text-bosque transition cursor-pointer shadow-md"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -428,7 +430,7 @@ export function Shop() {
                         addToCart(quickViewProduct);
                         setQuickViewProduct(null);
                       }}
-                      className="bg-bosque hover:bg-bosque-profundo text-lino px-6 py-3 rounded-full text-sm font-semibold transition-all shadow-md flex items-center gap-2 cursor-pointer"
+                      className="bg-bosque hover:bg-bosque-profundo text-lino px-6 py-3 rounded-full text-sm font-semibold transition shadow-md flex items-center gap-2 cursor-pointer"
                     >
                       <ShoppingBag className="w-4 h-4" />
                       <span>Agregar al Carrito</span>
@@ -445,6 +447,7 @@ export function Shop() {
       <AnimatePresence>
         {isCartOpen && (
           <div className="fixed inset-0 z-50 flex justify-end bg-black/50 backdrop-blur-xs">
+            <ModalA11y onClose={() => setIsCartOpen(false)} label="Carrito de compras" />
             <motion.div 
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
@@ -460,7 +463,7 @@ export function Shop() {
                 </div>
                 <button 
                   onClick={() => setIsCartOpen(false)}
-                  className="p-2 text-musgo hover:text-bosque hover:bg-neutral-100 rounded-full transition-all cursor-pointer"
+                  className="p-2 text-musgo hover:text-bosque hover:bg-neutral-100 rounded-full transition cursor-pointer"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -554,7 +557,7 @@ export function Shop() {
                     <button
                       onClick={handleCheckoutMercadoPago}
                       disabled={isProcessingPayment}
-                      className="w-full bg-bosque hover:bg-bosque-profundo text-lino py-3.5 rounded-full font-bold text-sm transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+                      className="w-full bg-bosque hover:bg-bosque-profundo text-lino py-3.5 rounded-full font-bold text-sm transition shadow-md flex items-center justify-center gap-2 cursor-pointer"
                     >
                       <CreditCard className="w-4 h-4" />
                       <span>{isProcessingPayment ? "Procesando..." : "Comprar con Mercado Pago"}</span>
@@ -562,7 +565,7 @@ export function Shop() {
 
                     {t("contact.whatsapp").replace(/\D/g, "") && <button
                       onClick={handleWhatsAppCheckout}
-                      className="w-full bg-[#25D366] hover:bg-[#20bd5a] text-white py-3.5 rounded-full font-bold text-sm transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+                      className="w-full bg-[#25D366] hover:bg-[#20bd5a] text-white py-3.5 rounded-full font-bold text-sm transition shadow-md flex items-center justify-center gap-2 cursor-pointer"
                     >
                       <PhoneCall className="w-4 h-4" />
                       <span>Pedir por WhatsApp Directo</span>

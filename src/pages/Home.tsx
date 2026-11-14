@@ -2,7 +2,8 @@ import { Photo } from "../components/Photo";
 import { useState, useEffect } from "react";
 import { apiFetch } from "../lib/api";
 import { usePlans, startSubscription } from "../hooks/usePlans";
-import { MapPin, Check, ArrowRight, Star, Heart } from "lucide-react";
+import { MapPin, Check, ArrowRight, Star } from "lucide-react";
+import { Link } from "react-router-dom";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Hero } from "../components/Hero";
 import { MapZones } from "../components/MapZones";
@@ -34,6 +35,7 @@ export function Home() {
   const { formatPrice } = usePlans();
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState<"login" | "register">("register");
+  const [planError, setPlanError] = useState("");
 
   const locations = ["Todos", "San Telmo", "Palermo", "Belgrano", "Recoleta"];
 
@@ -50,8 +52,9 @@ export function Home() {
       setIsAuthOpen(true);
       return;
     }
+    setPlanError("");
     const error = await startSubscription(planId);
-    if (error) alert(error);
+    if (error) setPlanError(error);
   };
 
   return (
@@ -67,7 +70,7 @@ export function Home() {
       <Hero />
 
       {/* Intro strip — editorial break */}
-      <section className="bg-lino py-20 px-6 border-b border-[#E0D8CC]">
+      <section className="bg-lino py-20 px-6 border-b border-lino-oscuro">
         <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-12">
           {pairs("home.intro").map(({ a: title, b: desc }) => (
             <motion.div
@@ -102,7 +105,7 @@ export function Home() {
         >
           <div>
             <p className="text-xs font-bold tracking-widest text-salvia-oscuro uppercase mb-3">{t("home.teachers.eyebrow")}</p>
-            <h2 className="text-4xl md:text-5xl font-serif font-light text-bosque leading-tight">
+            <h2 className="text-4xl md:text-5xl font-serif text-bosque leading-tight">
               <Rich text={t("home.teachers.title")} />
             </h2>
           </div>
@@ -110,18 +113,18 @@ export function Home() {
             <p className="text-musgo text-sm max-w-xs leading-relaxed hidden md:block">
               {t("home.teachers.desc")}
             </p>
-            <a href="/directorio" className="shrink-0 inline-flex items-center gap-2 text-sm font-semibold text-bosque hover:text-salvia-oscuro transition-colors whitespace-nowrap">
-              Ver todos <ArrowRight className="w-4 h-4" />
-            </a>
+            <Link to="/directorio" className="group shrink-0 inline-flex items-center gap-2 text-sm font-semibold text-bosque hover:text-salvia-oscuro transition-colors whitespace-nowrap">
+              Ver todos <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300 ease-(--ease-omia)" aria-hidden="true" />
+            </Link>
           </div>
         </motion.div>
 
         {teachers.length === 0 && (
           <div className="max-w-7xl mx-auto px-6">
-            <div className="border border-dashed border-salvia/60 rounded-xl p-10 text-center bg-white/40">
-              <p className="font-serif text-2xl text-bosque mb-2">Estamos sumando a los primeros profes de tu zona</p>
+            <div className="border border-dashed border-salvia rounded-xl px-6 py-14 text-center bg-white/40">
+              <p className="font-serif text-2xl md:text-3xl text-bosque mb-3">Estamos sumando a los primeros profes de tu zona</p>
               <p className="text-musgo text-sm mb-6">¿Das clases de yoga o pilates? Creá tu ficha gratis y aparecé acá.</p>
-              <button onClick={() => { setAuthMode("register"); setIsAuthOpen(true); }} className="inline-block bg-bosque hover:bg-bosque-profundo text-lino px-7 py-3 text-sm font-semibold transition-colors" style={{ borderRadius: 5 }}>
+              <button onClick={() => { setAuthMode("register"); setIsAuthOpen(true); }} className="inline-block bg-bosque hover:bg-bosque-profundo text-lino px-7 py-3 rounded-full text-sm font-semibold transition-colors">
                 Crear mi ficha
               </button>
             </div>
@@ -143,22 +146,19 @@ export function Home() {
                   key={t.id}
                   className="group relative overflow-hidden bg-bosque cursor-pointer shrink-0 flex flex-col"
                   style={{ width: 300, borderRadius: 5 }}
-                  whileHover={{ y: -8, boxShadow: "0 24px 48px rgba(0,0,0,0.3)" }}
+                  whileHover={{ y: -4, boxShadow: "0 18px 36px rgba(13,31,20,0.28)" }}
                   transition={{ duration: 0.25, ease: "easeOut" }}
                 >
                   <div className="relative overflow-hidden" style={{ height: 360 }}>
                     <Photo
                       src={t.image}
                       name={t.name}
-                      className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700"
+                      className="w-full h-full object-cover object-top group-hover:scale-[1.03] transition-transform duration-700 ease-(--ease-omia)"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-bosque via-transparent to-transparent" />
                     <span className="absolute top-3 left-3 text-[10px] font-bold px-2.5 py-1 uppercase tracking-wider bg-bosque/80 backdrop-blur-sm text-salvia-claro border border-salvia/30" style={{ borderRadius: 3 }}>
                       {t.discipline}
                     </span>
-                    <button className="absolute top-3 right-3 bg-bosque/70 backdrop-blur-sm p-2 opacity-0 group-hover:opacity-100 transition-all duration-200" style={{ borderRadius: 3 }}>
-                      <Heart className="w-3.5 h-3.5 text-white/80" />
-                    </button>
                     <div className="absolute bottom-0 left-0 right-0 p-4">
                       <div className="flex items-end justify-between gap-2">
                         <div>
@@ -177,25 +177,25 @@ export function Home() {
                       <div className="flex items-center gap-1 text-salvia text-xs">
                         <MapPin className="w-3 h-3" />
                         <span>{t.location}</span>
-                        <span className="opacity-40">·</span>
+                        <span className="opacity-40" aria-hidden="true">·</span>
                         <span>{t.reviews} reseñas</span>
                       </div>
                       <span className="text-salvia-claro text-xs font-bold">{t.price}</span>
                     </div>
-                    <p className="text-[#7a9d85] text-xs leading-relaxed line-clamp-2">{t.bio}</p>
+                    <p className="text-salvia text-xs leading-relaxed line-clamp-2">{t.bio}</p>
                     <div className="flex gap-1.5 flex-wrap">
                       {(t.availableDays || []).map(d => (
-                        <span key={d} className="px-2 py-0.5 bg-[#2a4d38] text-salvia text-[10px] font-medium" style={{ borderRadius: 3 }}>{d}</span>
+                        <span key={d} className="px-2 py-0.5 bg-bosque-linea text-salvia text-[10px] font-medium" style={{ borderRadius: 3 }}>{d}</span>
                       ))}
                     </div>
                   </div>
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 bg-bosque/85 backdrop-blur-sm" style={{ borderRadius: 5 }}>
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-300 bg-bosque/90" style={{ borderRadius: 5 }}>
                     <div className="text-center px-6">
                       <p className="text-white font-serif text-xl mb-1">{t.name}</p>
                       <p className="text-salvia text-xs mb-6">{t.specialty}</p>
-                      <a href={`/profesor/${t.id}`} className="inline-block bg-bosque hover:bg-bosque-profundo text-lino px-7 py-3 text-sm font-semibold transition-colors" style={{ borderRadius: 5 }}>
-                        Ver Perfil
-                      </a>
+                      <Link to={`/profesor/${t.id}`} className="inline-block bg-lino hover:bg-white text-bosque px-7 py-3 rounded-full text-sm font-semibold transition-colors">
+                        Ver perfil
+                      </Link>
                     </div>
                   </div>
                 </motion.div>
@@ -215,7 +215,7 @@ export function Home() {
             viewport={{ once: true, margin: "-80px" }}
           >
             <p className="text-xs font-bold tracking-widest text-salvia uppercase mb-4">{t("home.plans.eyebrow")}</p>
-            <h2 className="text-4xl md:text-5xl font-serif font-light text-lino mb-5 leading-tight">
+            <h2 className="text-4xl md:text-5xl font-serif text-lino mb-5 leading-tight">
               <Rich text={t("home.plans.title")} em="text-salvia-claro" />
             </h2>
             <p className="text-salvia max-w-2xl mx-auto text-sm leading-relaxed">
@@ -231,18 +231,18 @@ export function Home() {
             viewport={{ once: true, margin: "-60px" }}
           >
             {/* Plan Inicial */}
-            <motion.div variants={fadeUp} className="bg-[#243d2d] border border-[#2a4d38] rounded-xl p-8 flex flex-col justify-between hover:-translate-y-1 transition-all duration-200">
+            <motion.div variants={fadeUp} className="bg-bosque-claro border border-bosque-linea rounded-xl p-8 flex flex-col justify-between hover:-translate-y-1 transition-transform duration-300 ease-(--ease-omia)">
               <div>
-                <h3 className="text-lg font-serif font-medium text-lino mb-2">{t("plan.inicial.name")}</h3>
-                <p className="text-salvia text-xs mb-6 leading-relaxed">{t("plan.inicial.desc")}</p>
+                <h3 className="text-xl font-serif text-lino mb-2">{t("plan.inicial.name")}</h3>
+                <p className="text-salvia text-sm mb-6 leading-relaxed">{t("plan.inicial.desc")}</p>
                 <div className="flex items-baseline mb-8">
-                  <span className="text-4xl font-light text-salvia-claro font-mono">{formatPrice("inicial")}</span>
+                  <span className="text-4xl font-serif tabular-nums text-salvia-claro">{formatPrice("inicial")}</span>
                   <span className="text-salvia ml-2 text-xs">/ mes</span>
                 </div>
                 <ul className="space-y-3 mb-8">
                   {list("plan.inicial.features").map(f => (
                     <li key={f} className="flex items-start gap-2.5 text-sm text-salvia">
-                      <Check className="w-4 h-4 text-salvia-oscuro shrink-0 mt-0.5" />
+                      <Check className="w-4 h-4 text-salvia shrink-0 mt-0.5" aria-hidden="true" />
                       <span>{f}</span>
                     </li>
                   ))}
@@ -250,28 +250,28 @@ export function Home() {
               </div>
               <button
                 onClick={() => handleSubscribe("inicial")}
-                className="w-full bg-transparent hover:bg-salvia active:scale-[0.97] text-salvia hover:text-white border border-[#3a6048] hover:border-salvia py-3 rounded-full font-medium transition-all text-sm"
+                className="w-full bg-transparent hover:bg-salvia active:scale-[0.97] text-salvia hover:text-bosque border border-bosque-linea hover:border-salvia py-3 rounded-full font-medium transition text-sm"
               >
                 {t("plan.inicial.cta")}
               </button>
             </motion.div>
 
             {/* Plan Destacado */}
-            <motion.div variants={fadeUp} className="bg-salvia border border-salvia rounded-xl p-8 flex flex-col justify-between hover:-translate-y-1 transition-all duration-200 relative shadow-lg">
+            <motion.div variants={fadeUp} className="bg-salvia border border-salvia rounded-xl p-8 flex flex-col justify-between hover:-translate-y-1 transition-transform duration-300 ease-(--ease-omia) relative shadow-lg">
               {t("plan.destacado.badge") && <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-lino text-bosque px-4 py-1 rounded-sm text-[10px] font-bold tracking-widest uppercase">
                 {t("plan.destacado.badge")}
               </span>}
               <div>
-                <h3 className="text-lg font-serif font-medium text-bosque mb-2">{t("plan.destacado.name")}</h3>
-                <p className="text-bosque/80 text-xs mb-6 leading-relaxed">{t("plan.destacado.desc")}</p>
+                <h3 className="text-xl font-serif text-bosque mb-2">{t("plan.destacado.name")}</h3>
+                <p className="text-bosque/80 text-sm mb-6 leading-relaxed">{t("plan.destacado.desc")}</p>
                 <div className="flex items-baseline mb-8">
-                  <span className="text-4xl font-light text-bosque font-mono">{formatPrice("destacado")}</span>
+                  <span className="text-4xl font-serif tabular-nums text-bosque">{formatPrice("destacado")}</span>
                   <span className="text-bosque/80 ml-2 text-xs">/ mes</span>
                 </div>
                 <ul className="space-y-3 mb-8">
                   {list("plan.destacado.features").map(f => (
                     <li key={f} className="flex items-start gap-2.5 text-sm text-bosque/80">
-                      <Check className="w-4 h-4 text-bosque shrink-0 mt-0.5" />
+                      <Check className="w-4 h-4 text-bosque shrink-0 mt-0.5" aria-hidden="true" />
                       <span>{f}</span>
                     </li>
                   ))}
@@ -279,25 +279,25 @@ export function Home() {
               </div>
               <button
                 onClick={() => handleSubscribe("destacado")}
-                className="w-full bg-bosque hover:bg-bosque-profundo active:scale-[0.97] text-lino py-3 rounded-full font-semibold transition-all text-sm"
+                className="w-full bg-bosque hover:bg-bosque-profundo active:scale-[0.97] text-lino py-3 rounded-full font-semibold transition text-sm"
               >
                 {t("plan.destacado.cta")}
               </button>
             </motion.div>
 
             {/* Plan Institutos */}
-            <motion.div variants={fadeUp} className="bg-[#243d2d] border border-[#2a4d38] rounded-xl p-8 flex flex-col justify-between hover:-translate-y-1 transition-all duration-200">
+            <motion.div variants={fadeUp} className="bg-bosque-claro border border-bosque-linea rounded-xl p-8 flex flex-col justify-between hover:-translate-y-1 transition-transform duration-300 ease-(--ease-omia)">
               <div>
-                <h3 className="text-lg font-serif font-medium text-lino mb-2">{t("plan.institucional.name")}</h3>
-                <p className="text-salvia text-xs mb-6 leading-relaxed">{t("plan.institucional.desc")}</p>
+                <h3 className="text-xl font-serif text-lino mb-2">{t("plan.institucional.name")}</h3>
+                <p className="text-salvia text-sm mb-6 leading-relaxed">{t("plan.institucional.desc")}</p>
                 <div className="flex items-baseline mb-8">
-                  <span className="text-4xl font-light text-salvia-claro font-mono">{formatPrice("institucional")}</span>
+                  <span className="text-4xl font-serif tabular-nums text-salvia-claro">{formatPrice("institucional")}</span>
                   <span className="text-salvia ml-2 text-xs">/ mes</span>
                 </div>
                 <ul className="space-y-3 mb-8">
                   {list("plan.institucional.features").map(f => (
                     <li key={f} className="flex items-start gap-2.5 text-sm text-salvia">
-                      <Check className="w-4 h-4 text-salvia-oscuro shrink-0 mt-0.5" />
+                      <Check className="w-4 h-4 text-salvia shrink-0 mt-0.5" aria-hidden="true" />
                       <span>{f}</span>
                     </li>
                   ))}
@@ -305,17 +305,22 @@ export function Home() {
               </div>
               <button
                 onClick={() => handleSubscribe("institucional")}
-                className="w-full bg-transparent hover:bg-salvia active:scale-[0.97] text-salvia hover:text-white border border-[#3a6048] hover:border-salvia py-3 rounded-full font-medium transition-all text-sm"
+                className="w-full bg-transparent hover:bg-salvia active:scale-[0.97] text-salvia hover:text-bosque border border-bosque-linea hover:border-salvia py-3 rounded-full font-medium transition text-sm"
               >
                 {t("plan.institucional.cta")}
               </button>
             </motion.div>
           </motion.div>
+          {planError && (
+            <p role="alert" className="mt-8 mx-auto max-w-xl text-center text-sm text-lino bg-bosque-claro border border-arcilla rounded-xl px-5 py-4">
+              {planError}
+            </p>
+          )}
         </div>
       </section>
 
       {/* CTA — warm cream */}
-      <section className="bg-lino py-28 px-6 text-center border-b border-[#E0D8CC]">
+      <section className="bg-lino py-28 px-6 text-center border-b border-lino-oscuro">
         <motion.div
           variants={fadeUp}
           initial="hidden"
@@ -324,7 +329,7 @@ export function Home() {
           className="max-w-3xl mx-auto"
         >
           <p className="text-xs font-bold tracking-widest text-salvia-oscuro uppercase mb-5">{t("home.cta.eyebrow")}</p>
-          <h2 className="text-4xl md:text-6xl font-serif font-light text-bosque leading-tight mb-6">
+          <h2 className="text-4xl md:text-6xl font-serif text-bosque leading-tight mb-6">
             <Rich text={t("home.cta.title")} />
           </h2>
           <p className="text-musgo max-w-lg mx-auto mb-10 text-sm leading-relaxed">
@@ -332,10 +337,10 @@ export function Home() {
           </p>
           <button
             onClick={() => { setAuthMode("register"); setIsAuthOpen(true); }}
-            className="inline-flex items-center gap-3 bg-bosque hover:bg-bosque-profundo active:scale-[0.97] text-lino px-8 py-4 rounded-full font-semibold transition-all text-sm"
+            className="group inline-flex items-center gap-3 bg-bosque hover:bg-bosque-profundo active:scale-[0.97] text-lino px-8 py-4 rounded-full font-semibold transition text-sm"
           >
             {t("home.cta.button")}
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300 ease-(--ease-omia)" aria-hidden="true" />
           </button>
         </motion.div>
       </section>
